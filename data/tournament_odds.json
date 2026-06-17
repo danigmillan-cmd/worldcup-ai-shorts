@@ -1,0 +1,343 @@
+{
+  "signature": "df06b94d6df5a383bbf6492eda2ff60d7cc4465fc5b3abf7da6ca8e66c071ad1",
+  "computed_at": "2026-06-16T14:55:20.743977+00:00",
+  "n_sims": 10000,
+  "odds": {
+    "SPAIN": {
+      "title_pct": 18.7,
+      "final_pct": 30.0,
+      "reached_r16_pct": 87.9,
+      "reached_qf_pct": 65.2,
+      "reached_sf_pct": 46.6
+    },
+    "TURKEY": {
+      "title_pct": 0.7,
+      "final_pct": 2.1,
+      "reached_r16_pct": 33.8,
+      "reached_qf_pct": 10.7,
+      "reached_sf_pct": 5.2
+    },
+    "AUSTRALIA": {
+      "title_pct": 0.6,
+      "final_pct": 1.9,
+      "reached_r16_pct": 31.0,
+      "reached_qf_pct": 9.9,
+      "reached_sf_pct": 4.6
+    },
+    "DR CONGO": {
+      "title_pct": 0.0,
+      "final_pct": 0.1,
+      "reached_r16_pct": 7.5,
+      "reached_qf_pct": 2.5,
+      "reached_sf_pct": 0.7
+    },
+    "ARGENTINA": {
+      "title_pct": 16.8,
+      "final_pct": 27.7,
+      "reached_r16_pct": 85.7,
+      "reached_qf_pct": 63.2,
+      "reached_sf_pct": 43.3
+    },
+    "JAPAN": {
+      "title_pct": 1.8,
+      "final_pct": 4.6,
+      "reached_r16_pct": 46.1,
+      "reached_qf_pct": 23.4,
+      "reached_sf_pct": 10.3
+    },
+    "ALGERIA": {
+      "title_pct": 0.3,
+      "final_pct": 0.8,
+      "reached_r16_pct": 21.7,
+      "reached_qf_pct": 8.3,
+      "reached_sf_pct": 2.6
+    },
+    "TUNISIA": {
+      "title_pct": 0.0,
+      "final_pct": 0.0,
+      "reached_r16_pct": 3.7,
+      "reached_qf_pct": 0.9,
+      "reached_sf_pct": 0.2
+    },
+    "FRANCE": {
+      "title_pct": 10.5,
+      "final_pct": 19.6,
+      "reached_r16_pct": 79.4,
+      "reached_qf_pct": 54.0,
+      "reached_sf_pct": 34.6
+    },
+    "BELGIUM": {
+      "title_pct": 1.3,
+      "final_pct": 3.2,
+      "reached_r16_pct": 43.1,
+      "reached_qf_pct": 17.2,
+      "reached_sf_pct": 7.7
+    },
+    "IRAN": {
+      "title_pct": 0.2,
+      "final_pct": 0.7,
+      "reached_r16_pct": 21.3,
+      "reached_qf_pct": 7.9,
+      "reached_sf_pct": 2.2
+    },
+    "IRAQ": {
+      "title_pct": 0.0,
+      "final_pct": 0.0,
+      "reached_r16_pct": 5.6,
+      "reached_qf_pct": 1.5,
+      "reached_sf_pct": 0.3
+    },
+    "ENGLAND": {
+      "title_pct": 7.0,
+      "final_pct": 13.8,
+      "reached_r16_pct": 74.0,
+      "reached_qf_pct": 45.6,
+      "reached_sf_pct": 26.9
+    },
+    "URUGUAY": {
+      "title_pct": 1.0,
+      "final_pct": 2.7,
+      "reached_r16_pct": 40.0,
+      "reached_qf_pct": 15.1,
+      "reached_sf_pct": 7.2
+    },
+    "SOUTH KOREA": {
+      "title_pct": 0.4,
+      "final_pct": 1.1,
+      "reached_r16_pct": 25.7,
+      "reached_qf_pct": 8.5,
+      "reached_sf_pct": 2.9
+    },
+    "BOSNIA": {
+      "title_pct": 0.0,
+      "final_pct": 0.1,
+      "reached_r16_pct": 6.5,
+      "reached_qf_pct": 1.7,
+      "reached_sf_pct": 0.4
+    },
+    "BRAZIL": {
+      "title_pct": 4.3,
+      "final_pct": 9.7,
+      "reached_r16_pct": 65.7,
+      "reached_qf_pct": 38.7,
+      "reached_sf_pct": 19.4
+    },
+    "SWITZERLAND": {
+      "title_pct": 1.1,
+      "final_pct": 2.7,
+      "reached_r16_pct": 42.5,
+      "reached_qf_pct": 14.4,
+      "reached_sf_pct": 6.5
+    },
+    "CZECH REPUBLIC": {
+      "title_pct": 0.1,
+      "final_pct": 0.5,
+      "reached_r16_pct": 15.4,
+      "reached_qf_pct": 5.5,
+      "reached_sf_pct": 1.4
+    },
+    "CAPE VERDE": {
+      "title_pct": 0.0,
+      "final_pct": 0.1,
+      "reached_r16_pct": 6.0,
+      "reached_qf_pct": 1.8,
+      "reached_sf_pct": 0.4
+    },
+    "PORTUGAL": {
+      "title_pct": 4.9,
+      "final_pct": 9.9,
+      "reached_r16_pct": 67.1,
+      "reached_qf_pct": 39.5,
+      "reached_sf_pct": 20.9
+    },
+    "MEXICO": {
+      "title_pct": 6.5,
+      "final_pct": 11.9,
+      "reached_r16_pct": 62.3,
+      "reached_qf_pct": 36.0,
+      "reached_sf_pct": 21.3
+    },
+    "PANAMA": {
+      "title_pct": 0.2,
+      "final_pct": 0.5,
+      "reached_r16_pct": 17.0,
+      "reached_qf_pct": 6.1,
+      "reached_sf_pct": 1.6
+    },
+    "SAUDI ARABIA": {
+      "title_pct": 0.0,
+      "final_pct": 0.1,
+      "reached_r16_pct": 4.5,
+      "reached_qf_pct": 1.4,
+      "reached_sf_pct": 0.3
+    },
+    "COLOMBIA": {
+      "title_pct": 4.1,
+      "final_pct": 8.8,
+      "reached_r16_pct": 63.7,
+      "reached_qf_pct": 37.1,
+      "reached_sf_pct": 18.6
+    },
+    "SENEGAL": {
+      "title_pct": 0.9,
+      "final_pct": 2.2,
+      "reached_r16_pct": 36.9,
+      "reached_qf_pct": 12.2,
+      "reached_sf_pct": 5.7
+    },
+    "USA": {
+      "title_pct": 1.9,
+      "final_pct": 4.2,
+      "reached_r16_pct": 42.4,
+      "reached_qf_pct": 20.7,
+      "reached_sf_pct": 9.7
+    },
+    "NEW ZEALAND": {
+      "title_pct": 0.0,
+      "final_pct": 0.1,
+      "reached_r16_pct": 3.5,
+      "reached_qf_pct": 0.8,
+      "reached_sf_pct": 0.2
+    },
+    "NETHERLANDS": {
+      "title_pct": 3.0,
+      "final_pct": 6.7,
+      "reached_r16_pct": 60.3,
+      "reached_qf_pct": 33.4,
+      "reached_sf_pct": 14.0
+    },
+    "PARAGUAY": {
+      "title_pct": 0.3,
+      "final_pct": 1.0,
+      "reached_r16_pct": 28.3,
+      "reached_qf_pct": 10.3,
+      "reached_sf_pct": 3.4
+    },
+    "UZBEKISTAN": {
+      "title_pct": 0.1,
+      "final_pct": 0.6,
+      "reached_r16_pct": 18.9,
+      "reached_qf_pct": 6.6,
+      "reached_sf_pct": 1.9
+    },
+    "HAITI": {
+      "title_pct": 0.0,
+      "final_pct": 0.1,
+      "reached_r16_pct": 3.0,
+      "reached_qf_pct": 0.8,
+      "reached_sf_pct": 0.2
+    },
+    "ECUADOR": {
+      "title_pct": 1.7,
+      "final_pct": 4.3,
+      "reached_r16_pct": 47.8,
+      "reached_qf_pct": 23.4,
+      "reached_sf_pct": 10.4
+    },
+    "AUSTRIA": {
+      "title_pct": 0.7,
+      "final_pct": 2.0,
+      "reached_r16_pct": 35.7,
+      "reached_qf_pct": 12.2,
+      "reached_sf_pct": 5.3
+    },
+    "SWEDEN": {
+      "title_pct": 0.3,
+      "final_pct": 0.9,
+      "reached_r16_pct": 24.3,
+      "reached_qf_pct": 9.8,
+      "reached_sf_pct": 2.5
+    },
+    "SOUTH AFRICA": {
+      "title_pct": 0.0,
+      "final_pct": 0.0,
+      "reached_r16_pct": 2.4,
+      "reached_qf_pct": 0.6,
+      "reached_sf_pct": 0.1
+    },
+    "GERMANY": {
+      "title_pct": 2.7,
+      "final_pct": 6.2,
+      "reached_r16_pct": 58.4,
+      "reached_qf_pct": 32.3,
+      "reached_sf_pct": 13.4
+    },
+    "MOROCCO": {
+      "title_pct": 0.7,
+      "final_pct": 2.1,
+      "reached_r16_pct": 38.5,
+      "reached_qf_pct": 11.7,
+      "reached_sf_pct": 5.5
+    },
+    "EGYPT": {
+      "title_pct": 0.1,
+      "final_pct": 0.4,
+      "reached_r16_pct": 16.3,
+      "reached_qf_pct": 5.7,
+      "reached_sf_pct": 1.6
+    },
+    "GHANA": {
+      "title_pct": 0.0,
+      "final_pct": 0.0,
+      "reached_r16_pct": 2.5,
+      "reached_qf_pct": 0.5,
+      "reached_sf_pct": 0.1
+    },
+    "NORWAY": {
+      "title_pct": 2.0,
+      "final_pct": 4.8,
+      "reached_r16_pct": 53.9,
+      "reached_qf_pct": 27.8,
+      "reached_sf_pct": 11.1
+    },
+    "CANADA": {
+      "title_pct": 1.8,
+      "final_pct": 4.5,
+      "reached_r16_pct": 44.0,
+      "reached_qf_pct": 23.5,
+      "reached_sf_pct": 9.9
+    },
+    "IVORY COAST": {
+      "title_pct": 0.2,
+      "final_pct": 0.7,
+      "reached_r16_pct": 22.1,
+      "reached_qf_pct": 8.2,
+      "reached_sf_pct": 2.3
+    },
+    "CURACAO": {
+      "title_pct": 0.0,
+      "final_pct": 0.0,
+      "reached_r16_pct": 0.8,
+      "reached_qf_pct": 0.1,
+      "reached_sf_pct": 0.0
+    },
+    "CROATIA": {
+      "title_pct": 2.3,
+      "final_pct": 5.2,
+      "reached_r16_pct": 54.3,
+      "reached_qf_pct": 28.6,
+      "reached_sf_pct": 11.5
+    },
+    "SCOTLAND": {
+      "title_pct": 0.5,
+      "final_pct": 1.5,
+      "reached_r16_pct": 31.9,
+      "reached_qf_pct": 10.6,
+      "reached_sf_pct": 4.1
+    },
+    "JORDAN": {
+      "title_pct": 0.1,
+      "final_pct": 0.2,
+      "reached_r16_pct": 14.8,
+      "reached_qf_pct": 4.3,
+      "reached_sf_pct": 1.1
+    },
+    "QATAR": {
+      "title_pct": 0.0,
+      "final_pct": 0.0,
+      "reached_r16_pct": 1.5,
+      "reached_qf_pct": 0.2,
+      "reached_sf_pct": 0.0
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# worldcup-ai-shorts — runtime dependencies
+# Pinned to the versions validated locally (Python 3.14).
+# ffmpeg is provided by the OS/runner, not pip (MoviePy shells out to it).
+
+# Video / image rendering
+moviepy==2.2.1
+pillow==11.3.0
+numpy==2.4.6
+
+# HTTP (ESPN fixtures fetch)
+requests==2.34.2
+
+# YouTube Data / Analytics API + OAuth
+google-api-python-client==2.197.0
+google-auth==2.53.0
+google-auth-oauthlib==1.4.0
+google-auth-httplib2==0.4.0
