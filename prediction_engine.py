@@ -170,3 +170,68 @@ def sample_score(elo_a: float, elo_b: float,
     """Draws a single (ga, gb) scoreline for one Monte Carlo iteration."""
     matrix = match_matrix(elo_a, elo_b, host_a, host_b)
     return sample_from_matrix(matrix, rng)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# "SPECTACLE" SCORELINE (display-only — see config.py)
+# ═══════════════════════════════════════════════════════════════════════════════
+def _spectacle_expected_goals(elo_a: float, elo_b: float, host_a: bool, host_b: bool,
+                              winner: str) -> tuple[float, float]:
+    """Like _expected_goals but with the attacking config.SPECTACLE_* constants,
+    plus a "goleada" boost added to the WINNER's lambda that scales with the Elo
+    gap. Used only to build the display matrix for spectacle_score()."""
+    eff_a = elo_a + (config.HOST_ELO_BONUS if host_a else 0)
+    eff_b = elo_b + (config.HOST_ELO_BONUS if host_b else 0)
+    goal_diff = (eff_a - eff_b) / config.SPECTACLE_ELO_TO_GOALS
+    lambda_a = max(config.MIN_LAMBDA, (config.SPECTACLE_TOTAL_GOALS + goal_diff) / 2)
+    lambda_b = max(config.MIN_LAMBDA, (config.SPECTACLE_TOTAL_GOALS - goal_diff) / 2)
+    boost = abs(eff_a - eff_b) / config.SPECTACLE_GAP_PER_GOAL
+    if winner == "a":
+        lambda_a += boost
+    elif winner == "b":
+        lambda_b += boost
+    return lambda_a, lambda_b
+
+
+def spectacle_score(elo_a: float, elo_b: float,
+                    host_a: bool = False, host_b: bool = False,
+                    winner: str = "draw", rng=None) -> tuple[int, int]:
+    """A deliberately MORE ENTERTAINING scoreline for on-screen display only.
+
+    Builds a separate, more attacking Poisson matrix (config.SPECTACLE_*) and
+    SAMPLES a scoreline from the region of that matrix consistent with the
+    already-decided `winner`:
+        "a"    -> only cells where ga > gb
+        "b"    -> only cells where ga < gb
+        "draw" -> only the diagonal, excluding 0-0 (draws on screen are lively)
+
+    `winner` MUST come from predict_match() so the shown score never contradicts
+    the predicted outcome. Pass a seeded `random.Random` (e.g. keyed on the
+    matchup) for a stable-but-varied result across re-renders; `rng=None` uses
+    the shared `random` module.
+    """
+    rng = rng or random
+    la, lb = _spectacle_expected_goals(elo_a, elo_b, host_a, host_b, winner)
+    n = config.MAX_GOALS + 1
+    pa = [_poisson_pmf(i, la) for i in range(n)]
+    pb = [_poisson_pmf(j, lb) for j in range(n)]
+
+    # Collect the cells allowed by `winner`, weighted by their joint probability.
+    cells, weights = [], []
+    for i in range(n):
+        for j in range(n):
+            if winner == "a" and i <= j:
+                continue
+            if winner == "b" and i >= j:
+                continue
+            if winner == "draw" and (i != j or i == 0):
+                continue
+            cells.append((i, j))
+            weights.append(pa[i] * pb[j])
+
+    # Defensive fallback: if no cell qualifies (shouldn't happen), use a minimal
+    # scoreline that still respects the winner.
+    if not cells:
+        return {"a": (1, 0), "b": (0, 1)}.get(winner, (1, 1))
+
+    return rng.choices(cells, weights=weights, k=1)[0]

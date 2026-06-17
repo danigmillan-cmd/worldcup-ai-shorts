@@ -101,8 +101,17 @@ def get_match_prediction(team_a_name: str, team_b_name: str,
     pct_a_raw = 50 + (points_share_a * 100 - 50) * config.PCT_DISPLAY_SOFTEN
     pct_a = max(1, min(99, round(pct_a_raw)))
     a["pct"], b["pct"]     = pct_a, 100 - pct_a
-    a["score"], b["score"] = prediction["score"]
     winner = prediction["winner"]
+
+    # Displayed scoreline: a deliberately more entertaining "spectacle" score
+    # (see config.SPECTACLE_*), NOT the calibrated modal score. It's sampled
+    # from a more attacking Poisson matrix but constrained to agree with the
+    # `winner` decided above, so the outcome shown never changes — only the
+    # goals get livelier. Seeded on the matchup so re-renders stay identical.
+    score_rng = random.Random(f"{a['name']}|{b['name']}")
+    a["score"], b["score"] = prediction_engine.spectacle_score(
+        a["elo"], b["elo"], host_a, host_b, winner, rng=score_rng
+    )
 
     print(f"\n  {'Team':<16} {'Elo':>5}  {'Win%':>5}  {'Score'}")
     print("  " + "-" * 36)

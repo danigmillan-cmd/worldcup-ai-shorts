@@ -258,6 +258,26 @@ MIN_LAMBDA = 0.15
 # 4538 backtest matches (2010-present), Brier 0.5873 vs 0.7089 for the old
 # win%-only heuristic (lower is better), accuracy 51.5% vs 50.0%.
 
+# ─── "Spectacle" scoreline (display-only) ───────────────────────────────────
+# The Match Prediction Short shows a deliberately MORE ENTERTAINING scoreline
+# than the calibrated modal score (which tops out at boring 1-0/2-1 results).
+# prediction_engine.spectacle_score() builds a SEPARATE, more attacking Poisson
+# matrix from these constants and SAMPLES a scoreline from it (seeded per
+# matchup, so re-renders are stable), constrained to agree with the already-
+# decided `winner`. This is PURELY COSMETIC for the displayed score — it never
+# touches win/draw/loss outcomes, the percentage bars, or the group/tournament
+# Monte Carlo simulators (those keep using BASE_TOTAL_GOALS/ELO_TO_GOALS so the
+# qualification/title odds stay credible).
+#   SPECTACLE_TOTAL_GOALS  — combined expected goals (vs BASE_TOTAL_GOALS 2.4):
+#                            higher = more goals on screen.
+#   SPECTACLE_ELO_TO_GOALS — divisor turning the Elo gap into a goal-difference
+#                            (vs ELO_TO_GOALS 180): smaller = more decisive wins.
+#   SPECTACLE_GAP_PER_GOAL — every this-many points of Elo gap adds ~1 goal to
+#                            the winner's expected goals (the "goleada" boost).
+SPECTACLE_TOTAL_GOALS = 3.6
+SPECTACLE_ELO_TO_GOALS = 130
+SPECTACLE_GAP_PER_GOAL = 250
+
 # Display-only softening for the two match-prediction percentage bars
 # (match_data.get_match_prediction). Raw p_a/p_b ratios (with the draw
 # split 50/50 into each side) can look too extreme for big Elo gaps
