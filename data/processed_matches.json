@@ -148,5 +148,11 @@
     "youtube_url": "https://www.youtube.com/shorts/sHgdmA13ED8",
     "video_path": "C:\\Users\\danig\\OneDrive\\Documentos\\Proyectos\\worldcup-ai-shorts\\output\\match_prediction_Uzbekistan_Colombia_2026-06-18.mp4",
     "timestamp": "2026-06-17T08:00:00.484843+00:00"
+  },
+  "CzechRepublic_SouthAfrica_2026-06-18": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/i_Y9cR399fU",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_CzechRepublic_SouthAfrica_2026-06-18.mp4",
+    "timestamp": "2026-06-17T18:38:51.095830+00:00"
   }
 }
