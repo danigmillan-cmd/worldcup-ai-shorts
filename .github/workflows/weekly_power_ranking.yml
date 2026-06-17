@@ -1,0 +1,47 @@
+name: Weekly Power Ranking
+
+# Renders and uploads the weekly Power Ranking Short (fresh Elo + Monte Carlo
+# tournament odds, public upload). Equivalent to the old Windows task
+# WorldCupAIShorts_WeeklyPowerRanking. No private data, no state to persist.
+on:
+  schedule:
+    # Sundays 18:00 UTC (~20:00 Madrid in summer). GitHub cron ignores DST;
+    # an hour's drift is irrelevant for a weekly video.
+    - cron: "0 18 * * 0"
+  workflow_dispatch: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Restore credentials from secrets
+        env:
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GOOGLE_CLIENT_SECRET" > credentials/client_secret.json
+          printf '%s' "$YOUTUBE_TOKEN" > credentials/token.json
+
+      - name: Render and upload Power Ranking
+        run: python main.py --type power_ranking
