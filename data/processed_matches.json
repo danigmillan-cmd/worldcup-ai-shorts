@@ -172,5 +172,11 @@
     "youtube_url": "https://www.youtube.com/shorts/LTnnG9TnRcU",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Mexico_SouthKorea_2026-06-19.mp4",
     "timestamp": "2026-06-18T12:40:37.554977+00:00"
+  },
+  "UnitedStates_Australia_2026-06-19": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/Y3c7PkkL9KM",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_UnitedStates_Australia_2026-06-19.mp4",
+    "timestamp": "2026-06-18T21:34:45.059072+00:00"
   }
 }
