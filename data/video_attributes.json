@@ -604,5 +604,26 @@
     "elo_avg": 1814.5,
     "animated_background": true,
     "recorded_at": "2026-06-19T08:26:10.829196+00:00"
+  },
+  "Netherlands_Sweden_2026-06-20": {
+    "video_id": "8aAnRnYhFp4",
+    "youtube_url": "https://www.youtube.com/shorts/8aAnRnYhFp4",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Netherlands vs Sweden 👀",
+    "title_template_index": 1,
+    "description_length": 286,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 18,
+    "upload_weekday_utc": "Friday",
+    "team_a": "NETHERLANDS",
+    "team_b": "SWEDEN",
+    "elo_a": 1944,
+    "elo_b": 1755,
+    "elo_sum": 3699,
+    "elo_avg": 1849.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-19T18:13:41.913772+00:00"
   }
 }
