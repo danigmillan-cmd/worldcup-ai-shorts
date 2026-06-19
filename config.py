@@ -28,7 +28,23 @@ DATA_DIR    = ROOT / "data"
 # ─── Batch pipeline (fixtures / processed-match tracking) ────────────────────
 FIXTURES_FILE          = DATA_DIR / "fixtures.json"
 PROCESSED_MATCHES_FILE = DATA_DIR / "processed_matches.json"
-BATCH_WINDOW_HOURS     = 24   # generate Shorts for matches kicking off within this window
+BATCH_WINDOW_HOURS     = 48   # generate Shorts for matches kicking off within this window
+# 48h (was 24h): the cloud scheduler (GitHub Actions cron) drops/delays runs
+# heavily, so a wide window means even a full day of missed runs can't make a
+# fixture fall out of range before some run finally catches it. fixtures.json
+# discards a match the moment it kicks off, so a missed window = a lost match.
+
+# ─── Upload pacing (anti-burst) ──────────────────────────────────────────────
+# Because the scheduler fires erratically, several runs can also land close
+# together. To keep the channel from publishing a burst of Shorts at once, each
+# run uploads at most MATCH_MAX_UPLOADS_PER_RUN match(es), and only if at least
+# MATCH_MIN_UPLOAD_INTERVAL_MIN minutes have passed since the last confirmed
+# upload (timestamp in processed_matches.json) — UNLESS a due match kicks off
+# within that interval, in which case it is published regardless so the spacing
+# rule can never cause a miss. Net effect: ~1 upload/hour, draining any backlog
+# most-urgent-first (earliest kickoff). See batch_generator._select_for_pacing.
+MATCH_MAX_UPLOADS_PER_RUN     = 1
+MATCH_MIN_UPLOAD_INTERVAL_MIN = 60
 
 # ─── Elo source audit (rankings.py) ──────────────────────────────────────────
 # Records which source (eloratings.net / Wikipedia / fallback) was used on

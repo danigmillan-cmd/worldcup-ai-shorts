@@ -1,12 +1,17 @@
 name: Auto Matches
 
 # Runs the World Cup Shorts automation cycle: fetch fixtures, render the
-# prediction Short for any match kicking off within the next 24h, upload it
-# to YouTube, and commit the updated idempotency state back to the repo.
+# prediction Short for matches kicking off within config.BATCH_WINDOW_HOURS,
+# upload them to YouTube (paced to ~1/hour), and commit the updated idempotency
+# state back to the repo.
 on:
   schedule:
-    # Every hour, on the hour (UTC). GitHub cron does not honour DST.
-    - cron: "0 * * * *"
+    # GitHub frequently drops/delays scheduled runs, especially on the hour, so
+    # fire several times per hour at off-peak minutes (UTC) to raise the odds
+    # that at least one lands. The pipeline is idempotent and self-paces uploads
+    # (config.MATCH_MIN_UPLOAD_INTERVAL_MIN -> ~1 Short/hour), so the extra runs
+    # are cheap no-ops, not extra uploads. GitHub cron does not honour DST.
+    - cron: "5,25,45 * * * *"
   workflow_dispatch: {}   # allow manual runs from the Actions tab
 
 # Allow the workflow to push the updated state files back to the repo.

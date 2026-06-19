@@ -20,7 +20,7 @@ Public API:
               window_hours=config.BATCH_WINDOW_HOURS,
               fetch_days_ahead=config.FIXTURES_FETCH_DAYS_AHEAD) -> list[dict]
 """
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import config
@@ -47,6 +47,58 @@ def _section(title: str) -> None:
     print("=" * 60)
     print(f"  {title}")
     print("=" * 60)
+
+
+def _last_upload_time(processed: dict) -> datetime | None:
+    """
+    Most recent confirmed-upload timestamp across processed_matches, or None
+    if nothing has ever been uploaded. Used by the anti-burst pacing rule.
+    Entries without a parseable timestamp are ignored; naive timestamps are
+    assumed UTC.
+    """
+    latest: datetime | None = None
+    for entry in processed.values():
+        if not entry.get("uploaded"):
+            continue
+        ts = entry.get("timestamp")
+        if not ts:
+            continue
+        try:
+            t = datetime.fromisoformat(ts)
+        except (ValueError, TypeError):
+            continue
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        if latest is None or t > latest:
+            latest = t
+    return latest
+
+
+def _select_for_pacing(due: list[dict], processed: dict, now: datetime) -> list[dict]:
+    """
+    Of the `due` fixtures, picks which to upload this run under the anti-burst
+    pacing rule (config.MATCH_MAX_UPLOADS_PER_RUN / MATCH_MIN_UPLOAD_INTERVAL_MIN),
+    most-urgent (earliest kickoff) first.
+
+    A fixture is eligible when enough time has passed since the last upload OR
+    its kickoff is within the interval (imminent) — so pacing can never make us
+    miss a match that is about to start. Returns the selected fixtures (a subset
+    of `due`, re-ordered by kickoff); the rest are held for a later run.
+    """
+    interval = timedelta(minutes=config.MATCH_MIN_UPLOAD_INTERVAL_MIN)
+    ordered  = sorted(due, key=lambda fx: fx["kickoff"])
+    last     = _last_upload_time(processed)
+
+    selected: list[dict] = []
+    for fx in ordered:
+        if len(selected) >= config.MATCH_MAX_UPLOADS_PER_RUN:
+            break
+        imminent = (fx["kickoff"] - now) <= interval
+        spaced   = last is None or (now - last) >= interval
+        if spaced or imminent:
+            selected.append(fx)
+            last = now   # the next pick must wait out the interval again
+    return selected
 
 
 def _record_video_attributes(key: str, match: dict, meta: dict,
@@ -115,6 +167,23 @@ def run_batch(upload: bool = True,
     if not due:
         print("\n  Nothing to do.")
         return results
+
+    # Anti-burst pacing: only when actually uploading. Render-only runs (local
+    # testing) process everything so the operator sees every video immediately.
+    if upload:
+        now    = datetime.now(timezone.utc)
+        paced  = _select_for_pacing(due, processed, now)
+        keep   = {fx["key"] for fx in paced}
+        held   = [fx for fx in due if fx["key"] not in keep]
+        if held:
+            print(f"\n  Pacing: holding {len(held)} match(es) for a later run "
+                  f"(min {config.MATCH_MIN_UPLOAD_INTERVAL_MIN} min between uploads):")
+            for fx in held:
+                print(f"    - {fx['home']} vs {fx['away']}  (kickoff {fx['kickoff_utc']})")
+        due = paced
+        if not due:
+            print("\n  Nothing to upload this run (pacing). Will retry next run.")
+            return results
 
     for fx in due:
         print(f"    - {fx['home']} vs {fx['away']}  (kickoff {fx['kickoff_utc']})")
