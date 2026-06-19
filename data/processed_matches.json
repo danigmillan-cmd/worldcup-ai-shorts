@@ -208,5 +208,11 @@
     "youtube_url": "https://www.youtube.com/shorts/EKOz0Z8Z7JM",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Germany_IvoryCoast_2026-06-20.mp4",
     "timestamp": "2026-06-19T20:09:35.029392+00:00"
+  },
+  "Ecuador_Curaçao_2026-06-21": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/1kdDXfUtEQo",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Ecuador_Curaçao_2026-06-21.mp4",
+    "timestamp": "2026-06-19T21:39:58.786136+00:00"
   }
 }
