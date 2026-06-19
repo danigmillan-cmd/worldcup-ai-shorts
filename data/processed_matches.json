@@ -202,5 +202,11 @@
     "youtube_url": "https://www.youtube.com/shorts/8aAnRnYhFp4",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Netherlands_Sweden_2026-06-20.mp4",
     "timestamp": "2026-06-19T18:13:41.914886+00:00"
+  },
+  "Germany_IvoryCoast_2026-06-20": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/EKOz0Z8Z7JM",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Germany_IvoryCoast_2026-06-20.mp4",
+    "timestamp": "2026-06-19T20:09:35.029392+00:00"
   }
 }
