@@ -178,5 +178,23 @@
     "youtube_url": "https://www.youtube.com/shorts/Y3c7PkkL9KM",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_UnitedStates_Australia_2026-06-19.mp4",
     "timestamp": "2026-06-18T21:34:45.059072+00:00"
+  },
+  "Scotland_Morocco_2026-06-19": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/bJ-IOi1pQ38",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Scotland_Morocco_2026-06-19.mp4",
+    "timestamp": "2026-06-19T08:25:25.806101+00:00"
+  },
+  "Brazil_Haiti_2026-06-20": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/3cpeiP8rTDo",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Brazil_Haiti_2026-06-20.mp4",
+    "timestamp": "2026-06-19T08:25:48.909904+00:00"
+  },
+  "Turkey_Paraguay_2026-06-20": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/3goUFC3vxOc",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Turkey_Paraguay_2026-06-20.mp4",
+    "timestamp": "2026-06-19T08:26:10.830502+00:00"
   }
 }
