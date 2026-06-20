@@ -772,5 +772,26 @@
     "elo_avg": 1644.5,
     "animated_background": true,
     "recorded_at": "2026-06-20T12:20:36.837344+00:00"
+  },
+  "Argentina_Austria_2026-06-22": {
+    "video_id": "_gv95xMOuZQ",
+    "youtube_url": "https://www.youtube.com/shorts/_gv95xMOuZQ",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Argentina vs Austria 👀",
+    "title_template_index": 1,
+    "description_length": 284,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 17,
+    "upload_weekday_utc": "Saturday",
+    "team_a": "ARGENTINA",
+    "team_b": "AUSTRIA",
+    "elo_a": 2128,
+    "elo_b": 1857,
+    "elo_sum": 3985,
+    "elo_avg": 1992.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-20T17:52:24.267759+00:00"
   }
 }
