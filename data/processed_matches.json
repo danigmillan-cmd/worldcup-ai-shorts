@@ -238,5 +238,11 @@
     "youtube_url": "https://www.youtube.com/shorts/Xq3YTARWKJc",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Uruguay_CapeVerde_2026-06-21.mp4",
     "timestamp": "2026-06-20T10:44:28.823121+00:00"
+  },
+  "NewZealand_Egypt_2026-06-22": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/lCqI4y3MQZ4",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_NewZealand_Egypt_2026-06-22.mp4",
+    "timestamp": "2026-06-20T12:20:36.838666+00:00"
   }
 }

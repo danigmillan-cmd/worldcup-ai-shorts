@@ -751,5 +751,26 @@
     "elo_avg": 1700.0,
     "animated_background": true,
     "recorded_at": "2026-06-20T10:44:28.821680+00:00"
+  },
+  "NewZealand_Egypt_2026-06-22": {
+    "video_id": "lCqI4y3MQZ4",
+    "youtube_url": "https://www.youtube.com/shorts/lCqI4y3MQZ4",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "New Zealand vs Egypt AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 284,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 12,
+    "upload_weekday_utc": "Saturday",
+    "team_a": "NEW ZEALAND",
+    "team_b": "EGYPT",
+    "elo_a": 1578,
+    "elo_b": 1711,
+    "elo_sum": 3289,
+    "elo_avg": 1644.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-20T12:20:36.837344+00:00"
   }
 }
