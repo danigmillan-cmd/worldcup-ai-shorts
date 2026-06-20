@@ -730,5 +730,26 @@
     "elo_avg": 1817.5,
     "animated_background": true,
     "recorded_at": "2026-06-20T08:07:29.219592+00:00"
+  },
+  "Uruguay_CapeVerde_2026-06-21": {
+    "video_id": "Xq3YTARWKJc",
+    "youtube_url": "https://www.youtube.com/shorts/Xq3YTARWKJc",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Uruguay vs Cape Verde AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 286,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 10,
+    "upload_weekday_utc": "Saturday",
+    "team_a": "URUGUAY",
+    "team_b": "CAPE VERDE",
+    "elo_a": 1700,
+    "elo_b": 1700,
+    "elo_sum": 3400,
+    "elo_avg": 1700.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-20T10:44:28.821680+00:00"
   }
 }

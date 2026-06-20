@@ -232,5 +232,11 @@
     "youtube_url": "https://www.youtube.com/shorts/kyjpunK3uK8",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Belgium_Iran_2026-06-21.mp4",
     "timestamp": "2026-06-20T08:07:29.221037+00:00"
+  },
+  "Uruguay_CapeVerde_2026-06-21": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/Xq3YTARWKJc",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Uruguay_CapeVerde_2026-06-21.mp4",
+    "timestamp": "2026-06-20T10:44:28.823121+00:00"
   }
 }
