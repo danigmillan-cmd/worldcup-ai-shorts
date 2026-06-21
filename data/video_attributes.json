@@ -856,5 +856,26 @@
     "elo_avg": 1706.0,
     "animated_background": true,
     "recorded_at": "2026-06-21T09:06:17.601151+00:00"
+  },
+  "Portugal_Uzbekistan_2026-06-23": {
+    "video_id": "HM6XaKRzrbA",
+    "youtube_url": "https://www.youtube.com/shorts/HM6XaKRzrbA",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Portugal vs Uzbekistan World Cup Prediction 🌍",
+    "title_template_index": 2,
+    "description_length": 288,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 18,
+    "upload_weekday_utc": "Sunday",
+    "team_a": "PORTUGAL",
+    "team_b": "UZBEKISTAN",
+    "elo_a": 1967,
+    "elo_b": 1698,
+    "elo_sum": 3665,
+    "elo_avg": 1832.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-21T18:00:17.551626+00:00"
   }
 }
