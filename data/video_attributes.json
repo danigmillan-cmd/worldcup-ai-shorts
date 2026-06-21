@@ -835,5 +835,26 @@
     "elo_avg": 1884.0,
     "animated_background": true,
     "recorded_at": "2026-06-21T05:10:39.602805+00:00"
+  },
+  "Jordan_Algeria_2026-06-23": {
+    "video_id": "nHdaeBud5G0",
+    "youtube_url": "https://www.youtube.com/shorts/nHdaeBud5G0",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Jordan vs Algeria World Cup Prediction 🌍",
+    "title_template_index": 2,
+    "description_length": 278,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 9,
+    "upload_weekday_utc": "Sunday",
+    "team_a": "JORDAN",
+    "team_b": "ALGERIA",
+    "elo_a": 1653,
+    "elo_b": 1759,
+    "elo_sum": 3412,
+    "elo_avg": 1706.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-21T09:06:17.601151+00:00"
   }
 }
