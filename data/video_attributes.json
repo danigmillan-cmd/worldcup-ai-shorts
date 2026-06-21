@@ -877,5 +877,26 @@
     "elo_avg": 1832.5,
     "animated_background": true,
     "recorded_at": "2026-06-21T18:00:17.551626+00:00"
+  },
+  "England_Ghana_2026-06-23": {
+    "video_id": "516-N58Qp2k",
+    "youtube_url": "https://www.youtube.com/shorts/516-N58Qp2k",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Who Wins? England vs Ghana 🤖⚽",
+    "title_template_index": 3,
+    "description_length": 276,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 21,
+    "upload_weekday_utc": "Sunday",
+    "team_a": "ENGLAND",
+    "team_b": "GHANA",
+    "elo_a": 2055,
+    "elo_b": 1557,
+    "elo_sum": 3612,
+    "elo_avg": 1806.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-21T21:24:13.398959+00:00"
   }
 }

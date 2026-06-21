@@ -274,5 +274,11 @@
     "youtube_url": "https://www.youtube.com/shorts/HM6XaKRzrbA",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Portugal_Uzbekistan_2026-06-23.mp4",
     "timestamp": "2026-06-21T18:00:17.553275+00:00"
+  },
+  "England_Ghana_2026-06-23": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/516-N58Qp2k",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_England_Ghana_2026-06-23.mp4",
+    "timestamp": "2026-06-21T21:24:13.400505+00:00"
   }
 }
