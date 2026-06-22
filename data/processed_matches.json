@@ -286,5 +286,11 @@
     "youtube_url": "https://www.youtube.com/shorts/1nD3dPBVy3k",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Panama_Croatia_2026-06-23.mp4",
     "timestamp": "2026-06-21T23:57:28.988097+00:00"
+  },
+  "Colombia_DRCongo_2026-06-24": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/Lw4nqShVIYc",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Colombia_DRCongo_2026-06-24.mp4",
+    "timestamp": "2026-06-22T05:23:42.430906+00:00"
   }
 }
