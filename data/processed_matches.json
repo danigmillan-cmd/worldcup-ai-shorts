@@ -292,5 +292,11 @@
     "youtube_url": "https://www.youtube.com/shorts/Lw4nqShVIYc",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Colombia_DRCongo_2026-06-24.mp4",
     "timestamp": "2026-06-22T05:23:42.430906+00:00"
+  },
+  "BosniaandHerzegovina_Qatar_2026-06-24": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/L26Lz7HEju8",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_BosniaandHerzegovina_Qatar_2026-06-24.mp4",
+    "timestamp": "2026-06-22T19:40:53.046630+00:00"
   }
 }

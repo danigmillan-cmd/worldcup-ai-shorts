@@ -940,5 +940,26 @@
     "elo_avg": 1836.0,
     "animated_background": true,
     "recorded_at": "2026-06-22T05:23:42.429629+00:00"
+  },
+  "BosniaandHerzegovina_Qatar_2026-06-24": {
+    "video_id": "L26Lz7HEju8",
+    "youtube_url": "https://www.youtube.com/shorts/L26Lz7HEju8",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Bosnia vs Qatar AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 274,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 19,
+    "upload_weekday_utc": "Monday",
+    "team_a": "BOSNIA",
+    "team_b": "QATAR",
+    "elo_a": 1596,
+    "elo_b": 1437,
+    "elo_sum": 3033,
+    "elo_avg": 1516.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-22T19:40:53.044956+00:00"
   }
 }
