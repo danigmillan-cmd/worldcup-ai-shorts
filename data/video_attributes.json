@@ -1045,5 +1045,26 @@
     "elo_avg": 1796.0,
     "animated_background": true,
     "recorded_at": "2026-06-23T05:52:36.098821+00:00"
+  },
+  "SouthAfrica_SouthKorea_2026-06-25": {
+    "video_id": "OB0Ezlz0wek",
+    "youtube_url": "https://www.youtube.com/shorts/OB0Ezlz0wek",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "South Africa vs South Korea AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 298,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 9,
+    "upload_weekday_utc": "Tuesday",
+    "team_a": "SOUTH AFRICA",
+    "team_b": "SOUTH KOREA",
+    "elo_a": 1527,
+    "elo_b": 1771,
+    "elo_sum": 3298,
+    "elo_avg": 1649.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-23T09:59:45.862452+00:00"
   }
 }
