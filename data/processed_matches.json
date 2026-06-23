@@ -328,5 +328,11 @@
     "youtube_url": "https://www.youtube.com/shorts/OB0Ezlz0wek",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_SouthAfrica_SouthKorea_2026-06-25.mp4",
     "timestamp": "2026-06-23T09:59:45.864204+00:00"
+  },
+  "Curaçao_IvoryCoast_2026-06-25": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/PPNtlORfKoo",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Curaçao_IvoryCoast_2026-06-25.mp4",
+    "timestamp": "2026-06-23T21:20:36.767130+00:00"
   }
 }

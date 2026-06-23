@@ -1066,5 +1066,26 @@
     "elo_avg": 1649.0,
     "animated_background": true,
     "recorded_at": "2026-06-23T09:59:45.862452+00:00"
+  },
+  "Curaçao_IvoryCoast_2026-06-25": {
+    "video_id": "PPNtlORfKoo",
+    "youtube_url": "https://www.youtube.com/shorts/PPNtlORfKoo",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Curacao vs Ivory Coast AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 288,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 21,
+    "upload_weekday_utc": "Tuesday",
+    "team_a": "CURACAO",
+    "team_b": "IVORY COAST",
+    "elo_a": 1453,
+    "elo_b": 1728,
+    "elo_sum": 3181,
+    "elo_avg": 1590.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-23T21:20:36.765364+00:00"
   }
 }
