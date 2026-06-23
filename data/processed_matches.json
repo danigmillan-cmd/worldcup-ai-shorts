@@ -316,5 +316,11 @@
     "youtube_url": "https://www.youtube.com/shorts/KlRa8FJBUrQ",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Scotland_Brazil_2026-06-24.mp4",
     "timestamp": "2026-06-23T01:35:11.530525+00:00"
+  },
+  "CzechRepublic_Mexico_2026-06-25": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/irZVLX3y23U",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_CzechRepublic_Mexico_2026-06-25.mp4",
+    "timestamp": "2026-06-23T05:52:36.100760+00:00"
   }
 }
