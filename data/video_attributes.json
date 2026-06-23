@@ -1003,5 +1003,26 @@
     "elo_avg": 1697.0,
     "animated_background": true,
     "recorded_at": "2026-06-22T23:39:28.626144+00:00"
+  },
+  "Scotland_Brazil_2026-06-24": {
+    "video_id": "KlRa8FJBUrQ",
+    "youtube_url": "https://www.youtube.com/shorts/KlRa8FJBUrQ",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Who Wins? Scotland vs Brazil 🤖⚽",
+    "title_template_index": 3,
+    "description_length": 280,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 1,
+    "upload_weekday_utc": "Tuesday",
+    "team_a": "SCOTLAND",
+    "team_b": "BRAZIL",
+    "elo_a": 1700,
+    "elo_b": 2069,
+    "elo_sum": 3769,
+    "elo_avg": 1884.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-23T01:35:11.528871+00:00"
   }
 }
