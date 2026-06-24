@@ -352,5 +352,11 @@
     "youtube_url": "https://www.youtube.com/shorts/zDunK6K8wsQ",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Tunisia_Netherlands_2026-06-25.mp4",
     "timestamp": "2026-06-24T05:50:09.803777+00:00"
+  },
+  "Paraguay_Australia_2026-06-26": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/mOLhfWR02qY",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Paraguay_Australia_2026-06-26.mp4",
+    "timestamp": "2026-06-24T09:47:51.719387+00:00"
   }
 }
