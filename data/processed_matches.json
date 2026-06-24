@@ -346,5 +346,11 @@
     "youtube_url": "https://www.youtube.com/shorts/UvNI-BhpBM0",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Japan_Sweden_2026-06-25.mp4",
     "timestamp": "2026-06-24T01:32:31.611020+00:00"
+  },
+  "Tunisia_Netherlands_2026-06-25": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/zDunK6K8wsQ",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Tunisia_Netherlands_2026-06-25.mp4",
+    "timestamp": "2026-06-24T05:50:09.803777+00:00"
   }
 }
