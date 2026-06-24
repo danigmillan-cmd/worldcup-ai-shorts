@@ -364,5 +364,11 @@
     "youtube_url": "https://www.youtube.com/shorts/NVS8nR4zL6Q",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Turkey_UnitedStates_2026-06-26.mp4",
     "timestamp": "2026-06-24T12:25:45.654330+00:00"
+  },
+  "Norway_France_2026-06-26": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/Y4v8dyO1jRs",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Norway_France_2026-06-26.mp4",
+    "timestamp": "2026-06-24T19:08:56.623362+00:00"
   }
 }
