@@ -1108,5 +1108,26 @@
     "elo_avg": 1909.0,
     "animated_background": true,
     "recorded_at": "2026-06-23T22:43:26.694726+00:00"
+  },
+  "Japan_Sweden_2026-06-25": {
+    "video_id": "UvNI-BhpBM0",
+    "youtube_url": "https://www.youtube.com/shorts/UvNI-BhpBM0",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Japan vs Sweden 👀",
+    "title_template_index": 1,
+    "description_length": 274,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 1,
+    "upload_weekday_utc": "Wednesday",
+    "team_a": "JAPAN",
+    "team_b": "SWEDEN",
+    "elo_a": 1700,
+    "elo_b": 1700,
+    "elo_sum": 3400,
+    "elo_avg": 1700.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-24T01:32:31.608743+00:00"
   }
 }
