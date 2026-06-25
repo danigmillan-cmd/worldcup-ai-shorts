@@ -394,5 +394,11 @@
     "youtube_url": "https://www.youtube.com/shorts/Z7pI6s6z25M",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Egypt_Iran_2026-06-27.mp4",
     "timestamp": "2026-06-25T09:38:44.498994+00:00"
+  },
+  "NewZealand_Belgium_2026-06-27": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/qQQWSE94W2o",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_NewZealand_Belgium_2026-06-27.mp4",
+    "timestamp": "2026-06-25T12:06:58.033601+00:00"
   }
 }
