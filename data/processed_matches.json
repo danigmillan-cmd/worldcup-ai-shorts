@@ -388,5 +388,11 @@
     "youtube_url": "https://www.youtube.com/shorts/0NLvCCD6wSQ",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Uruguay_Spain_2026-06-27.mp4",
     "timestamp": "2026-06-25T05:52:09.240340+00:00"
+  },
+  "Egypt_Iran_2026-06-27": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/Z7pI6s6z25M",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Egypt_Iran_2026-06-27.mp4",
+    "timestamp": "2026-06-25T09:38:44.498994+00:00"
   }
 }
