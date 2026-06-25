@@ -400,5 +400,11 @@
     "youtube_url": "https://www.youtube.com/shorts/qQQWSE94W2o",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_NewZealand_Belgium_2026-06-27.mp4",
     "timestamp": "2026-06-25T12:06:58.033601+00:00"
+  },
+  "Croatia_Ghana_2026-06-27": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/DkKdfAKHL3k",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Croatia_Ghana_2026-06-27.mp4",
+    "timestamp": "2026-06-25T21:18:58.245225+00:00"
   }
 }
