@@ -406,5 +406,11 @@
     "youtube_url": "https://www.youtube.com/shorts/DkKdfAKHL3k",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Croatia_Ghana_2026-06-27.mp4",
     "timestamp": "2026-06-25T21:18:58.245225+00:00"
+  },
+  "Panama_England_2026-06-27": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/v9S8dTHAMPU",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Panama_England_2026-06-27.mp4",
+    "timestamp": "2026-06-25T22:54:03.703833+00:00"
   }
 }
