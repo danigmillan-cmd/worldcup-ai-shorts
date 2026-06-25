@@ -382,5 +382,11 @@
     "youtube_url": "https://www.youtube.com/shorts/FG1Do-Jn7e8",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_CapeVerde_SaudiArabia_2026-06-27.mp4",
     "timestamp": "2026-06-25T01:38:11.896322+00:00"
+  },
+  "Uruguay_Spain_2026-06-27": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/0NLvCCD6wSQ",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Uruguay_Spain_2026-06-27.mp4",
+    "timestamp": "2026-06-25T05:52:09.240340+00:00"
   }
 }
