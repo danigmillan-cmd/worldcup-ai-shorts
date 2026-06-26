@@ -436,5 +436,11 @@
     "youtube_url": "https://www.youtube.com/shorts/sh0GfNdRBUY",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Jordan_Argentina_2026-06-28.mp4",
     "timestamp": "2026-06-26T11:32:09.848852+00:00"
+  },
+  "SouthAfrica_Canada_2026-06-28": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/nYFhNvBCOUY",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_SouthAfrica_Canada_2026-06-28.mp4",
+    "timestamp": "2026-06-26T20:03:07.517655+00:00"
   }
 }
