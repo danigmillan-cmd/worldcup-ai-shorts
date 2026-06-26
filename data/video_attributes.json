@@ -1360,5 +1360,26 @@
     "elo_avg": 1848.0,
     "animated_background": true,
     "recorded_at": "2026-06-25T22:54:03.701887+00:00"
+  },
+  "Colombia_Portugal_2026-06-27": {
+    "video_id": "G1xoIE3QsEw",
+    "youtube_url": "https://www.youtube.com/shorts/G1xoIE3QsEw",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Colombia vs Portugal AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 284,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 0,
+    "upload_weekday_utc": "Friday",
+    "team_a": "COLOMBIA",
+    "team_b": "PORTUGAL",
+    "elo_a": 2006,
+    "elo_b": 1988,
+    "elo_sum": 3994,
+    "elo_avg": 1997.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-26T00:19:11.215338+00:00"
   }
 }
