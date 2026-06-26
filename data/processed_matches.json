@@ -430,5 +430,11 @@
     "youtube_url": "https://www.youtube.com/shorts/RRI1hLfYRgQ",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Algeria_Austria_2026-06-28.mp4",
     "timestamp": "2026-06-26T08:35:07.564127+00:00"
+  },
+  "Jordan_Argentina_2026-06-28": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/sh0GfNdRBUY",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Jordan_Argentina_2026-06-28.mp4",
+    "timestamp": "2026-06-26T11:32:09.848852+00:00"
   }
 }
