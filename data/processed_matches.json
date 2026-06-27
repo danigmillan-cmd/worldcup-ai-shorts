@@ -442,5 +442,11 @@
     "youtube_url": "https://www.youtube.com/shorts/nYFhNvBCOUY",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_SouthAfrica_Canada_2026-06-28.mp4",
     "timestamp": "2026-06-26T20:03:07.517655+00:00"
+  },
+  "Brazil_Japan_2026-06-29": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/yTdnYs7XWf8",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Brazil_Japan_2026-06-29.mp4",
+    "timestamp": "2026-06-27T17:36:04.394764+00:00"
   }
 }
