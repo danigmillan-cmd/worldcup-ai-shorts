@@ -448,5 +448,11 @@
     "youtube_url": "https://www.youtube.com/shorts/yTdnYs7XWf8",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Brazil_Japan_2026-06-29.mp4",
     "timestamp": "2026-06-27T17:36:04.394764+00:00"
+  },
+  "Germany_Paraguay_2026-06-29": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/8SrrblxCOI4",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Germany_Paraguay_2026-06-29.mp4",
+    "timestamp": "2026-06-27T21:34:51.225562+00:00"
   }
 }
