@@ -1528,5 +1528,26 @@
     "elo_avg": 1928.5,
     "animated_background": true,
     "recorded_at": "2026-06-28T01:54:05.924636+00:00"
+  },
+  "IvoryCoast_Norway_2026-06-30": {
+    "video_id": "Ch2J4LvayGI",
+    "youtube_url": "https://www.youtube.com/shorts/Ch2J4LvayGI",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Who Wins? Ivory Coast vs Norway 🤖⚽",
+    "title_template_index": 3,
+    "description_length": 286,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 18,
+    "upload_weekday_utc": "Sunday",
+    "team_a": "IVORY COAST",
+    "team_b": "NORWAY",
+    "elo_a": 1743,
+    "elo_b": 1918,
+    "elo_sum": 3661,
+    "elo_avg": 1830.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-28T18:12:59.651444+00:00"
   }
 }
