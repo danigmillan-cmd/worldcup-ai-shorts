@@ -466,5 +466,11 @@
     "youtube_url": "https://www.youtube.com/shorts/Ch2J4LvayGI",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_IvoryCoast_Norway_2026-06-30.mp4",
     "timestamp": "2026-06-28T18:12:59.653797+00:00"
+  },
+  "France_Sweden_2026-06-30": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/Gxc8Cry6VM4",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_France_Sweden_2026-06-30.mp4",
+    "timestamp": "2026-06-28T21:12:57.130699+00:00"
   }
 }
