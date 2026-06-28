@@ -454,5 +454,11 @@
     "youtube_url": "https://www.youtube.com/shorts/8SrrblxCOI4",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Germany_Paraguay_2026-06-29.mp4",
     "timestamp": "2026-06-27T21:34:51.225562+00:00"
+  },
+  "Netherlands_Morocco_2026-06-30": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/UbUon8Zq09k",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Netherlands_Morocco_2026-06-30.mp4",
+    "timestamp": "2026-06-28T01:54:05.927152+00:00"
   }
 }
