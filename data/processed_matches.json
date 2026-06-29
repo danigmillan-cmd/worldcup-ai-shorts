@@ -472,5 +472,11 @@
     "youtube_url": "https://www.youtube.com/shorts/Gxc8Cry6VM4",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_France_Sweden_2026-06-30.mp4",
     "timestamp": "2026-06-28T21:12:57.130699+00:00"
+  },
+  "Mexico_Ecuador_2026-07-01": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/e336ffqWKfU",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Mexico_Ecuador_2026-07-01.mp4",
+    "timestamp": "2026-06-29T04:53:59.201748+00:00"
   }
 }
