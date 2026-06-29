@@ -484,5 +484,11 @@
     "youtube_url": "https://www.youtube.com/shorts/-712pIH8mo8",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_England_DRCongo_2026-07-01.mp4",
     "timestamp": "2026-06-29T17:15:49.430381+00:00"
+  },
+  "Belgium_Senegal_2026-07-01": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/m1aX3a4URDA",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Belgium_Senegal_2026-07-01.mp4",
+    "timestamp": "2026-06-29T21:01:01.574759+00:00"
   }
 }

@@ -1612,5 +1612,26 @@
     "elo_avg": 1875.0,
     "animated_background": true,
     "recorded_at": "2026-06-29T17:15:49.428029+00:00"
+  },
+  "Belgium_Senegal_2026-07-01": {
+    "video_id": "m1aX3a4URDA",
+    "youtube_url": "https://www.youtube.com/shorts/m1aX3a4URDA",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Belgium vs Senegal World Cup Prediction 🌍",
+    "title_template_index": 2,
+    "description_length": 280,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 21,
+    "upload_weekday_utc": "Monday",
+    "team_a": "BELGIUM",
+    "team_b": "SENEGAL",
+    "elo_a": 1965,
+    "elo_b": 1700,
+    "elo_sum": 3665,
+    "elo_avg": 1832.5,
+    "animated_background": true,
+    "recorded_at": "2026-06-29T21:01:01.572289+00:00"
   }
 }
