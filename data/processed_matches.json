@@ -502,5 +502,11 @@
     "youtube_url": "https://www.youtube.com/shorts/6Pc5vqwjBNc",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Spain_Austria_2026-07-02.mp4",
     "timestamp": "2026-06-30T19:13:35.830090+00:00"
+  },
+  "Portugal_Croatia_2026-07-02": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/xnUTmjj3GM8",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Portugal_Croatia_2026-07-02.mp4",
+    "timestamp": "2026-06-30T23:53:28.265109+00:00"
   }
 }
