@@ -1654,5 +1654,26 @@
     "elo_avg": 1701.5,
     "animated_background": true,
     "recorded_at": "2026-06-30T01:37:26.264383+00:00"
+  },
+  "Spain_Austria_2026-07-02": {
+    "video_id": "6Pc5vqwjBNc",
+    "youtube_url": "https://www.youtube.com/shorts/6Pc5vqwjBNc",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Spain vs Austria 👀",
+    "title_template_index": 1,
+    "description_length": 276,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 19,
+    "upload_weekday_utc": "Tuesday",
+    "team_a": "SPAIN",
+    "team_b": "AUSTRIA",
+    "elo_a": 2166,
+    "elo_b": 1700,
+    "elo_sum": 3866,
+    "elo_avg": 1933.0,
+    "animated_background": true,
+    "recorded_at": "2026-06-30T19:13:35.827630+00:00"
   }
 }
