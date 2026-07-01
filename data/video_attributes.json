@@ -1738,5 +1738,26 @@
     "elo_avg": 1771.0,
     "animated_background": true,
     "recorded_at": "2026-07-01T19:24:29.610524+00:00"
+  },
+  "Argentina_CapeVerde_2026-07-03": {
+    "video_id": "vTjWLiRQOhg",
+    "youtube_url": "https://www.youtube.com/shorts/vTjWLiRQOhg",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Argentina vs Cape Verde AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 290,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 22,
+    "upload_weekday_utc": "Wednesday",
+    "team_a": "ARGENTINA",
+    "team_b": "CAPE VERDE",
+    "elo_a": 2148,
+    "elo_b": 1622,
+    "elo_sum": 3770,
+    "elo_avg": 1885.0,
+    "animated_background": true,
+    "recorded_at": "2026-07-01T22:24:25.545191+00:00"
   }
 }
