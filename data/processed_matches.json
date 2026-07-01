@@ -508,5 +508,11 @@
     "youtube_url": "https://www.youtube.com/shorts/xnUTmjj3GM8",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Portugal_Croatia_2026-07-02.mp4",
     "timestamp": "2026-06-30T23:53:28.265109+00:00"
+  },
+  "Switzerland_Algeria_2026-07-03": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/8bjyj-X6cWE",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Switzerland_Algeria_2026-07-03.mp4",
+    "timestamp": "2026-07-01T04:48:40.308292+00:00"
   }
 }
