@@ -514,5 +514,11 @@
     "youtube_url": "https://www.youtube.com/shorts/8bjyj-X6cWE",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Switzerland_Algeria_2026-07-03.mp4",
     "timestamp": "2026-07-01T04:48:40.308292+00:00"
+  },
+  "Australia_Egypt_2026-07-03": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/pQ7X9okN7xA",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Australia_Egypt_2026-07-03.mp4",
+    "timestamp": "2026-07-01T19:24:29.612536+00:00"
   }
 }
