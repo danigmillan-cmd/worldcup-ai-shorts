@@ -526,5 +526,11 @@
     "youtube_url": "https://www.youtube.com/shorts/vTjWLiRQOhg",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Argentina_CapeVerde_2026-07-03.mp4",
     "timestamp": "2026-07-01T22:24:25.547630+00:00"
+  },
+  "Colombia_Ghana_2026-07-04": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/ey1TaCv6f2I",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Colombia_Ghana_2026-07-04.mp4",
+    "timestamp": "2026-07-02T04:15:20.766849+00:00"
   }
 }
