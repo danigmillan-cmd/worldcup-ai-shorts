@@ -538,5 +538,11 @@
     "youtube_url": "https://www.youtube.com/shorts/laIB1J93z6g",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Canada_Morocco_2026-07-04.mp4",
     "timestamp": "2026-07-02T17:20:13.254246+00:00"
+  },
+  "Paraguay_France_2026-07-04": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/DFrFdWeuS7Q",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Paraguay_France_2026-07-04.mp4",
+    "timestamp": "2026-07-02T21:43:01.883911+00:00"
   }
 }
