@@ -544,5 +544,11 @@
     "youtube_url": "https://www.youtube.com/shorts/DFrFdWeuS7Q",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Paraguay_France_2026-07-04.mp4",
     "timestamp": "2026-07-02T21:43:01.883911+00:00"
+  },
+  "Brazil_Norway_2026-07-05": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/NoMRTsoUK9Q",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Brazil_Norway_2026-07-05.mp4",
+    "timestamp": "2026-07-03T20:44:26.278762+00:00"
   }
 }
