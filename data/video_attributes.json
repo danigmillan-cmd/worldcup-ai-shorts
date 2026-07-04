@@ -1864,5 +1864,26 @@
     "elo_avg": 1994.5,
     "animated_background": true,
     "recorded_at": "2026-07-04T01:04:23.797631+00:00"
+  },
+  "Portugal_Spain_2026-07-06": {
+    "video_id": "D6OxdbdLkUw",
+    "youtube_url": "https://www.youtube.com/shorts/D6OxdbdLkUw",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Portugal vs Spain 👀",
+    "title_template_index": 1,
+    "description_length": 278,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 19,
+    "upload_weekday_utc": "Saturday",
+    "team_a": "PORTUGAL",
+    "team_b": "SPAIN",
+    "elo_a": 2013,
+    "elo_b": 2159,
+    "elo_sum": 4172,
+    "elo_avg": 2086.0,
+    "animated_background": true,
+    "recorded_at": "2026-07-04T19:42:45.805431+00:00"
   }
 }
