@@ -574,5 +574,11 @@
     "youtube_url": "https://www.youtube.com/shorts/_tu5VkaSAlA",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Argentina_Egypt_2026-07-07.mp4",
     "timestamp": "2026-07-05T16:44:40.050514+00:00"
+  },
+  "Switzerland_Colombia_2026-07-07": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/upLRZcgem34",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Switzerland_Colombia_2026-07-07.mp4",
+    "timestamp": "2026-07-05T20:40:59.655987+00:00"
   }
 }

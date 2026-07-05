@@ -1927,5 +1927,26 @@
     "elo_avg": 1949.0,
     "animated_background": true,
     "recorded_at": "2026-07-05T16:44:40.047784+00:00"
+  },
+  "Switzerland_Colombia_2026-07-07": {
+    "video_id": "upLRZcgem34",
+    "youtube_url": "https://www.youtube.com/shorts/upLRZcgem34",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Switzerland vs Colombia AI Prediction ⚽🔥",
+    "title_template_index": 0,
+    "description_length": 290,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 20,
+    "upload_weekday_utc": "Sunday",
+    "team_a": "SWITZERLAND",
+    "team_b": "COLOMBIA",
+    "elo_a": 1943,
+    "elo_b": 2009,
+    "elo_sum": 3952,
+    "elo_avg": 1976.0,
+    "animated_background": true,
+    "recorded_at": "2026-07-05T20:40:59.653196+00:00"
   }
 }
