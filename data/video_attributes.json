@@ -1885,5 +1885,26 @@
     "elo_avg": 2086.0,
     "animated_background": true,
     "recorded_at": "2026-07-04T19:42:45.805431+00:00"
+  },
+  "UnitedStates_Belgium_2026-07-07": {
+    "video_id": "GGpw_Eb91v4",
+    "youtube_url": "https://www.youtube.com/shorts/GGpw_Eb91v4",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Usa vs Belgium 👀",
+    "title_template_index": 1,
+    "description_length": 272,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 1,
+    "upload_weekday_utc": "Sunday",
+    "team_a": "USA",
+    "team_b": "BELGIUM",
+    "elo_a": 1700,
+    "elo_b": 1965,
+    "elo_sum": 3665,
+    "elo_avg": 1832.5,
+    "animated_background": true,
+    "recorded_at": "2026-07-05T01:26:07.155172+00:00"
   }
 }
