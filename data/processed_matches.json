@@ -580,5 +580,11 @@
     "youtube_url": "https://www.youtube.com/shorts/upLRZcgem34",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Switzerland_Colombia_2026-07-07.mp4",
     "timestamp": "2026-07-05T20:40:59.655987+00:00"
+  },
+  "France_Morocco_2026-07-09": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/awT2YcGbPdQ",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_France_Morocco_2026-07-09.mp4",
+    "timestamp": "2026-07-07T21:49:37.409099+00:00"
   }
 }

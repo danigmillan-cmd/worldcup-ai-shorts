@@ -1948,5 +1948,26 @@
     "elo_avg": 1976.0,
     "animated_background": true,
     "recorded_at": "2026-07-05T20:40:59.653196+00:00"
+  },
+  "France_Morocco_2026-07-09": {
+    "video_id": "awT2YcGbPdQ",
+    "youtube_url": "https://www.youtube.com/shorts/awT2YcGbPdQ",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "France vs Morocco World Cup Prediction 🌍",
+    "title_template_index": 2,
+    "description_length": 278,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 21,
+    "upload_weekday_utc": "Tuesday",
+    "team_a": "FRANCE",
+    "team_b": "MOROCCO",
+    "elo_a": 2143,
+    "elo_b": 1921,
+    "elo_sum": 4064,
+    "elo_avg": 2032.0,
+    "animated_background": true,
+    "recorded_at": "2026-07-07T21:49:37.406390+00:00"
   }
 }
