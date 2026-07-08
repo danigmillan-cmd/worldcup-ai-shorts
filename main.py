@@ -41,6 +41,7 @@ import group_cli
 import batch_generator
 import fixtures_fetcher
 import weekly_report
+import knockout_ranking
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -301,6 +302,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"Fixture fetch look-ahead in days (default: {config.FIXTURES_FETCH_DAYS_AHEAD})",
     )
 
+    knock_p = sub.add_parser(
+        "knockout_ranking",
+        help="Power Ranking of the teams still alive (real remaining bracket)",
+        description=(
+            "Reads the surviving teams and their real next-round pairings "
+            "from live ESPN fixtures, plays out the remaining bracket "
+            "Monte-Carlo (prediction_engine) to give each survivor an honest "
+            "'chance to win the cup from here' (these sum to ~100%), and "
+            "renders/uploads a Power Ranking Short of just those teams. "
+            "--survivors is the expected count as a safety guard: 8 after the "
+            "Round of 16, 4 after the Quarter-finals."
+        ),
+    )
+    knock_p.add_argument(
+        "--survivors", type=int, choices=[8, 4, 2], required=True, metavar="N",
+        help="Expected surviving teams (8 = Final 8, 4 = Final 4)",
+    )
+    knock_p.add_argument("--private",     action="store_true", help="Upload as private")
+    knock_p.add_argument("--unlisted",    action="store_true", help="Upload as unlisted")
+    knock_p.add_argument("--no-upload",   action="store_true", help="Skip YouTube upload")
+    knock_p.add_argument("--render-only", action="store_true", help="Same as --no-upload")
+    knock_p.add_argument("--upload-only", action="store_true",
+                         help="Skip rendering, upload existing output MP4")
+    knock_p.add_argument(
+        "--output", type=Path, default=None, metavar="PATH",
+        help="Override output MP4 path",
+    )
+
     report_p = sub.add_parser(
         "weekly_report",
         help="Fetch YouTube Analytics and write the weekly channel report",
@@ -379,6 +408,16 @@ def main() -> None:
 
     if args.command == "update_fixtures":
         fixtures_fetcher.update_fixtures_file(days_ahead=args.days)
+        return
+
+    if args.command == "knockout_ranking":
+        knockout_ranking.run_pipeline(
+            expected_teams = args.survivors,
+            output_path    = args.output,
+            privacy        = privacy,
+            upload         = not no_upload,
+            skip_render    = skip_render,
+        )
         return
 
     if args.command == "weekly_report":

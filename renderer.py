@@ -111,15 +111,16 @@ def compute_duration(timings: list[dict]) -> float:
 # ═══════════════════════════════════════════════════════════════════════════════
 # BACKGROUND
 # ═══════════════════════════════════════════════════════════════════════════════
-def _prepare_bg(fonts: dict, label: str, date_str: str, show_disclaimer: bool = False) -> Image.Image:
-    bg = Image.open(config.POWER_RANKING_BG).convert("RGBA")
+def _prepare_bg(fonts: dict, label: str, date_str: str, show_disclaimer: bool = False,
+                background: Path | None = None, sub_y: int = 295) -> Image.Image:
+    bg = Image.open(background or config.POWER_RANKING_BG).convert("RGBA")
     bg = bg.resize((config.VIDEO_W, config.VIDEO_H), Image.LANCZOS)
     d  = ImageDraw.Draw(bg)
     sw  = utils.text_width(fonts["sub"], label)
     sx  = (config.VIDEO_W - sw) // 2
     # Shadow pass then color pass
-    d.text((sx + 2, 295), label, font=fonts["sub"], fill=(0, 80, 60, 160))
-    d.text((sx,     295), label, font=fonts["sub"], fill=(*config.C_CYAN, 220))
+    d.text((sx + 2, sub_y), label, font=fonts["sub"], fill=(0, 80, 60, 160))
+    d.text((sx,     sub_y), label, font=fonts["sub"], fill=(*config.C_CYAN, 220))
 
     # Prediction date — small, top-right corner, unobtrusive
     date_txt = f"UPDATED {date_str}"
@@ -143,13 +144,48 @@ def _prepare_bg(fonts: dict, label: str, date_str: str, show_disclaimer: bool = 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ROW RENDERER
 # ═══════════════════════════════════════════════════════════════════════════════
+def _row_columns(hband: tuple[int, int] | None) -> dict:
+    """Per-row horizontal column geometry (rank / name / bar / pct / flag, plus
+    the active-row glow bounds).
+
+    Default (hband=None) reproduces the original full-width layout exactly, so
+    the standard Power Ranking is untouched. When `hband=(left, right)` is given
+    (the knockout background's glass panel), every element is packed between
+    `left` and `right` — rank flush-left, flag flush-right, bar taking the
+    slack — so nothing spills outside the panel rectangle.
+    """
+    if hband is None:
+        return {
+            "rank_x": config.RANK_X, "name_x": config.NAME_X,
+            "bar_x":  config.BAR_X,  "bar_maxw": config.BAR_MAXW,
+            "pct_x":  config.PCT_X,  "flag_x": config.FLAG_X,
+            "flag_h": config.FLAG_H, "hl_x0": 40, "hl_x1": config.VIDEO_W - 40,
+        }
+    left, right = hband
+    flag_w  = config.FLAG_W
+    rank_x  = left
+    name_x  = left + 82
+    flag_x  = right - flag_w
+    pct_x   = flag_x - 92
+    bar_x   = name_x + 232
+    bar_maxw = max(120, pct_x - 24 - bar_x)
+    return {
+        "rank_x": rank_x, "name_x": name_x,
+        "bar_x":  bar_x,  "bar_maxw": bar_maxw,
+        "pct_x":  pct_x,  "flag_x": flag_x,
+        "flag_h": config.FLAG_H,
+        "hl_x0":  left - 16, "hl_x1": right + 16,
+    }
+
+
 def _draw_row(canvas: Image.Image, idx: int, t: float,
               fonts: dict, flags: dict,
-              ranking: list[dict], timings: list[dict], max_pct: int) -> None:
+              ranking: list[dict], timings: list[dict], max_pct: int,
+              rows_y0: int, row_step: int, cols: dict) -> None:
     """Renders a single ranking row at animation time t."""
     team = ranking[idx]
     tm   = timings[idx]
-    cy   = config.ROWS_Y0 + idx * config.ROW_STEP + config.ROW_H // 2
+    cy   = rows_y0 + idx * row_step + config.ROW_H // 2
 
     if t < tm["start"]:
         return
@@ -162,7 +198,7 @@ def _draw_row(canvas: Image.Image, idx: int, t: float,
     ld  = ImageDraw.Draw(lyr)
     rh  = utils.text_height(fonts["rank"])
     utils.shadow_text(ld, f"#{team['rank']}", fonts["rank"],
-                      config.RANK_X, cy - rh // 2,
+                      cols["rank_x"], cy - rh // 2,
                       fill=(*rank_c, int(255 * rank_p)))
     canvas.alpha_composite(lyr)
 
@@ -173,7 +209,7 @@ def _draw_row(canvas: Image.Image, idx: int, t: float,
     bar_p  = utils.ease_out(
         min(1.0, (t - tm["bar_start"]) / (tm["bar_end"] - tm["bar_start"]))
     )
-    fill_w = max(0, int(config.BAR_MAXW * (team["pct"] / max_pct) * bar_p))
+    fill_w = max(0, int(cols["bar_maxw"] * (team["pct"] / max_pct) * bar_p))
     bar_y  = cy - config.BAR_H // 2
 
     # Glow: continuous breathing while filling, one-time pulse when complete
@@ -185,7 +221,7 @@ def _draw_row(canvas: Image.Image, idx: int, t: float,
     else:
         glow = 0.0
 
-    utils.glow_bar(canvas, config.BAR_X, bar_y, fill_w, config.BAR_H,
+    utils.glow_bar(canvas, cols["bar_x"], bar_y, fill_w, config.BAR_H,
                    _bar_color(team["rank"]), glow)
 
     pct_txt = f"{round(team['pct'] * bar_p)}%"
@@ -193,7 +229,7 @@ def _draw_row(canvas: Image.Image, idx: int, t: float,
     pl  = Image.new("RGBA", (config.VIDEO_W, config.VIDEO_H), (0, 0, 0, 0))
     pd  = ImageDraw.Draw(pl)
     utils.shadow_text(pd, pct_txt, fonts["pct"],
-                      config.PCT_X, cy - ph // 2 - 1, config.C_WHITE)
+                      cols["pct_x"], cy - ph // 2 - 1, config.C_WHITE)
     canvas.alpha_composite(pl)
 
     if t < tm["flag_start"]:
@@ -207,7 +243,7 @@ def _draw_row(canvas: Image.Image, idx: int, t: float,
     nld = ImageDraw.Draw(nl)
     nh  = utils.text_height(fonts["name"])
     utils.shadow_text(nld, team["name"], fonts["name"],
-                      config.NAME_X, cy - nh // 2,
+                      cols["name_x"], cy - nh // 2,
                       fill=(*config.C_WHITE, int(255 * flag_a)))
     canvas.alpha_composite(nl)
 
@@ -218,22 +254,25 @@ def _draw_row(canvas: Image.Image, idx: int, t: float,
         r, g, b, a = f2.split()
         a       = a.point(lambda v: v * fa // 255)
         f2      = Image.merge("RGBA", (r, g, b, a))
-        canvas.paste(f2, (config.FLAG_X, cy - config.FLAG_H // 2), f2)
+        canvas.paste(f2, (cols["flag_x"], cy - cols["flag_h"] // 2), f2)
 
 
-def _draw_active_highlight(canvas: Image.Image, idx: int, intensity: float) -> None:
+def _draw_active_highlight(canvas: Image.Image, idx: int, intensity: float,
+                           rows_y0: int, row_step: int, cols: dict) -> None:
     """Subtle green glow behind the currently animating row."""
     if intensity < 0.02:
         return
     from PIL import ImageFilter
     pad   = 6
-    row_y = config.ROWS_Y0 + idx * config.ROW_STEP
-    glow  = Image.new("RGBA", (config.VIDEO_W - 80, config.ROW_H + 2*pad), (0, 0, 0, 0))
+    row_y = rows_y0 + idx * row_step
+    hl_x0, hl_x1 = cols["hl_x0"], cols["hl_x1"]
+    w     = hl_x1 - hl_x0
+    glow  = Image.new("RGBA", (w, config.ROW_H + 2*pad), (0, 0, 0, 0))
     gd    = ImageDraw.Draw(glow)
-    utils.rounded_rect(gd, 0, 0, config.VIDEO_W - 80, config.ROW_H + 2*pad, 12,
+    utils.rounded_rect(gd, 0, 0, w, config.ROW_H + 2*pad, 12,
                        (*config.C_BAR_GLOW, int(50 * intensity)))
     glow  = glow.filter(ImageFilter.GaussianBlur(12))
-    canvas.paste(glow, (40, row_y - pad), glow)
+    canvas.paste(glow, (hl_x0, row_y - pad), glow)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -272,7 +311,9 @@ def _build_audio(duration: float, timings: list[dict]) -> np.ndarray:
 # ═══════════════════════════════════════════════════════════════════════════════
 def _make_frame_fn(ranking: list[dict], max_pct: float,
                    timings: list[dict], duration: float,
-                   label: str, date_str: str, show_disclaimer: bool):
+                   label: str, date_str: str, show_disclaimer: bool,
+                   rows_y0: int, row_step: int, cols: dict,
+                   background: Path | None = None, sub_y: int = 295):
     """Returns the make_frame(t) callable used by MoviePy VideoClip."""
     fonts = {
         "rank":       utils.load_font(config.FS_RANK,       prefer_impact=True),
@@ -282,7 +323,7 @@ def _make_frame_fn(ranking: list[dict], max_pct: float,
         "footer":     utils.load_font(config.FS_FOOTER,     prefer_impact=False),
         "disclaimer": utils.load_font(config.FS_DISCLAIMER, prefer_impact=False),
     }
-    bg    = _prepare_bg(fonts, label, date_str, show_disclaimer)
+    bg    = _prepare_bg(fonts, label, date_str, show_disclaimer, background, sub_y)
     flags = utils.load_flags(ranking)
 
     living_layout = None
@@ -301,11 +342,13 @@ def _make_frame_fn(ranking: list[dict], max_pct: float,
             tm = timings[idx]
             if tm["start"] <= t < tm["glow_end"]:
                 prog = min(1.0, (t - tm["start"]) / (tm["glow_end"] - tm["start"]))
-                _draw_active_highlight(canvas, idx, math.sin(prog * math.pi) * 0.6)
+                _draw_active_highlight(canvas, idx, math.sin(prog * math.pi) * 0.6,
+                                       rows_y0, row_step, cols)
 
         # Render each row
         for idx in range(len(ranking)):
-            _draw_row(canvas, idx, t, fonts, flags, ranking, timings, max_pct)
+            _draw_row(canvas, idx, t, fonts, flags, ranking, timings, max_pct,
+                      rows_y0, row_step, cols)
 
         # Footer (within bottom safe area, y < VIDEO_H - 200)
         if t > config.INTRO_T + 1.0:
@@ -331,18 +374,34 @@ def _make_frame_fn(ranking: list[dict], max_pct: float,
 # PUBLIC API
 # ═══════════════════════════════════════════════════════════════════════════════
 def render_power_ranking(ranking: list[dict],
-                          output_path: Path | None = None) -> Path:
+                          output_path: Path | None = None,
+                          *,
+                          use_title_odds: bool = True,
+                          label: str | None = None,
+                          show_disclaimer: bool | None = None,
+                          background: Path | None = None,
+                          sub_y: int = 295,
+                          band: tuple[int, int] | None = None,
+                          hband: tuple[int, int] | None = None) -> Path:
     """
     Renders the animated power ranking video and saves it as MP4.
 
     Args:
-        ranking    : list of team dicts from rankings.get_top10(), used as a
-                     FALLBACK only. The actual top-10 normally comes from
-                     tournament_simulator.get_tournament_odds() (real World
-                     Cup title probabilities, top-10 by title_pct — these do
-                     NOT sum to 100). If that fails, this Elo-normalized
-                     `ranking` is used instead, with a [WARN].
-        output_path: destination path (default: config.POWER_RANKING_OUTPUT)
+        ranking        : list of team dicts (each needs "rank", "name", "code",
+                         "pct").
+                         With use_title_odds=True (default, the weekly Power
+                         Ranking) this is a FALLBACK only — the top-10 normally
+                         comes from tournament_simulator.get_tournament_odds()
+                         (title probabilities that do NOT sum to 100). If that
+                         fails, this Elo-normalized `ranking` is used, [WARN].
+                         With use_title_odds=False (the knockout ranking) the
+                         `ranking` is used VERBATIM — no simulator override.
+        output_path    : destination path (default: config.POWER_RANKING_OUTPUT)
+        use_title_odds : re-derive the top-10 from tournament_simulator. Set
+                         False to render a pre-built ranking as-is.
+        label          : subtitle override (defaults per source below).
+        show_disclaimer: force the "provisional bracket" disclaimer on/off
+                         (defaults per source below).
 
     Returns:
         Path to the generated MP4 file.
@@ -350,25 +409,50 @@ def render_power_ranking(ranking: list[dict],
     out = output_path or config.POWER_RANKING_OUTPUT
     out.parent.mkdir(parents=True, exist_ok=True)
 
-    ranking, used_title_odds = _build_title_ranking(ranking)
-    if used_title_odds:
-        label, show_disclaimer = config.POWER_RANKING_TITLE_LABEL, True
-        print("  Source     : Monte Carlo title odds (tournament_simulator)")
+    if use_title_odds:
+        ranking, used_title_odds = _build_title_ranking(ranking)
+        if used_title_odds:
+            auto_label, auto_disc = config.POWER_RANKING_TITLE_LABEL, True
+            print("  Source     : Monte Carlo title odds (tournament_simulator)")
+        else:
+            auto_label, auto_disc = config.POWER_RANKING_FALLBACK_LABEL, False
+            print("  Source     : Elo-normalized top-10 (fallback)")
     else:
-        label, show_disclaimer = config.POWER_RANKING_FALLBACK_LABEL, False
-        print("  Source     : Elo-normalized top-10 (fallback)")
+        # Pre-built ranking (knockout_ranking — odds from the REAL remaining
+        # bracket). Used verbatim, and it's the real bracket so no disclaimer.
+        auto_label, auto_disc = config.POWER_RANKING_TITLE_LABEL, False
+        print("  Source     : pre-built ranking (real remaining bracket)")
+
+    label           = label if label is not None else auto_label
+    show_disclaimer = auto_disc if show_disclaimer is None else show_disclaimer
 
     max_pct  = max(t["pct"] for t in ranking)
     timings  = build_timings(ranking)
     duration = compute_duration(timings)
     date_str = datetime.now(timezone.utc).strftime("%d %b %Y").upper()
 
+    # Vertically center the block of rows within the content band, shrinking
+    # the row pitch if the team count wouldn't otherwise fit. Default band is
+    # the full safe area [ROWS_Y0, VIDEO_H-200] (a 10-row ranking is unchanged);
+    # the knockout background passes its glass-panel band so 8/4-team boards
+    # stay inside the panel instead of spilling onto the stadium.
+    n_rows   = len(ranking)
+    if band is None:
+        band_top, band_bottom = config.ROWS_Y0, config.VIDEO_H - 200
+        row_step = config.ROW_STEP
+    else:
+        band_top, band_bottom = band
+        row_step = min(config.ROW_STEP, (band_bottom - band_top) // n_rows)
+    rows_y0  = int(band_top + max(0, (band_bottom - band_top - n_rows * row_step) / 2))
+    cols     = _row_columns(hband)
+
     print(f"  Resolution : {config.VIDEO_W}x{config.VIDEO_H} @ {config.VIDEO_FPS} fps")
     print(f"  Duration   : {duration:.1f}s")
     print(f"  Date       : {date_str}")
     print(f"  Output     : {out.name}")
 
-    make_frame = _make_frame_fn(ranking, max_pct, timings, duration, label, date_str, show_disclaimer)
+    make_frame = _make_frame_fn(ranking, max_pct, timings, duration, label, date_str,
+                                show_disclaimer, rows_y0, row_step, cols, background, sub_y)
     clip = VideoClip(make_frame, duration=duration)
 
     print("  Building audio...")

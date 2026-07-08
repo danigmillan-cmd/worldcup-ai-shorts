@@ -40,7 +40,14 @@ jobs:
 
       - name: Install ffmpeg
         run: |
-          sudo apt-get update
+          # GitHub runners ship extra apt repos (Microsoft/azure-cli) whose
+          # signature is occasionally broken upstream, which makes a plain
+          # `apt-get update` exit 100 and kill the whole job (this cost an
+          # Auto Matches run on 2026-07-07). ffmpeg lives in the base Ubuntu
+          # repos, so drop those third-party lists first and tolerate a flaky
+          # update — the runner image already ships a usable package index.
+          sudo rm -f /etc/apt/sources.list.d/*microsoft* /etc/apt/sources.list.d/*azure* || true
+          sudo apt-get update || true
           sudo apt-get install -y ffmpeg
 
       - name: Install Python dependencies

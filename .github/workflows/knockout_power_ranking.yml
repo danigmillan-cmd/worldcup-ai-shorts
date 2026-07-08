@@ -1,0 +1,79 @@
+name: Knockout Power Ranking
+
+# Two fixed runs that publish a Power Ranking of the teams STILL ALIVE in the
+# 2026 World Cup, built from the REAL remaining bracket (read live from ESPN):
+#   - FINAL 8: the morning after the Round of 16 (8 quarter-finalists)
+#   - FINAL 4: the morning after the Quarter-finals (4 semi-finalists)
+# No team list is hard-coded — knockout_ranking.py derives the survivors and
+# their pairings from live fixtures and aborts if the count is unexpected.
+#
+# Replaces the old Weekly Power Ranking (weekly_power_ranking.yml, removed):
+# only these two knockout rankings should be published from here on. The final
+# itself is covered by the match-prediction Short, so there's no FINAL 2 run.
+on:
+  schedule:
+    # GitHub cron is UTC and ignores the year — fine for a one-off tournament.
+    - cron: "0 6 8 7 *"    # Jul 8, 06:00 UTC (~08:00 Madrid) — FINAL 8, post Round of 16
+    - cron: "0 6 13 7 *"   # Jul 13, 06:00 UTC (~08:00 Madrid) — FINAL 4, post Quarter-finals
+  workflow_dispatch:
+    inputs:
+      survivors:
+        description: "Surviving teams to rank (8 = Final 8, 4 = Final 4)"
+        required: true
+        default: "8"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install ffmpeg
+        run: |
+          # GitHub runners ship extra apt repos (Microsoft/azure-cli) whose
+          # signature is occasionally broken upstream, which makes a plain
+          # `apt-get update` exit 100 and kill the whole job (this cost an
+          # Auto Matches run on 2026-07-07). ffmpeg lives in the base Ubuntu
+          # repos, so drop those third-party lists first and tolerate a flaky
+          # update — the runner image already ships a usable package index.
+          sudo rm -f /etc/apt/sources.list.d/*microsoft* /etc/apt/sources.list.d/*azure* || true
+          sudo apt-get update || true
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Restore credentials from secrets
+        env:
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GOOGLE_CLIENT_SECRET" > credentials/client_secret.json
+          printf '%s' "$YOUTUBE_TOKEN" > credentials/token.json
+
+      - name: Determine surviving-team count
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SURVIVORS="${{ github.event.inputs.survivors }}"
+          elif [ "${{ github.event.schedule }}" = "0 6 13 7 *" ]; then
+            SURVIVORS="4"
+          else
+            SURVIVORS="8"
+          fi
+          echo "survivors=$SURVIVORS" >> "$GITHUB_OUTPUT"
+          echo "Publishing knockout Power Ranking for FINAL $SURVIVORS"
+
+      - name: Render and upload Knockout Power Ranking
+        run: python main.py knockout_ranking --survivors ${{ steps.pick.outputs.survivors }}

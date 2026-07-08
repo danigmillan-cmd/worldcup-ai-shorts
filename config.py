@@ -180,6 +180,51 @@ POWER_RANKING_DISCLAIMER = "Provisional bracket - draw pending"
 # falls back to the original Elo-normalized top-10 (renderer.py [WARN]).
 POWER_RANKING_FALLBACK_LABEL = "AI POWER RANKING"
 
+# ─── Knockout Power Ranking (remaining-bracket title odds) ───────────────────
+# A Power Ranking of ONLY the teams still alive in the knockout stage, built
+# from the REAL remaining bracket read live from ESPN (knockout_ranking.py) —
+# NOT the group-stage-onwards provisional-bracket simulation used by the weekly
+# Power Ranking. The surviving teams' real next-round pairings are played out
+# Monte-Carlo (prediction_engine) to the final, so each team's title % is an
+# honest "chance to win the cup from here" and the %'s DO sum to ~100 across
+# the survivors. Published twice: the FINAL 8 (after the Round of 16) and the
+# FINAL 4 (after the Quarter-finals). No "draw pending" disclaimer — it's the
+# real bracket.
+KNOCKOUT_RANKING_OUTPUT = OUTPUT_DIR / "worldcup_knockout_ranking.mp4"
+
+# Dedicated background for the knockout rankings — a clean central glass panel
+# (no baked 10-row slots), so 8- or 4-team boards don't show empty row frames.
+KNOCKOUT_RANKING_BG = BG_DIR / "Gemini_Generated_Image_1iynl71iynl71iyn.png"
+
+# This background already bakes the "WHO WILL WIN THE WORLD CUP?" title near the
+# top and frames a central glass panel, so the ranking layout differs from the
+# default power_ranking_bg.png: the subtitle drops below the baked title, and
+# the rows are confined to the glass panel's content band (so nothing spills
+# onto the stadium). Rows auto-center within the band and the row pitch shrinks
+# if needed to fit the team count (see renderer.render_power_ranking).
+KNOCKOUT_RANKING_SUB_Y = 360           # subtitle Y (below the baked title)
+KNOCKOUT_RANKING_BAND  = (455, 1460)   # (top, bottom) of the glass-panel row band
+# (left, right) content bounds inside the panel — rank flush-left, flag
+# flush-right, so every row element stays within the glass rectangle. The panel
+# neon border sits at x≈[101, 977]; these pad ~25px inside it.
+KNOCKOUT_RANKING_HBAND = (128, 950)
+
+# Simulations of the (short) remaining bracket. Only 2-3 rounds per sim, so
+# this is cheap even at a high count — no caching needed.
+N_SIMS_KNOCKOUT = 20000
+
+# On-screen subtitle + YouTube title, keyed by the number of surviving teams.
+KNOCKOUT_RANKING_SUBTITLES = {
+    8: "AI WINNER ODDS · FINAL 8",
+    4: "AI WINNER ODDS · FINAL 4",
+    2: "AI WINNER ODDS · FINAL",
+}
+KNOCKOUT_RANKING_YT_TITLES = {
+    8: "AI Predicts The World Cup Winner | FINAL 8 \U0001f30d⚽",
+    4: "AI Predicts The World Cup Winner | FINAL 4 \U0001f30d⚽",
+    2: "AI Predicts The World Cup Winner | FINAL \U0001f30d⚽",
+}
+
 # ─── YouTube OAuth ────────────────────────────────────────────────────────────
 SCOPES_UPLOAD = ["https://www.googleapis.com/auth/youtube.upload"]
 SCOPES_MANAGE = ["https://www.googleapis.com/auth/youtube"]
