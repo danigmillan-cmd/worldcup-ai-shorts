@@ -1969,5 +1969,26 @@
     "elo_avg": 2032.0,
     "animated_background": true,
     "recorded_at": "2026-07-07T21:49:37.406390+00:00"
+  },
+  "Spain_Belgium_2026-07-10": {
+    "video_id": "QO78Kws19tk",
+    "youtube_url": "https://www.youtube.com/shorts/QO78Kws19tk",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "AI Predicts Spain vs Belgium 👀",
+    "title_template_index": 1,
+    "description_length": 276,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 20,
+    "upload_weekday_utc": "Wednesday",
+    "team_a": "SPAIN",
+    "team_b": "BELGIUM",
+    "elo_a": 2177,
+    "elo_b": 1961,
+    "elo_sum": 4138,
+    "elo_avg": 2069.0,
+    "animated_background": true,
+    "recorded_at": "2026-07-08T20:25:59.422514+00:00"
   }
 }

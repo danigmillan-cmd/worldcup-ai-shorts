@@ -586,5 +586,11 @@
     "youtube_url": "https://www.youtube.com/shorts/awT2YcGbPdQ",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_France_Morocco_2026-07-09.mp4",
     "timestamp": "2026-07-07T21:49:37.409099+00:00"
+  },
+  "Spain_Belgium_2026-07-10": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/QO78Kws19tk",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Spain_Belgium_2026-07-10.mp4",
+    "timestamp": "2026-07-08T20:25:59.425315+00:00"
   }
 }
