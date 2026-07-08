@@ -191,7 +191,7 @@ def run_pipeline(expected_teams: int,
 
         _section("STEP 2 / 3  —  RENDER")
         result["video_path"] = renderer.render_power_ranking(
-            ranking, output_path,
+            ranking, out,
             use_title_odds  = False,
             label           = subtitle,
             show_disclaimer = False,

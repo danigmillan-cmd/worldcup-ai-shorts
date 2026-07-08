@@ -1,26 +1,26 @@
 name: Knockout Power Ranking
 
-# Two fixed runs that publish a Power Ranking of the teams STILL ALIVE in the
-# 2026 World Cup, built from the REAL remaining bracket (read live from ESPN):
-#   - FINAL 8: the morning after the Round of 16 (8 quarter-finalists)
-#   - FINAL 4: the morning after the Quarter-finals (4 semi-finalists)
-# No team list is hard-coded — knockout_ranking.py derives the survivors and
-# their pairings from live fixtures and aborts if the count is unexpected.
+# Publishes a Power Ranking of the teams STILL ALIVE in the 2026 World Cup,
+# built from the REAL remaining bracket (read live from ESPN). No team list is
+# hard-coded — knockout_ranking.py derives the survivors and their pairings
+# from live fixtures and aborts if the count is unexpected.
 #
-# Replaces the old Weekly Power Ranking (weekly_power_ranking.yml, removed):
-# only these two knockout rankings should be published from here on. The final
-# itself is covered by the match-prediction Short, so there's no FINAL 2 run.
+# Scheduled run = FINAL 4 (the 4 semi-finalists), the morning after the
+# Quarter-finals. The FINAL 8 (post Round of 16) was published manually, so it
+# has no cron; use the manual workflow_dispatch (survivors=8) if it's ever
+# needed again. The final itself is covered by the match-prediction Short.
+#
+# Replaces the old Weekly Power Ranking (weekly_power_ranking.yml, removed).
 on:
   schedule:
     # GitHub cron is UTC and ignores the year — fine for a one-off tournament.
-    - cron: "0 6 8 7 *"    # Jul 8, 06:00 UTC (~08:00 Madrid) — FINAL 8, post Round of 16
     - cron: "0 6 13 7 *"   # Jul 13, 06:00 UTC (~08:00 Madrid) — FINAL 4, post Quarter-finals
   workflow_dispatch:
     inputs:
       survivors:
-        description: "Surviving teams to rank (8 = Final 8, 4 = Final 4)"
+        description: "Surviving teams to rank (4 = Final 4, 8 = Final 8)"
         required: true
-        default: "8"
+        default: "4"
 
 jobs:
   run:
@@ -65,12 +65,11 @@ jobs:
       - name: Determine surviving-team count
         id: pick
         run: |
+          # Scheduled runs are the Final 4; a manual dispatch may override.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             SURVIVORS="${{ github.event.inputs.survivors }}"
-          elif [ "${{ github.event.schedule }}" = "0 6 13 7 *" ]; then
-            SURVIVORS="4"
           else
-            SURVIVORS="8"
+            SURVIVORS="4"
           fi
           echo "survivors=$SURVIVORS" >> "$GITHUB_OUTPUT"
           echo "Publishing knockout Power Ranking for FINAL $SURVIVORS"
