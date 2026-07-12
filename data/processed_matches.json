@@ -604,5 +604,11 @@
     "youtube_url": "https://www.youtube.com/shorts/3e99h3SyJxY",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_Argentina_Switzerland_2026-07-12.mp4",
     "timestamp": "2026-07-10T01:16:51.087864+00:00"
+  },
+  "France_Spain_2026-07-14": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/j0NGDR9iTno",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_France_Spain_2026-07-14.mp4",
+    "timestamp": "2026-07-12T19:50:27.655637+00:00"
   }
 }
