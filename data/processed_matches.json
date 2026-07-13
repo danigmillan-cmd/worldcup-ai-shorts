@@ -610,5 +610,11 @@
     "youtube_url": "https://www.youtube.com/shorts/j0NGDR9iTno",
     "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_France_Spain_2026-07-14.mp4",
     "timestamp": "2026-07-12T19:50:27.655637+00:00"
+  },
+  "England_Argentina_2026-07-15": {
+    "uploaded": true,
+    "youtube_url": "https://www.youtube.com/shorts/vjUB3rL3fpw",
+    "video_path": "/home/runner/work/worldcup-ai-shorts/worldcup-ai-shorts/output/match_prediction_England_Argentina_2026-07-15.mp4",
+    "timestamp": "2026-07-13T19:42:18.685578+00:00"
   }
 }
