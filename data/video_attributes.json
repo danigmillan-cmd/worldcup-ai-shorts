@@ -2095,5 +2095,26 @@
     "elo_avg": 2107.0,
     "animated_background": true,
     "recorded_at": "2026-07-16T21:45:49.026850+00:00"
+  },
+  "Spain_Argentina_2026-07-19": {
+    "video_id": "-scuuYt3iDw",
+    "youtube_url": "https://www.youtube.com/shorts/-scuuYt3iDw",
+    "content_type": "match_prediction",
+    "duration_s": 6.4,
+    "title": "Who Wins? Spain vs Argentina 🤖⚽",
+    "title_template_index": 3,
+    "description_length": 280,
+    "tag_count": 12,
+    "title_has_emoji": true,
+    "upload_hour_utc": 19,
+    "upload_weekday_utc": "Friday",
+    "team_a": "SPAIN",
+    "team_b": "ARGENTINA",
+    "elo_a": 2166,
+    "elo_b": 2061,
+    "elo_sum": 4227,
+    "elo_avg": 2113.5,
+    "animated_background": true,
+    "recorded_at": "2026-07-17T19:47:11.999557+00:00"
   }
 }
