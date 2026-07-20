@@ -4,15 +4,20 @@ name: Auto Matches
 # prediction Short for matches kicking off within config.BATCH_WINDOW_HOURS,
 # upload them to YouTube (paced to ~1/hour), and commit the updated idempotency
 # state back to the repo.
+#
+# RETIRED 2026-07-20 — the 2026 World Cup is over, so there are no fixtures left
+# to predict and the cron has been removed. It used to be:
+#
+#     schedule:
+#       - cron: "5,25,45 * * * *"
+#
+# (three times an hour because GitHub frequently drops/delays scheduled runs;
+# the pipeline is idempotent and self-paces uploads to ~1 Short/hour, so the
+# extra runs were cheap no-ops rather than extra uploads. GitHub cron is UTC and
+# does not honour DST.) Restore that block to bring the channel back for the
+# next tournament. Manual runs still work from the Actions tab.
 on:
-  schedule:
-    # GitHub frequently drops/delays scheduled runs, especially on the hour, so
-    # fire several times per hour at off-peak minutes (UTC) to raise the odds
-    # that at least one lands. The pipeline is idempotent and self-paces uploads
-    # (config.MATCH_MIN_UPLOAD_INTERVAL_MIN -> ~1 Short/hour), so the extra runs
-    # are cheap no-ops, not extra uploads. GitHub cron does not honour DST.
-    - cron: "5,25,45 * * * *"
-  workflow_dispatch: {}   # allow manual runs from the Actions tab
+  workflow_dispatch: {}
 
 # Allow the workflow to push the updated state files back to the repo.
 permissions:

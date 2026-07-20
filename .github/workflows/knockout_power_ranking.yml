@@ -11,10 +11,12 @@ name: Knockout Power Ranking
 # needed again. The final itself is covered by the match-prediction Short.
 #
 # Replaces the old Weekly Power Ranking (weekly_power_ranking.yml, removed).
+#
+# RETIRED 2026-07-20 — the tournament is over and its scheduled run (Final 4)
+# already happened on Jul 13. The cron was `0 6 13 7 *`, and since GitHub cron
+# ignores the year it would have fired again every Jul 13, so it has been
+# removed. Manual runs still work from the Actions tab.
 on:
-  schedule:
-    # GitHub cron is UTC and ignores the year — fine for a one-off tournament.
-    - cron: "0 6 13 7 *"   # Jul 13, 06:00 UTC (~08:00 Madrid) — FINAL 4, post Quarter-finals
   workflow_dispatch:
     inputs:
       survivors:
