@@ -3,7 +3,7 @@
 > Un canal de YouTube que predijo partidos del Mundial 2026 durante un mes entero
 > sin que nadie tocara un botón. Ni editor de vídeo, ni plantillas, ni becario.
 
-*Versión web maquetada para compartir: [`docs/como-esta-hecho.html`](docs/como-esta-hecho.html) — un único fichero, sin dependencias, se abre haciendo doble clic.*
+*Versión web maquetada para compartir: **<https://danigmillan-cmd.github.io/worldcup-ai-shorts/>** — un único fichero ([`docs/index.html`](docs/index.html)), sin dependencias, que también se abre en local haciendo doble clic.*
 
 | 98 | 0 | 3 | 6.800 | 20.000 |
 |---|---|---|---|---|
