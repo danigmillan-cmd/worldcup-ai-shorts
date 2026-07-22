@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Cup AI Shorts — Cómo está hecho</title>
+<meta name="description" content="Cómo funciona por dentro un canal de YouTube Shorts que predijo partidos del Mundial 2026 de forma totalmente automática: Python, Pillow, MoviePy y GitHub Actions.">
+<meta name="color-scheme" content="light dark">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; height: auto; }
+
+  :root {
+    --ground:      #F1F4F3;
+    --panel:       #FFFFFF;
+    --panel-2:     #E6ECEA;
+    --ink:         #10201F;
+    --ink-soft:    #47605D;
+    --ink-faint:   #7B918E;
+    --rule:        #CFDBD8;
+    --accent:      #16887A;
+    --accent-hot:  #3FBFAA;
+    --gold:        #9A6E05;
+    --blue:        #2E6FA8;
+    --ember:       #B8442B;
+    --shadow:      0 1px 2px rgba(16,32,31,.06), 0 8px 24px rgba(16,32,31,.05);
+
+    --display: Impact, Haettenschweiler, "Arial Narrow Bold", "Franklin Gothic Bold", sans-serif;
+    --body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    --mono: "Cascadia Mono", Consolas, "SF Mono", ui-monospace, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:    #0B1417;
+      --panel:     #131F22;
+      --panel-2:   #1B2A2E;
+      --ink:       #E8F0EE;
+      --ink-soft:  #9DB3B0;
+      --ink-faint: #6C8380;
+      --rule:      #26383C;
+      --accent:    #3FBFAA;
+      --accent-hot:#5FE0C8;
+      --gold:      #E0A519;
+      --blue:      #5AA0E0;
+      --ember:     #E0715A;
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #0B1417;
+    --panel:     #131F22;
+    --panel-2:   #1B2A2E;
+    --ink:       #E8F0EE;
+    --ink-soft:  #9DB3B0;
+    --ink-faint: #6C8380;
+    --rule:      #26383C;
+    --accent:    #3FBFAA;
+    --accent-hot:#5FE0C8;
+    --gold:      #E0A519;
+    --blue:      #5AA0E0;
+    --ember:     #E0715A;
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.3);
+  }
+
+  :root[data-theme="light"] {
+    --ground:    #F1F4F3;
+    --panel:     #FFFFFF;
+    --panel-2:   #E6ECEA;
+    --ink:       #10201F;
+    --ink-soft:  #47605D;
+    --ink-faint: #7B918E;
+    --rule:      #CFDBD8;
+    --accent:    #16887A;
+    --accent-hot:#3FBFAA;
+    --gold:      #9A6E05;
+    --blue:      #2E6FA8;
+    --ember:     #B8442B;
+    --shadow:    0 1px 2px rgba(16,32,31,.06), 0 8px 24px rgba(16,32,31,.05);
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 19px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.1rem, 4vw, 2.5rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  /* ---------- hero ---------- */
+
+  .hero { display: flex; flex-direction: column; gap: 1.1rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .78rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .9rem;
+    align-items: center;
+  }
+  .eyebrow .dot { color: var(--ink-faint); }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(3rem, 10vw, 6.5rem);
+    line-height: .92;
+    letter-spacing: .005em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    margin: 0;
+  }
+  h1 .thin { color: var(--accent); }
+
+  .standfirst {
+    font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    color: var(--ink-soft);
+    max-width: 40ch;
+    line-height: 1.5;
+  }
+
+  /* ---------- scoreboard ---------- */
+
+  .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stat {
+    background: var(--panel);
+    padding: 1.1rem 1.1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+  }
+  .stat b {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 2.6rem;
+    line-height: 1;
+    letter-spacing: .01em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .stat.hi b { color: var(--gold); }
+  .stat span {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- section (lower-third) ---------- */
+
+  section { display: flex; flex-direction: column; gap: 1.15rem; }
+
+  .lower-third {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: .4rem;
+  }
+  .lower-third .num {
+    background: var(--accent);
+    color: var(--ground);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: .8rem;
+    letter-spacing: .1em;
+    padding: .3rem .6rem;
+    display: flex;
+    align-items: center;
+  }
+  .lower-third h2 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    line-height: 1.15;
+    margin: 0;
+    padding: .18rem .8rem .1rem;
+    align-self: flex-end;
+  }
+
+  section > p { max-width: 68ch; margin: 0; }
+  section > p + p { margin-top: -.35rem; }
+
+  h3 {
+    font-family: var(--body);
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: .01em;
+    margin: .6rem 0 -.5rem;
+    color: var(--ink);
+  }
+
+  strong { font-weight: 700; }
+  em { font-style: normal; color: var(--accent); font-weight: 600; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .84em;
+    background: var(--panel-2);
+    border-radius: 2px;
+    padding: .1em .34em;
+    color: var(--ink);
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, .card:focus-visible { outline: 2px solid var(--accent-hot); outline-offset: 3px; }
+
+  ul { margin: 0; padding-left: 1.15rem; max-width: 68ch; display: flex; flex-direction: column; gap: .4rem; }
+  li::marker { color: var(--accent); }
+
+  /* ---------- cards ---------- */
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.1rem 1.2rem 1.2rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .card .kicker {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .card h4 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: .015em;
+    line-height: 1.1;
+    margin: 0;
+  }
+  .card p { margin: 0; font-size: .93rem; color: var(--ink-soft); line-height: 1.55; }
+  .card .len {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .card.a h4 { color: var(--blue); }
+  .card.b h4 { color: var(--ember); }
+  .card.c h4 { color: var(--gold); }
+
+  /* ---------- table ---------- */
+
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 3px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; min-width: 34rem; }
+  th, td { text-align: left; padding: .6rem .9rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  thead th {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 400;
+    background: var(--panel-2);
+  }
+  td:first-child { font-family: var(--mono); font-size: .85rem; color: var(--accent); white-space: nowrap; }
+  td.num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- diagram ---------- */
+
+  .diagram {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.4rem 1rem;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
+  }
+  .diagram pre { margin: 0; }
+
+  .flow {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 30rem;
+  }
+  .flow li {
+    position: relative;
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: .6rem .9rem;
+    text-align: center;
+    font-size: .92rem;
+    line-height: 1.35;
+  }
+  .flow li + li { margin-top: 2.1rem; }
+  .flow li + li::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -2.1rem;
+    width: 1px;
+    height: 2.1rem;
+    background: var(--rule);
+  }
+  .flow li + li::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -.75rem;
+    width: .5rem;
+    height: .5rem;
+    border-right: 1px solid var(--accent);
+    border-bottom: 1px solid var(--accent);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .flow small {
+    display: block;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--ink-faint);
+    line-height: 1.4;
+    margin-top: .1rem;
+  }
+  .flow .dec {
+    background: var(--panel);
+    border-color: var(--accent);
+    border-width: 2px;
+    font-weight: 700;
+  }
+  .flow .branch {
+    display: inline-block;
+    margin-top: .35rem;
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ember);
+  }
+
+  /* ---------- theme toggle ---------- */
+
+  .theme-toggle {
+    position: fixed;
+    top: .9rem;
+    right: .9rem;
+    z-index: 10;
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: .35rem .75rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent-hot); outline-offset: 3px; }
+  @media print { .theme-toggle { display: none; } }
+
+  /* ---------- pull quote / note ---------- */
+
+  .note {
+    border-left: 3px solid var(--accent);
+    padding: .1rem 0 .1rem 1.1rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    font-size: 1.02rem;
+  }
+  .note b { color: var(--ink); }
+
+  /* ---------- matrix demo ---------- */
+
+  .matrix-wrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .matrix {
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-variant-numeric: tabular-nums;
+    min-width: 0;
+  }
+  .matrix td, .matrix th {
+    border: 1px solid var(--rule);
+    padding: .3rem .1rem;
+    text-align: center;
+    width: 2.5rem;
+    color: var(--ink);
+  }
+  .matrix th { color: var(--ink-faint); border: 0; font-weight: 400; }
+  .matrix td.win  { background: color-mix(in srgb, var(--blue) 30%, transparent); }
+  .matrix td.draw { background: color-mix(in srgb, var(--gold) 34%, transparent); }
+  .matrix td.lose { background: color-mix(in srgb, var(--ember) 22%, transparent); }
+  .matrix td.peak { outline: 2px solid var(--ink); outline-offset: -2px; font-weight: 700; }
+
+  .legend { display: flex; flex-direction: column; gap: .55rem; font-size: .9rem; color: var(--ink-soft); }
+  .legend div { display: flex; align-items: center; gap: .55rem; }
+  .swatch { width: 1rem; height: 1rem; border: 1px solid var(--rule); flex: none; }
+  .sw-win  { background: color-mix(in srgb, var(--blue) 30%, transparent); }
+  .sw-draw { background: color-mix(in srgb, var(--gold) 34%, transparent); }
+  .sw-lose { background: color-mix(in srgb, var(--ember) 22%, transparent); }
+
+  /* ---------- closing ---------- */
+
+  .outro {
+    border-top: 2px solid var(--accent);
+    padding-top: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+  }
+  .outro p { max-width: 66ch; margin: 0; }
+  .sig {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a { transition: color .15s ease; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">
+      <span>Mundial 2026</span><span class="dot">/</span>
+      <span>Canal automatizado de YouTube Shorts</span><span class="dot">/</span>
+      <span>Python</span>
+    </div>
+    <h1>Cómo está<br><span class="thin">hecho</span> esto</h1>
+    <p class="standfirst">
+      Un canal de YouTube que predijo partidos del Mundial durante un mes entero
+      sin que nadie tocara un botón. Ni editor de vídeo, ni plantillas, ni becario.
+      Esto es lo que hay dentro.
+    </p>
+  </header>
+
+  <div class="scoreboard">
+    <div class="stat hi"><b>98</b><span>Shorts publicados</span></div>
+    <div class="stat"><b>0</b><span>Ediciones manuales</span></div>
+    <div class="stat"><b>3</b><span>Formatos de vídeo</span></div>
+    <div class="stat"><b>6.800</b><span>Líneas de Python</span></div>
+    <div class="stat"><b>20.000</b><span>Simulaciones por ranking</span></div>
+  </div>
+
+  <section>
+    <div class="lower-third"><div class="num">01</div><h2>La idea en una frase</h2></div>
+    <p>
+      Cada vez que se acerca un partido del Mundial, el sistema se entera solo, calcula
+      quién va a ganar, dibuja un vídeo vertical de seis segundos con las banderas y las
+      probabilidades, y lo sube a YouTube. Después mide cómo ha funcionado y escribe
+      su propio informe.
+    </p>
+    <p>
+      No hay nada grabado, nada renderizado a mano y ningún servicio de pago generando el
+      vídeo. Cada fotograma se dibuja píxel a píxel con <em>Pillow</em>, se monta en una línea
+      de tiempo con <em>MoviePy</em> y se publica con la API de YouTube. Todo corre en
+      <em>GitHub Actions</em>, así que ni siquiera hace falta tener el ordenador encendido.
+    </p>
+    <div class="note">
+      <b>La regla que sostiene el diseño:</b> cada capa ignora a las demás. El módulo que
+      busca partidos no sabe que existe el vídeo. El que dibuja no sabe que existe YouTube.
+      Cambiar la fuente de datos no obliga a tocar el renderizador — por eso el mismo código
+      sirve de plantilla para otro deporte o para otra competición.
+    </div>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">02</div><h2>El recorrido de un vídeo</h2></div>
+    <p>
+      Cinco etapas, siempre las mismas, siempre en este orden. Cada una escribe su
+      resultado en un fichero y la siguiente lo lee — así cualquier paso se puede
+      relanzar por separado cuando algo falla.
+    </p>
+    <div class="diagram">
+      <ol class="flow" aria-label="Recorrido de un vídeo, de la fuente de datos a la publicación">
+        <li>ESPN · API pública<small>calendario del Mundial</small></li>
+        <li>fixtures.json<small>partidos normalizados</small></li>
+        <li class="dec">¿Arranca en las próximas 48 h?<span class="branch">No → fin del ciclo</span></li>
+        <li class="dec">¿Ya lo subí?<span class="branch">Sí → fin del ciclo</span></li>
+        <li>Elo en vivo<small>eloratings.net</small></li>
+        <li>Motor de predicción<small>matriz Poisson de marcadores</small></li>
+        <li>Render 1080×1920<small>Pillow + MoviePy</small></li>
+        <li>Subida a YouTube<small>OAuth2 · máx. 1/hora</small></li>
+        <li>Registro de subidos<small>+ atributos del vídeo</small></li>
+        <li>Informe semanal<small>Analytics + análisis con Claude</small></li>
+      </ol>
+    </div>
+    <p>
+      El rombo <em>«¿Ya lo subí?»</em> es la pieza más importante de todo el sistema. El ciclo
+      se ejecuta tres veces por hora, todos los días: sin ese registro, el mismo partido se
+      publicaría cuarenta veces. Con él, repetir la ejecución no cuesta nada y no rompe nada.
+    </p>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">03</div><h2>El cerebro: de Elo a marcador</h2></div>
+    <p>
+      Las predicciones no salen de una IA generativa ni de una tabla inventada. Salen de un
+      modelo estadístico clásico, el mismo que usan las casas de apuestas, con dos pasos.
+    </p>
+
+    <h3>Paso 1 — Cuántos goles espera marcar cada equipo</h3>
+    <p>
+      Se toma el Elo real de ambas selecciones (rating que se descarga en vivo). La diferencia
+      de Elo se reparte en goles esperados alrededor de un total base de <code>2.4</code> goles
+      por partido. A las tres anfitrionas — Estados Unidos, México y Canadá — se les suman
+      <code>75</code> puntos de Elo por jugar en casa.
+    </p>
+
+    <h3>Paso 2 — La matriz de marcadores</h3>
+    <p>
+      Con esos goles esperados se construye una rejilla de Poisson: la probabilidad de
+      <em>cada marcador posible</em>, de 0-0 a 8-8. Ochenta y una casillas. Sumando las de un
+      lado sale «gana A», las de la diagonal «empate», y la casilla más alta es el resultado
+      que se muestra en pantalla.
+    </p>
+
+    <div class="matrix-wrap">
+      <div class="scroll" style="border:0; background:transparent;">
+        <table class="matrix" aria-label="Matriz de probabilidad de marcadores">
+          <caption style="caption-side:top; text-align:left; font-family:var(--mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); padding-bottom:.5rem;">Goles del visitante →</caption>
+          <tr><th></th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+          <tr><th>0</th><td class="draw">4.1</td><td class="lose">4.5</td><td class="lose">2.5</td><td class="lose">0.9</td><td class="lose">0.2</td></tr>
+          <tr><th>1</th><td class="win">7.4</td><td class="draw peak">8.1</td><td class="lose">4.4</td><td class="lose">1.6</td><td class="lose">0.4</td></tr>
+          <tr><th>2</th><td class="win">6.6</td><td class="win">7.2</td><td class="draw">4.0</td><td class="lose">1.5</td><td class="lose">0.4</td></tr>
+          <tr><th>3</th><td class="win">3.9</td><td class="win">4.3</td><td class="win">2.4</td><td class="draw">0.9</td><td class="lose">0.2</td></tr>
+          <tr><th>4</th><td class="win">1.7</td><td class="win">1.9</td><td class="win">1.0</td><td class="win">0.4</td><td class="draw">0.1</td></tr>
+        </table>
+      </div>
+      <div class="legend">
+        <div><span class="swatch sw-win"></span> Gana el local — se suman todas estas casillas</div>
+        <div><span class="swatch sw-draw"></span> Empate — la diagonal</div>
+        <div><span class="swatch sw-lose"></span> Gana el visitante</div>
+        <div style="margin-top:.4rem; border-top:1px solid var(--rule); padding-top:.7rem;">
+          La casilla marcada es el marcador más probable. Si cae en la diagonal,
+          el vídeo muestra <b>EMPATE</b> con las dos banderas en vez de forzar un ganador.
+        </div>
+      </div>
+    </div>
+
+    <p>
+      Ese detalle es una corrección que salió de ver los primeros vídeos: enseñar un «ganador»
+      en un partido que el propio modelo veía 50-50 quedaba falso. Ahora el empate,
+      el marcador y las barras salen todos de la <em>misma</em> matriz, así que nunca se
+      contradicen entre sí.
+    </p>
+
+    <h3>Y el mismo motor sirve para todo</h3>
+    <ul>
+      <li><strong>Un partido</strong> — se lee la matriz directamente.</li>
+      <li><strong>Un grupo</strong> — se juegan los seis partidos al azar 800 veces y se cuenta cuántas veces queda cada equipo entre los dos primeros.</li>
+      <li><strong>El torneo entero</strong> — 10.000 mundiales completos, de la fase de grupos a la final, para sacar la probabilidad real de levantar la copa.</li>
+    </ul>
+    <p>
+      Con Elo puro, el favorito salía con un 40 % de ganar el Mundial: absurdo. Se comprimen
+      los ratings hacia la media del torneo (factor <code>0.5</code>), lo que mantiene el orden
+      de favoritos pero baja al campeón a un realista <em>15-22 %</em>.
+    </p>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">04</div><h2>Los tres formatos</h2></div>
+    <p>
+      Tres tipos de Short, un mismo lenguaje visual: vertical 1080×1920, 30 fps, estética de
+      retransmisión deportiva en cian sobre fondo oscuro. Los tres comparten primitivas de
+      dibujo, así que añadir un cuarto formato es escribir un renderizador, no reinventar nada.
+    </p>
+    <div class="cards">
+      <div class="card a">
+        <div class="kicker">El motor del canal</div>
+        <h4>Predicción de partido</h4>
+        <div class="len">5,5 segundos · 98 publicados</div>
+        <p>
+          Dos banderas, dos barras de probabilidad llenándose, revelado del ganador y el
+          marcador. Se genera solo, 48 h antes de cada partido.
+        </p>
+      </div>
+      <div class="card c">
+        <div class="kicker">Contenido de fondo</div>
+        <h4>Power Ranking</h4>
+        <div class="len">~30 segundos</div>
+        <p>
+          Cuenta atrás del top 10 por probabilidad real de ganar la copa. Oro, plata y bronce
+          para el podio, barra animada por equipo y sello de fecha de actualización.
+        </p>
+      </div>
+      <div class="card b">
+        <div class="kicker">Fase de grupos</div>
+        <h4>Odds de clasificación</h4>
+        <div class="len">7,5 segundos</div>
+        <p>
+          Tabla del grupo apareciendo fila a fila y barra de probabilidad de pasar de ronda,
+          en verde, ámbar o rojo según lo cerca que esté cada selección.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">05</div><h2>Dibujar un vídeo sin editor</h2></div>
+    <p>
+      No hay After Effects ni plantillas compradas. Hay una función que, dado un instante
+      del vídeo, devuelve la imagen exacta de ese instante — y MoviePy la llama treinta veces
+      por segundo. Todo lo demás es dibujar bien.
+    </p>
+    <ul>
+      <li><strong>Zona segura</strong> — el contenido vive entre los píxeles 62 y 1016 de ancho, y los últimos 200 de alto quedan libres para los botones de la app.</li>
+      <li><strong>Curvas de animación</strong> — nada se mueve en línea recta: las barras frenan al llegar (<code>ease_out</code>) y las banderas entran con un rebote (<code>ease_overshoot</code>).</li>
+      <li><strong>Banderas</strong> — se descargan una vez de flagcdn y se guardan en caché; la segunda vez ya son un fichero local.</li>
+      <li><strong>Sonido</strong> — si no hay música, se sintetizan los efectos por código. El vídeo nunca falla por un asset que no está.</li>
+      <li><strong>Marcador «de espectáculo»</strong> — el resultado en pantalla se muestrea de una matriz más ofensiva que la calibrada, pero obligado a coincidir con el ganador ya decidido. Queda más vistoso sin tocar ni una probabilidad.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">06</div><h2>Que no haya que estar delante</h2></div>
+    <p>
+      Empezó como una tarea programada en el PC. Duró poco: si el portátil estaba apagado,
+      dormido o sin batería, el partido pasaba sin vídeo. Ahora el ciclo vive en GitHub
+      Actions y se dispara <code>a los minutos 5, 25 y 45</code> de cada hora.
+    </p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Riesgo</th><th>Qué hace el sistema</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Cron perdido</td><td>GitHub se salta ejecuciones a menudo, así que dispara tres veces por hora. Las de más son inofensivas: no repiten trabajo.</td></tr>
+          <tr><td>Doble subida</td><td>Un registro en disco marca cada partido como subido. Solo <code>uploaded: true</code> bloquea; un render de prueba se reintenta.</td></tr>
+          <tr><td>Dos ciclos a la vez</td><td>Grupo de concurrencia en el workflow: se hace cola, nunca se cancela una subida en curso.</td></tr>
+          <tr><td>Ráfaga de vídeos</td><td>Máximo un Short por hora, para no parecer spam en el feed.</td></tr>
+          <tr><td>Caída de la API</td><td>Si falla el calendario, se conserva el anterior. Si falla el login de YouTube, se renderiza igual y se sube al ciclo siguiente.</td></tr>
+          <tr><td>Un partido roto</td><td>La excepción se captura dentro del bucle: un partido malo nunca tumba a los demás.</td></tr>
+          <tr><td>Nombres que no cuadran</td><td>ESPN dice «Korea Republic» y «USA»; el resto del sistema usa otros nombres. Una capa de alias los unifica antes de generar la clave del partido.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      Todo el manejo de tiempo es <b>UTC de principio a fin</b>. La hora local solo aparece
+      en las cabeceras de los logs. Un desfase de dos horas en un sistema que decide
+      «¿este partido empieza pronto?» es un fallo silencioso muy caro.
+    </div>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">07</div><h2>El canal se analiza a sí mismo</h2></div>
+    <p>
+      Cada semana el sistema descarga sus propias métricas de YouTube Analytics —
+      visualizaciones, retención, de dónde llega la gente — y las cruza con lo que guardó
+      en el momento de subir cada vídeo: qué plantilla de título usó, a qué hora publicó,
+      cuánto duraba, qué selecciones aparecían y cómo de fuertes eran.
+    </p>
+    <p>
+      Con eso escribe un informe en Markdown. La parte interesante es el final: los datos
+      se le pasan a <em>Claude</em> por línea de comandos, con el papel de analista de
+      crecimiento, y devuelve diagnóstico, hipótesis y <strong>un</strong> experimento para
+      la semana siguiente. Si la muestra todavía es pequeña, cambia de prompt y se limita a
+      describir lo que ve, sin sacar conclusiones.
+    </p>
+    <ul>
+      <li>Va por la suscripción de Claude Code, no por API de pago.</li>
+      <li>Si Claude no está disponible, el informe se genera igual solo con las reglas heurísticas. Nunca es un error fatal.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="lower-third"><div class="num">08</div><h2>Lo que de verdad se aprende</h2></div>
+    <p>
+      Si de todo esto hay que quedarse con cuatro ideas trasladables a cualquier otro
+      proyecto automatizado, son estas.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <div class="kicker">Idempotencia</div>
+        <h4>Repetir debe ser gratis</h4>
+        <p>Un proceso automático que no se puede relanzar sin miedo no está terminado. La clave está en registrar lo irreversible — aquí, la subida — no lo barato.</p>
+      </div>
+      <div class="card">
+        <div class="kicker">Un solo modelo</div>
+        <h4>Que nada se contradiga</h4>
+        <p>Hubo dos modelos distintos para partido y para grupo, y daban resultados incoherentes entre sí. Unificarlos en una sola matriz arregló el problema de raíz.</p>
+      </div>
+      <div class="card">
+        <div class="kicker">Degradar, no morir</div>
+        <h4>Fallar hacia el lado bueno</h4>
+        <p>Cada fallo posible tiene una salida peor pero válida: datos de ayer, modo sin subida, informe sin IA. El calendario nunca se rompe entero.</p>
+      </div>
+      <div class="card">
+        <div class="kicker">Capas separadas</div>
+        <h4>Poder cambiar de deporte</h4>
+        <p>Un único módulo habla con la fuente de datos. Cambiarlo por otra liga u otro deporte no obliga a tocar ni el render ni la subida.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="outro">
+    <p>
+      El Mundial ha terminado y el canal cierra con <strong>98 Shorts publicados</strong>,
+      ninguno editado a mano. El código queda como plantilla: cambiando la fuente de datos y
+      los fondos, el mismo sistema sirve para la próxima competición.
+    </p>
+    <div class="sig">World Cup AI Shorts · Python · Pillow · MoviePy · GitHub Actions · YouTube Data API</div>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.querySelector('.theme-toggle');
+    btn.addEventListener('click', function () {
+      var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var current = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+      root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+
+</body>
+</html>
