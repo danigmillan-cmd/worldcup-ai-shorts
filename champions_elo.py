@@ -19,20 +19,29 @@ Public API:
 import csv
 import io
 import json
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 
 import champions_teams
 
 CLUBELO_URL = "http://api.clubelo.com/{fecha}"
+CLUBELO_CLUB_URL = "http://api.clubelo.com/{club}"
 CACHE_FILE = Path(__file__).parent / "data" / "clubelo_cache.json"
 SOURCE_FILE = Path(__file__).parent / "data" / "clubelo_source.json"
+HISTORY_CACHE_FILE = Path(__file__).parent / "data" / "clubelo_history_cache.json"
 
 # Reuse the cache for this long before hitting the network again. ClubElo
 # recomputes daily, and a matchday render doesn't need fresher than that.
 CACHE_MAX_AGE_HOURS = 24
+
+# Per-club history is ~6000 rows going back to the 1940s; every row but the
+# last describes a date that has already happened and will never change again.
+# A week is plenty, and it keeps a matchday render off the network entirely.
+HISTORY_CACHE_MAX_AGE_HOURS = 24 * 7
 
 # Rating handed to a club that is in neither ClubElo nor the cache. Sits around
 # the bottom of the league-phase field: an unrated club is almost always a
@@ -66,7 +75,7 @@ def _record_source(source: str, clubs_resolved: int) -> None:
         print(f"[WARN] No se pudo escribir la auditoría de ClubElo: {exc}")
 
 
-def _fetch_clubelo(timeout: int = 15) -> dict[str, float]:
+def _fetch_clubelo(timeout: int = 15) -> tuple[dict[str, float], dict[str, str]]:
     """
     Download today's CSV and map it onto the catalogue's slugs.
 
@@ -74,6 +83,11 @@ def _fetch_clubelo(timeout: int = 15) -> dict[str, float]:
     its own spellings ("Paris SG", "Bilbao", "Karabakh Agdam", "Bodoe Glimt"),
     which is why those live as aliases in data/equipos_champions.json — they
     were checked against a real response, not guessed.
+
+    Returns (slug -> Elo, slug -> ClubElo's own spelling). The second map is
+    what makes the per-club history endpoint usable: /<Club> is keyed by their
+    spelling, and reading it off a real response beats guessing which of our
+    aliases they happen to use.
     """
     url = CLUBELO_URL.format(fecha=date.today().isoformat())
     resp = requests.get(url, headers=_HEADERS, timeout=timeout)
@@ -81,6 +95,7 @@ def _fetch_clubelo(timeout: int = 15) -> dict[str, float]:
 
     index = champions_teams._lookup_index()
     tabla: dict[str, float] = {}
+    nombres: dict[str, str] = {}
 
     for row in csv.DictReader(io.StringIO(resp.text)):
         club = (row.get("Club") or "").strip()
@@ -93,10 +108,11 @@ def _fetch_clubelo(timeout: int = 15) -> dict[str, float]:
                 tabla[slug] = round(float(row["Elo"]), 1)
             except (KeyError, TypeError, ValueError):
                 continue
+            nombres[slug] = club
 
     if not tabla:
         raise ValueError("ClubElo respondió pero no casó ningún club del catálogo")
-    return tabla
+    return tabla, nombres
 
 
 def _read_cache() -> tuple[dict[str, float], float] | None:
@@ -110,7 +126,16 @@ def _read_cache() -> tuple[dict[str, float], float] | None:
         return None
 
 
-def _write_cache(tabla: dict[str, float]) -> None:
+def _read_cached_names() -> dict[str, str]:
+    """slug -> ClubElo's spelling, as recorded by the last live refresh."""
+    try:
+        payload = json.loads(CACHE_FILE.read_text(encoding="utf-8"))
+        return payload.get("nombres_clubelo") or {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _write_cache(tabla: dict[str, float], nombres: dict[str, str] | None = None) -> None:
     try:
         CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
         CACHE_FILE.write_text(
@@ -119,6 +144,7 @@ def _write_cache(tabla: dict[str, float]) -> None:
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "fecha_datos": date.today().isoformat(),
                     "elo": tabla,
+                    "nombres_clubelo": nombres or _read_cached_names(),
                 },
                 indent=2,
                 ensure_ascii=False,
@@ -149,9 +175,9 @@ def get_elo_table(force_refresh: bool = False) -> dict[str, float]:
         return tabla
 
     try:
-        tabla = _fetch_clubelo()
+        tabla, nombres = _fetch_clubelo()
         print(f"[INFO] ClubElo: descargado en vivo ({len(tabla)} clubes)")
-        _write_cache(tabla)
+        _write_cache(tabla, nombres)
         _record_source("clubelo.com", len(tabla))
         return tabla
     except Exception as exc:
@@ -185,6 +211,140 @@ def get_elo(slug_or_name: str, table: dict[str, float] | None = None) -> float:
 
     print(f"[WARN] Sin Elo para «{slug_or_name}» — se usa {DEFAULT_ELO:.0f}")
     return DEFAULT_ELO
+
+
+def _get_reintentando(url: str) -> str | None:
+    """
+    GET with backoff. Returns the body, or None if clubelo.com stayed down.
+
+    Not optional politeness: clubelo.com serves intermittent 502s (it did so
+    repeatedly on 11-ago-2026, which is how this got written). Without retries
+    a matchday render silently loses every form fact at once and the headlines
+    all collapse onto the same fallback angle.
+
+    Note scripts/calibrate_champions.py carries its own copy of this for the
+    same reason. Worth folding together the next time either is touched.
+    """
+    for intento, espera in enumerate((2, 5, 15, None), start=1):
+        try:
+            resp = requests.get(url, headers=_HEADERS, timeout=25)
+            if resp.status_code < 500:
+                return resp.text if resp.status_code < 400 else ""
+            motivo = f"HTTP {resp.status_code}"
+        except requests.exceptions.RequestException as exc:
+            motivo = type(exc).__name__
+
+        if espera is None:
+            print(f"[WARN] clubelo.com no responde ({motivo}) tras {intento} intentos")
+            return None
+        time.sleep(espera)
+
+    return None
+
+
+def _clubelo_name(slug: str) -> list[str]:
+    """
+    Candidate spellings for the /<Club> endpoint, best first.
+
+    The live refresh records ClubElo's own spelling per slug, so that is the
+    first candidate. The catalogue's name and aliases follow, which covers a
+    cache written before this was recorded.
+    """
+    crudos: list[str] = []
+    grabado = _read_cached_names().get(slug)
+    if grabado:
+        crudos.append(grabado)
+
+    equipo = champions_teams.load_catalog().get(slug)
+    if equipo:
+        crudos.extend((equipo["nombre"], *equipo.get("alias", [])))
+
+    # /<Club> does not take spaces: "Inter" returns 6112 rows, "Paris SG"
+    # returns HTTP 200 with an EMPTY body rather than an error. So every
+    # candidate is also tried with the spaces stripped, and an empty response
+    # has to be treated as "wrong spelling", not as "this club has no history".
+    candidatos: list[str] = []
+    for nombre in crudos:
+        for variante in (nombre, nombre.replace(" ", "")):
+            if variante and variante not in candidatos:
+                candidatos.append(variante)
+    return candidatos
+
+
+def _read_history_cache() -> dict:
+    try:
+        return json.loads(HISTORY_CACHE_FILE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def get_elo_history(slug: str) -> list[dict]:
+    """
+    A club's Elo over time, newest last: [{"desde", "hasta", "elo"}, ...].
+
+    Feeds the verifiable-form facts in champions_facts.py — this endpoint is
+    the only free source we have for "how has this club been trending", since
+    ClubElo publishes ratings and fixtures but never results.
+
+    Cached for a week: every row but the last describes the past and never
+    changes, and a matchday render does not need the tail fresher than that.
+
+    Returns [] when the club can't be resolved or clubelo.com is unreachable.
+    Callers must treat that as "no trend fact available", never as an error —
+    the whole point of this layer is that a missing fact costs us one headline
+    angle, not the video.
+    """
+    cache = _read_history_cache()
+    entrada = cache.get(slug)
+    if entrada:
+        try:
+            edad = (
+                datetime.now(timezone.utc)
+                - datetime.fromisoformat(entrada["timestamp"])
+            ).total_seconds() / 3600
+            if edad < HISTORY_CACHE_MAX_AGE_HOURS:
+                return entrada["historico"]
+        except (KeyError, ValueError):
+            pass
+
+    historico: list[dict] = []
+    for candidato in _clubelo_name(slug):
+        texto = _get_reintentando(CLUBELO_CLUB_URL.format(club=quote(candidato)))
+        if texto is None:
+            # Upstream is down, not a bad spelling — trying the next candidate
+            # would just burn more retries against the same dead server.
+            break
+        filas = list(csv.DictReader(io.StringIO(texto)))
+
+        for fila in filas:
+            try:
+                historico.append({
+                    "desde": fila["From"],
+                    "hasta": fila["To"],
+                    "elo": round(float(fila["Elo"]), 1),
+                })
+            except (KeyError, TypeError, ValueError):
+                continue
+        if historico:
+            break
+
+    if not historico:
+        print(f"[INFO] Sin histórico de Elo para «{slug}» — se omite el hecho de forma")
+        return []
+
+    cache[slug] = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "historico": historico,
+    }
+    try:
+        HISTORY_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        HISTORY_CACHE_FILE.write_text(
+            json.dumps(cache, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+    except OSError as exc:
+        print(f"[WARN] No se pudo escribir la caché de históricos: {exc}")
+
+    return historico
 
 
 if __name__ == "__main__":

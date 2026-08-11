@@ -43,8 +43,16 @@ export const partidoSchema = z.object({
 	 * Opcional: si falta, se usa la barra mas alta.
 	 */
 	resultadoPredicho: z.enum(['local', 'empate', 'visitante']).optional(),
-	/** Frase corta y editorial. Es el gancho visual del bloque. */
-	titular: z.string().min(1),
+	/**
+	 * Frase corta y editorial. Es el gancho visual del bloque.
+	 *
+	 * El tope de 48 no es estilo: `tamanoTitular` baja el cuerpo a 72px por
+	 * encima de 44 caracteres, y a partir de ~48 la frase parte a una tercera
+	 * linea y se sale de la zona segura. Que reviente la validacion aqui es
+	 * mejor que descubrirlo mirando el mp4. El generador usa el mismo numero
+	 * (MAX_TITULAR en champions_titulares.py) — si cambias uno, cambia el otro.
+	 */
+	titular: z.string().min(1).max(48),
 });
 export type Partido = z.infer<typeof partidoSchema>;
 

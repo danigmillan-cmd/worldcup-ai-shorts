@@ -50,3 +50,12 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Champions — caché de históricos de Elo.
+# ─────────────────────────────────────────────────────────────────────────────
+# ~600 KB por club y unos 5 MB por jornada: es un espejo local de un endpoint
+# público, se reconstruye solo y no aporta nada al historial del repo.
+# data/clubelo_cache.json (la tabla del día) SÍ se versiona: es pequeño y actúa
+# de red de seguridad cuando clubelo.com está caído.
+data/clubelo_history_cache.json
