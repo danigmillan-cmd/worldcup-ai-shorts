@@ -1,0 +1,109 @@
+{
+  "competicion": "Fase liga · Jornada 3",
+  "fecha": "2026-10-21",
+  "aciertosJornadaAnterior": {
+    "acertados": 6,
+    "total": 8
+  },
+  "partidos": [
+    {
+      "local": {
+        "nombre": "Real Madrid",
+        "colorPrimario": "#FEBE10",
+        "colorSecundario": "#FFFFFF"
+      },
+      "visitante": {
+        "nombre": "Bayern",
+        "colorPrimario": "#DC052D",
+        "colorSecundario": "#0066B2"
+      },
+      "titular": "El Bernabéu no es lo que era",
+      "probLocal": 0.3651,
+      "probEmpate": 0.2383,
+      "probVisitante": 0.3964,
+      "prediccion": "1-1",
+      "resultadoPredicho": "empate"
+    },
+    {
+      "local": {
+        "nombre": "Man City",
+        "colorPrimario": "#6CABDD",
+        "colorSecundario": "#1C2C5B"
+      },
+      "visitante": {
+        "nombre": "Inter",
+        "colorPrimario": "#0B1560",
+        "colorSecundario": "#FFFFFF"
+      },
+      "titular": "El Inter no marcó en 4 de sus 5 últimas visitas",
+      "probLocal": 0.5636,
+      "probEmpate": 0.2181,
+      "probVisitante": 0.2181,
+      "prediccion": "2-0",
+      "resultadoPredicho": "local"
+    },
+    {
+      "local": {
+        "nombre": "Arsenal",
+        "colorPrimario": "#EF0107",
+        "colorSecundario": "#063672"
+      },
+      "visitante": {
+        "nombre": "Barcelona",
+        "colorPrimario": "#A50044",
+        "colorSecundario": "#004D98"
+      },
+      "titular": "El partido más igualado de toda la jornada",
+      "probLocal": 0.6007,
+      "probEmpate": 0.2094,
+      "probVisitante": 0.1897,
+      "prediccion": "1-0",
+      "resultadoPredicho": "local"
+    },
+    {
+      "local": {
+        "nombre": "PSG",
+        "colorPrimario": "#004170",
+        "colorSecundario": "#DA291C"
+      },
+      "visitante": {
+        "nombre": "Liverpool",
+        "colorPrimario": "#C8102E",
+        "colorSecundario": "#F6EB61"
+      },
+      "titular": "Liverpool no pierde fuera desde marzo",
+      "probLocal": 0.5321,
+      "probEmpate": 0.2244,
+      "probVisitante": 0.2434,
+      "prediccion": "1-0",
+      "resultadoPredicho": "local"
+    }
+  ],
+  "ranking": [
+    {
+      "equipo": "Arsenal",
+      "colorPrimario": "#EF0107",
+      "probTitulo": 0.2132
+    },
+    {
+      "equipo": "Bayern",
+      "colorPrimario": "#DC052D",
+      "probTitulo": 0.1484
+    },
+    {
+      "equipo": "Man City",
+      "colorPrimario": "#6CABDD",
+      "probTitulo": 0.1249
+    },
+    {
+      "equipo": "PSG",
+      "colorPrimario": "#004170",
+      "probTitulo": 0.1227
+    },
+    {
+      "equipo": "Barcelona",
+      "colorPrimario": "#A50044",
+      "probTitulo": 0.1117
+    }
+  ]
+}

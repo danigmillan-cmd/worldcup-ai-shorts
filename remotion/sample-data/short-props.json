@@ -1,0 +1,58 @@
+{
+  "_comentario": "Ejemplo completo de props para la composición Short. Es la jornada tal cual, más un bloque opcional `opciones`. Todos los campos de `opciones` son opcionales: lo que no pongas sale de OPCIONES_POR_DEFECTO en src/compositions/Short.tsx. Las claves que empiezan por _ las ignora el schema.",
+
+  "competicion": "Fase liga · Jornada 3",
+  "fecha": "2026-10-21",
+  "aciertosJornadaAnterior": { "acertados": 6, "total": 8 },
+
+  "partidos": [
+    {
+      "local": { "nombre": "Real Madrid", "colorPrimario": "#FEBE10", "colorSecundario": "#FFFFFF" },
+      "visitante": { "nombre": "Bayern", "colorPrimario": "#DC052D", "colorSecundario": "#0066B2" },
+      "probLocal": 0.41,
+      "probEmpate": 0.24,
+      "probVisitante": 0.35,
+      "prediccion": "2-1",
+      "titular": "El Bernabéu no es lo que era"
+    },
+    {
+      "local": { "nombre": "Manchester City", "colorPrimario": "#6CABDD", "colorSecundario": "#1C2C5B" },
+      "visitante": { "nombre": "Inter", "colorPrimario": "#0B1560", "colorSecundario": "#FFFFFF" },
+      "probLocal": 0.54,
+      "probEmpate": 0.26,
+      "probVisitante": 0.2,
+      "prediccion": "2-0",
+      "titular": "El Inter no marcó en 4 de sus 5 últimas visitas"
+    },
+    {
+      "local": { "nombre": "Arsenal", "colorPrimario": "#EF0107", "colorSecundario": "#063672" },
+      "visitante": { "nombre": "Barcelona", "colorPrimario": "#A50044", "colorSecundario": "#004D98" },
+      "probLocal": 0.37,
+      "probEmpate": 0.27,
+      "probVisitante": 0.36,
+      "prediccion": "1-1",
+      "titular": "El partido más igualado de toda la jornada"
+    }
+  ],
+
+  "ranking": [
+    { "equipo": "Manchester City", "colorPrimario": "#6CABDD", "probTitulo": 0.23 },
+    { "equipo": "Real Madrid", "colorPrimario": "#FEBE10", "probTitulo": 0.18 },
+    { "equipo": "Bayern", "colorPrimario": "#DC052D", "probTitulo": 0.15 },
+    { "equipo": "Arsenal", "colorPrimario": "#EF0107", "probTitulo": 0.11 },
+    { "equipo": "Liverpool", "colorPrimario": "#C8102E", "probTitulo": 0.09 }
+  ],
+
+  "opciones": {
+    "maxPartidos": 3,
+    "cierre": "ranking",
+    "tituloRanking": "Quién gana la Champions",
+    "cta": {
+      "titulo": "¿Y tú qué dices?",
+      "subtitulo": "Sígueme y lo comprobamos la semana que viene"
+    },
+    "voiceover": null,
+    "captions": null,
+    "hookTexto": null
+  }
+}

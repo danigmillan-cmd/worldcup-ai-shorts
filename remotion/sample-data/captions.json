@@ -1,0 +1,15 @@
+[
+  { "palabra": "Ocho", "inicioMs": 200, "finMs": 520 },
+  { "palabra": "partidos", "inicioMs": 560, "finMs": 1080 },
+  { "palabra": "seis", "inicioMs": 1140, "finMs": 1440 },
+  { "palabra": "acertados", "inicioMs": 1480, "finMs": 2100 },
+  { "palabra": "y", "inicioMs": 2140, "finMs": 2260 },
+  { "palabra": "esta", "inicioMs": 2300, "finMs": 2560 },
+  { "palabra": "jornada", "inicioMs": 2600, "finMs": 3120 },
+  { "palabra": "hay", "inicioMs": 3180, "finMs": 3400 },
+  { "palabra": "un", "inicioMs": 3440, "finMs": 3580 },
+  { "palabra": "favorito", "inicioMs": 3620, "finMs": 4260 },
+  { "palabra": "que", "inicioMs": 4300, "finMs": 4460 },
+  { "palabra": "nadie", "inicioMs": 4500, "finMs": 4880 },
+  { "palabra": "espera", "inicioMs": 4920, "finMs": 5480 }
+]
