@@ -17,7 +17,8 @@ name: Champions Calibration
 #
 # A missed run is harmless: fixtures stay listed for several days, so the next
 # run picks them up. That is why this does not need the three-times-an-hour
-# defensive cron that auto_matches.yml used for its time-critical uploads.
+# defensive cron that auto_matches.yml used for its time-critical uploads, and
+# why an unreachable clubelo.com is a warning here rather than a failure.
 #
 # GitHub cron is UTC and does not honour DST.
 on:
@@ -66,7 +67,22 @@ jobs:
           # change" signal — it would commit timestamp churn every single day.
           # The fixture count is.
           echo "N_BEFORE=$(jq -r '.n // 0' data/clubelo_fixtures_history.json)" >> "$GITHUB_ENV"
+
+          set +e
           python scripts/calibrate_champions.py 2>&1 | tee calibration.log
+          CODE=${PIPESTATUS[0]}
+          set -e
+
+          # 75 (EX_TEMPFAIL) means clubelo.com did not answer even after the
+          # script's retries. That is not a broken build, and failing the run
+          # would put a red X on the repo for someone else's outage — which is
+          # how you end up not reading these runs at all. A skipped day costs
+          # nothing: /Fixtures lists a match for several days running.
+          if [ "$CODE" -eq 75 ]; then
+            echo "::warning::clubelo.com unreachable — nothing accumulated this run."
+            exit 0
+          fi
+          exit "$CODE"
 
       - name: Publish the result to the run summary
         # Puts the sample size and the recommendation table on the run's page,

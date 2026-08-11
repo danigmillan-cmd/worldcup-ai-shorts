@@ -34,6 +34,7 @@ import csv
 import io
 import json
 import sys
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -62,23 +63,65 @@ GRID = {
 
 _HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; champions-shorts-calibration)"}
 
+# Exit code for "clubelo.com is down". Distinct from 1 so the daily cron can
+# tell an unreachable upstream (nothing to do, try tomorrow) from a real bug.
+# 75 is EX_TEMPFAIL from sysexits.h, which means exactly this.
+EXIT_UPSTREAM_DOWN = 75
+
+_RETRY_DELAYS = (2, 5, 15)
+
+
+class UpstreamUnavailable(Exception):
+    """clubelo.com did not answer after retrying."""
+
+
+def _get(url: str) -> str:
+    """
+    GET with retries.
+
+    Worth the code because this script is meant to run unattended every day:
+    a bare request turns any upstream hiccup into a failed run, and a job that
+    goes red for reasons outside the project is a job whose failures stop
+    being read. Observed in practice — clubelo.com answered 502 on the second
+    scheduled-style run.
+
+    Retries connection errors, timeouts and 5xx. A 4xx is not retried: that
+    means the request itself is wrong, and hammering it will not fix it.
+    """
+    for intento, espera in enumerate((*_RETRY_DELAYS, None), start=1):
+        try:
+            resp = requests.get(url, headers=_HEADERS, timeout=20)
+            if resp.status_code < 500:
+                resp.raise_for_status()
+                return resp.text
+            motivo = f"HTTP {resp.status_code}"
+        except requests.exceptions.RequestException as exc:
+            # A 4xx already raised out of raise_for_status; let it through.
+            if isinstance(exc, requests.exceptions.HTTPError):
+                raise
+            motivo = type(exc).__name__
+
+        if espera is None:
+            raise UpstreamUnavailable(f"{url}: {motivo} tras {intento} intentos")
+        print(f"[WARN] {url}: {motivo}. Reintento en {espera}s "
+              f"({intento}/{len(_RETRY_DELAYS)}).")
+        time.sleep(espera)
+
+    raise AssertionError("unreachable")
+
 
 def _fetch_elo_by_name() -> dict[str, float]:
     """Every club ClubElo rates today, keyed by ITS spelling (not our slugs)."""
-    url = f"http://api.clubelo.com/{date.today().isoformat()}"
-    resp = requests.get(url, headers=_HEADERS, timeout=20)
-    resp.raise_for_status()
+    texto = _get(f"http://api.clubelo.com/{date.today().isoformat()}")
     return {
         row["Club"]: float(row["Elo"])
-        for row in csv.DictReader(io.StringIO(resp.text))
+        for row in csv.DictReader(io.StringIO(texto))
         if row.get("Club") and row.get("Elo")
     }
 
 
 def _fetch_fixtures() -> list[dict]:
-    resp = requests.get("http://api.clubelo.com/Fixtures", headers=_HEADERS, timeout=20)
-    resp.raise_for_status()
-    return list(csv.DictReader(io.StringIO(resp.text)))
+    return list(csv.DictReader(io.StringIO(_get("http://api.clubelo.com/Fixtures"))))
 
 
 def _clubelo_outcome_probs(row: dict) -> tuple[float, float, float] | None:
@@ -182,7 +225,14 @@ def error_medio(muestra: list[dict], **constantes) -> float:
 
 
 def main() -> None:
-    history = accumulate()
+    try:
+        history = accumulate()
+    except UpstreamUnavailable as exc:
+        # Missing a day costs nothing: /Fixtures keeps listing a match for
+        # several days, so tomorrow's run picks up whatever today's missed.
+        print(f"[WARN] clubelo.com no responde ({exc}). Sin cambios; "
+              "el historial se recupera en la siguiente ejecución.")
+        sys.exit(EXIT_UPSTREAM_DOWN)
 
     muestra = [
         f for f in history.values()
