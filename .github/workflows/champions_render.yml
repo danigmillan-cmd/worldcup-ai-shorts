@@ -44,12 +44,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          # Matches the local machine (v24), so a render that breaks here
+          # breaks there too rather than only in CI.
+          node-version: "24"
           cache: npm
           cache-dependency-path: remotion/package-lock.json
 
@@ -114,7 +116,7 @@ jobs:
 
       - name: Upload the video
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: champions-${{ inputs.composicion }}-${{ github.run_number }}
           path: remotion/out/*.mp4

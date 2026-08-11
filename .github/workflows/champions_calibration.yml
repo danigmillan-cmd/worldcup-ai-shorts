@@ -42,10 +42,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
 
@@ -60,6 +60,12 @@ jobs:
       - name: Accumulate fixtures and fit
         run: |
           set -o pipefail
+          # Remember the sample size before the run. The script rewrites the
+          # file's `actualizado` timestamp on every run whether or not any
+          # fixture was added, so a git diff is NOT a usable "did anything
+          # change" signal — it would commit timestamp churn every single day.
+          # The fixture count is.
+          echo "N_BEFORE=$(jq -r '.n // 0' data/clubelo_fixtures_history.json)" >> "$GITHUB_ENV"
           python scripts/calibrate_champions.py 2>&1 | tee calibration.log
 
       - name: Publish the result to the run summary
@@ -80,15 +86,22 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          N_AFTER=$(jq -r '.n // 0' data/clubelo_fixtures_history.json)
+          echo "Sample: $N_BEFORE -> $N_AFTER fixtures."
+          if [ "$N_AFTER" -le "$N_BEFORE" ]; then
+            # Nothing new — drop the timestamp-only rewrite instead of
+            # committing it. Most days in the off-season land here.
+            echo "No new fixtures today; leaving the history untouched."
+            git checkout -- data/clubelo_fixtures_history.json
+            exit 0
+          fi
+
           # Only the accumulated sample. data/clubelo_cache.json is a transient
           # Elo cache that this job also touches; it is rebuilt on demand and
           # committing it every day would be pure churn.
           git add data/clubelo_fixtures_history.json
-          if git diff --cached --quiet; then
-            echo "No new fixtures today."
-            exit 0
-          fi
-          git commit -m "chore: grow Champions calibration sample [skip ci]"
+          git commit -m "chore: grow Champions calibration sample to $N_AFTER fixtures [skip ci]"
           # Another workflow may have pushed since checkout. Rebase rather than
           # force: the history file is append-mostly and this job is the only
           # writer, so a rebase resolves cleanly.
