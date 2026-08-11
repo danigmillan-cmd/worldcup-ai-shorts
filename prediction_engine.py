@@ -65,21 +65,43 @@ def _poisson_pmf(k: int, lam: float) -> float:
 
 
 def _expected_goals(elo_a: float, elo_b: float,
-                    host_a: bool, host_b: bool) -> tuple[float, float]:
-    """Elo -> (lambda_a, lambda_b) — see module docstring for the formula."""
-    eff_a = elo_a + (config.HOST_ELO_BONUS if host_a else 0)
-    eff_b = elo_b + (config.HOST_ELO_BONUS if host_b else 0)
-    goal_diff = (eff_a - eff_b) / config.ELO_TO_GOALS
-    lambda_a = max(config.MIN_LAMBDA, (config.BASE_TOTAL_GOALS + goal_diff) / 2)
-    lambda_b = max(config.MIN_LAMBDA, (config.BASE_TOTAL_GOALS - goal_diff) / 2)
+                    host_a: bool, host_b: bool,
+                    *,
+                    base_total_goals: float | None = None,
+                    elo_to_goals: float | None = None,
+                    host_elo_bonus: float | None = None) -> tuple[float, float]:
+    """
+    Elo -> (lambda_a, lambda_b) — see module docstring for the formula.
+
+    The three constants can be overridden per call. They default to the
+    `config.*` values, which are calibrated for international football
+    (BASE_TOTAL_GOALS 2.4). Club competitions run hotter — the Champions
+    league phase is above 3 goals a game — and sit on a different Elo scale,
+    so that channel passes its own (see champions_predictions.py). Without
+    this the only way to reuse the engine was monkey-patching the config
+    module at runtime.
+    """
+    base = config.BASE_TOTAL_GOALS if base_total_goals is None else base_total_goals
+    divisor = config.ELO_TO_GOALS if elo_to_goals is None else elo_to_goals
+    bonus = config.HOST_ELO_BONUS if host_elo_bonus is None else host_elo_bonus
+
+    eff_a = elo_a + (bonus if host_a else 0)
+    eff_b = elo_b + (bonus if host_b else 0)
+    goal_diff = (eff_a - eff_b) / divisor
+    lambda_a = max(config.MIN_LAMBDA, (base + goal_diff) / 2)
+    lambda_b = max(config.MIN_LAMBDA, (base - goal_diff) / 2)
     return lambda_a, lambda_b
 
 
 def match_matrix(elo_a: float, elo_b: float,
-                 host_a: bool = False, host_b: bool = False) -> list[list[float]]:
+                 host_a: bool = False, host_b: bool = False,
+                 **constants) -> list[list[float]]:
     """Returns the (MAX_GOALS+1) x (MAX_GOALS+1) scoreline probability matrix
-    P[i][j] = P(team_a scores i, team_b scores j)."""
-    lambda_a, lambda_b = _expected_goals(elo_a, elo_b, host_a, host_b)
+    P[i][j] = P(team_a scores i, team_b scores j).
+
+    Extra keyword arguments are forwarded to `_expected_goals` (see there for
+    the per-call constant overrides)."""
+    lambda_a, lambda_b = _expected_goals(elo_a, elo_b, host_a, host_b, **constants)
     n = config.MAX_GOALS + 1
     pa = [_poisson_pmf(i, lambda_a) for i in range(n)]
     pb = [_poisson_pmf(j, lambda_b) for j in range(n)]
