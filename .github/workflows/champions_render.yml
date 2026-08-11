@@ -1,0 +1,142 @@
+name: Champions Render
+
+# Renders a Champions Short with Remotion on a clean Ubuntu runner and leaves
+# the mp4 as a downloadable artifact.
+#
+# Manual only, and it does NOT upload to YouTube. That is not an oversight —
+# see the "Why there is no auto-publish yet" note at the bottom of this file.
+#
+# What this is for today:
+#   - rendering without tying up the laptop for the length of a render
+#   - proving the render still works headless on Linux, which is the property
+#     the whole channel depends on and the easiest one to break by accident
+#     (an absolute path, a system font, a Windows-only assumption)
+on:
+  workflow_dispatch:
+    inputs:
+      jornada:
+        description: "Matchday JSON, relative to remotion/"
+        required: true
+        default: "sample-data/jornada.json"
+      composicion:
+        description: "Composition to render (Short, MatchProbability, RankingCountdown)"
+        required: true
+        default: "Short"
+      crf:
+        description: "Quality override — lower is better. Blank uses remotion.config.ts (23)."
+        required: false
+        default: ""
+
+concurrency:
+  group: champions-render-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    defaults:
+      run:
+        # remotion/ is a self-contained Node project; npm never runs at the repo
+        # root, which is Python.
+        working-directory: remotion
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: remotion/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        # A type error surfaces here as a clear failure rather than as a
+        # confusing bundling error thirty seconds into the render.
+        run: npm run typecheck
+
+      - name: Ensure the headless browser
+        # Remotion renders through Chrome Headless Shell and would otherwise
+        # download it mid-render, folding a slow network fetch into the render
+        # step and muddying its timing. ffmpeg is NOT needed: Remotion v4 ships
+        # its own, unlike the MoviePy pipeline which needs the apt package.
+        run: npx remotion browser ensure
+
+      - name: Render
+        # Inputs go through env, never interpolated straight into the shell:
+        # `${{ inputs.jornada }}` inside a run block would let the value break
+        # out of the command.
+        env:
+          JORNADA: ${{ inputs.jornada }}
+          COMPOSICION: ${{ inputs.composicion }}
+          CRF: ${{ inputs.crf }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -f "$JORNADA" ]; then
+            echo "::error::No matchday JSON at remotion/$JORNADA"
+            exit 1
+          fi
+
+          ARGS=(render "$COMPOSICION" "out/$COMPOSICION.mp4" "--props=$JORNADA")
+          if [ -n "$CRF" ]; then
+            ARGS+=(--crf "$CRF")
+          fi
+
+          npx remotion "${ARGS[@]}"
+
+      - name: Report what came out
+        if: always()
+        env:
+          COMPOSICION: ${{ inputs.composicion }}
+          JORNADA: ${{ inputs.jornada }}
+        run: |
+          {
+            echo '## Champions render'
+            echo
+            if [ -f "out/$COMPOSICION.mp4" ]; then
+              SIZE=$(du -h "out/$COMPOSICION.mp4" | cut -f1)
+              echo "| | |"
+              echo "|---|---|"
+              echo "| Composition | \`$COMPOSICION\` |"
+              echo "| Matchday | \`$JORNADA\` |"
+              echo "| Size | $SIZE |"
+            else
+              echo 'The render produced no file.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the video
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: champions-${{ inputs.composicion }}-${{ github.run_number }}
+          path: remotion/out/*.mp4
+          if-no-files-found: error
+          retention-days: 30
+
+# Why there is no auto-publish yet
+# --------------------------------
+# Rendering is the only part of this channel that is actually automatable
+# today. Going from a cron to a published Short needs four things that do not
+# exist yet, and none of them are workflow problems:
+#
+#   1. No fixture source. champions_teams.build_matchday() takes the match list
+#      as an argument — nothing decides which matches are in the next matchday.
+#      ClubElo /Fixtures could supply them; it is already parsed by
+#      scripts/calibrate_champions.py.
+#   2. No `titular`. The editorial line on each match is still written by hand.
+#   3. No `aciertosJornadaAnterior`. The social-proof number needs results
+#      tracked from the previous matchday, which nothing records.
+#   4. No `ranking`. The title-probability countdown needs a tournament
+#      simulation that has not been written.
+#
+# On top of that, publishing needs YouTube credentials for the SECOND channel.
+# GOOGLE_CLIENT_SECRET and YOUTUBE_TOKEN in this repo authorise the World Cup
+# channel; reusing them would upload Champions Shorts to the wrong place.

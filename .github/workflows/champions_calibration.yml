@@ -1,0 +1,103 @@
+name: Champions Calibration
+
+# Grows the calibration sample for the club-football constants in
+# champions_predictions.py (elo_to_goals, host_elo_bonus, base_total_goals).
+#
+# Why this runs on a schedule at all: clubelo.com's /Fixtures endpoint only
+# returns the next few days, so any single run sees ~55 matches. The script
+# appends what it sees to data/clubelo_fixtures_history.json, keyed by fixture,
+# and fits on the whole accumulated history — so the sample only grows if
+# something runs it regularly. Doing that by hand every week through the autumn
+# is exactly the kind of thing nobody remembers to do.
+#
+# DAILY, not weekly. /Fixtures rolls forward a few days at a time, so a daily
+# run sees each fixture while it is still upcoming and dedupes by key; weekly
+# runs would miss whole rounds. The repo is public, so Actions minutes are free,
+# and the job is one HTTP fetch plus a small grid search — under a minute.
+#
+# A missed run is harmless: fixtures stay listed for several days, so the next
+# run picks them up. That is why this does not need the three-times-an-hour
+# defensive cron that auto_matches.yml used for its time-critical uploads.
+#
+# GitHub cron is UTC and does not honour DST.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+# Allow the workflow to push the grown history back to the repo.
+permissions:
+  contents: write
+
+# Two runs at once would both fetch, both write the same file and collide on
+# push. Queue instead.
+concurrency:
+  group: champions-calibration
+  cancel-in-progress: false
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        # NOT requirements.txt: that pulls moviepy, numpy and the whole Google
+        # API stack for the World Cup renderer. This script imports requests
+        # and prediction_engine, and prediction_engine is pure stdlib.
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests==2.34.2
+
+      - name: Accumulate fixtures and fit
+        run: |
+          set -o pipefail
+          python scripts/calibrate_champions.py 2>&1 | tee calibration.log
+
+      - name: Publish the result to the run summary
+        # Puts the sample size and the recommendation table on the run's page,
+        # so checking whether the sample has cleared MIN_SAMPLE is a glance
+        # rather than a log dive. Runs even if the fit step failed.
+        if: always()
+        run: |
+          {
+            echo '## Champions calibration'
+            echo
+            echo '```'
+            cat calibration.log || echo "(no output — the step failed before writing anything)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the grown history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Only the accumulated sample. data/clubelo_cache.json is a transient
+          # Elo cache that this job also touches; it is rebuilt on demand and
+          # committing it every day would be pure churn.
+          git add data/clubelo_fixtures_history.json
+          if git diff --cached --quiet; then
+            echo "No new fixtures today."
+            exit 0
+          fi
+          git commit -m "chore: grow Champions calibration sample [skip ci]"
+          # Another workflow may have pushed since checkout. Rebase rather than
+          # force: the history file is append-mostly and this job is the only
+          # writer, so a rebase resolves cleanly.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — rebasing on origin/main."
+            git pull --rebase origin main
+          done
+          echo "::error::Could not push the grown history after 3 attempts."
+          exit 1

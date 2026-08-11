@@ -1,6 +1,6 @@
 {
-  "actualizado": "2026-08-10T12:47:06.004630+00:00",
-  "n": 55,
+  "actualizado": "2026-08-11T14:19:46.620085+00:00",
+  "n": 79,
   "fixtures": {
     "2026-08-10|Botev Plovdiv|Spartak Varna": {
       "elo_home": 1234.0,
@@ -386,6 +386,174 @@
       "p_home": 0.5552,
       "p_draw": 0.2538,
       "p_away": 0.191
+    },
+    "2026-08-15|Kortrijk|Antwerp": {
+      "elo_home": 1350.3,
+      "elo_away": 1480.3,
+      "p_home": 0.2779,
+      "p_draw": 0.2751,
+      "p_away": 0.447
+    },
+    "2026-08-15|Leuven|Brugge": {
+      "elo_home": 1422.1,
+      "elo_away": 1757.4,
+      "p_home": 0.1022,
+      "p_draw": 0.1686,
+      "p_away": 0.7291
+    },
+    "2026-08-15|St Gillis|Zulte Waregem": {
+      "elo_home": 1716.8,
+      "elo_away": 1430.5,
+      "p_home": 0.7443,
+      "p_draw": 0.1702,
+      "p_away": 0.0855
+    },
+    "2026-08-15|Genk|Westerlo": {
+      "elo_home": 1581.3,
+      "elo_away": 1475.4,
+      "p_home": 0.5489,
+      "p_draw": 0.2542,
+      "p_away": 0.197
+    },
+    "2026-08-15|Bolton|Preston": {
+      "elo_home": 1468.6,
+      "elo_away": 1478.9,
+      "p_home": 0.3913,
+      "p_draw": 0.3028,
+      "p_away": 0.3059
+    },
+    "2026-08-15|Charlton|Derby": {
+      "elo_home": 1453.0,
+      "elo_away": 1539.2,
+      "p_home": 0.3172,
+      "p_draw": 0.3038,
+      "p_away": 0.379
+    },
+    "2026-08-15|Norwich|West Brom": {
+      "elo_home": 1560.4,
+      "elo_away": 1504.7,
+      "p_home": 0.4635,
+      "p_draw": 0.2864,
+      "p_away": 0.2501
+    },
+    "2026-08-15|Bristol City|Millwall": {
+      "elo_home": 1507.7,
+      "elo_away": 1604.4,
+      "p_home": 0.3068,
+      "p_draw": 0.2972,
+      "p_away": 0.3959
+    },
+    "2026-08-15|Sheffield United|Birmingham": {
+      "elo_home": 1546.6,
+      "elo_away": 1507.1,
+      "p_home": 0.4523,
+      "p_draw": 0.2833,
+      "p_away": 0.2644
+    },
+    "2026-08-15|Stoke|Swansea": {
+      "elo_home": 1452.7,
+      "elo_away": 1536.3,
+      "p_home": 0.3206,
+      "p_draw": 0.3029,
+      "p_away": 0.3764
+    },
+    "2026-08-15|Portsmouth|QPR": {
+      "elo_home": 1499.3,
+      "elo_away": 1480.5,
+      "p_home": 0.4375,
+      "p_draw": 0.2866,
+      "p_away": 0.2759
+    },
+    "2026-08-15|Middlesbrough|Lincoln": {
+      "elo_home": 1588.9,
+      "elo_away": 1065.1,
+      "p_home": 0.8984,
+      "p_draw": 0.0783,
+      "p_away": 0.0234
+    },
+    "2026-08-15|Sevilla|Rayo Vallecano": {
+      "elo_home": 1625.9,
+      "elo_away": 1707.3,
+      "p_home": 0.3506,
+      "p_draw": 0.3176,
+      "p_away": 0.3318
+    },
+    "2026-08-15|Alaves|Getafe": {
+      "elo_home": 1635.0,
+      "elo_away": 1664.1,
+      "p_home": 0.3934,
+      "p_draw": 0.331,
+      "p_away": 0.2757
+    },
+    "2026-08-15|Fuerth|Nuernberg": {
+      "elo_home": 1394.8,
+      "elo_away": 1458.7,
+      "p_home": 0.359,
+      "p_draw": 0.2875,
+      "p_away": 0.3535
+    },
+    "2026-08-15|Lautern|Karlsruhe": {
+      "elo_home": 1456.0,
+      "elo_away": 1435.8,
+      "p_home": 0.4667,
+      "p_draw": 0.2585,
+      "p_away": 0.2748
+    },
+    "2026-08-15|Utrecht|Alkmaar": {
+      "elo_home": 1520.3,
+      "elo_away": 1539.2,
+      "p_home": 0.4174,
+      "p_draw": 0.2911,
+      "p_away": 0.2916
+    },
+    "2026-08-15|Excelsior|PSV": {
+      "elo_home": 1377.1,
+      "elo_away": 1759.1,
+      "p_home": 0.0889,
+      "p_draw": 0.1465,
+      "p_away": 0.7646
+    },
+    "2026-08-15|Csikszereda|Sepsi": {
+      "elo_home": 1267.1,
+      "elo_away": 1223.7,
+      "p_home": 0.4763,
+      "p_draw": 0.2754,
+      "p_away": 0.2484
+    },
+    "2026-08-15|Mjaellby|IK Sirius": {
+      "elo_home": 1515.6,
+      "elo_away": 1427.8,
+      "p_home": 0.5152,
+      "p_draw": 0.2545,
+      "p_away": 0.2304
+    },
+    "2026-08-15|Genclerbirligi|Fenerbahce": {
+      "elo_home": 1349.6,
+      "elo_away": 1655.6,
+      "p_home": 0.1439,
+      "p_draw": 0.2071,
+      "p_away": 0.649
+    },
+    "2026-08-15|Kasimpasa|Trabzonspor": {
+      "elo_home": 1383.0,
+      "elo_away": 1526.2,
+      "p_home": 0.2838,
+      "p_draw": 0.264,
+      "p_away": 0.4522
+    },
+    "2026-08-15|Konyaspor|Rizespor": {
+      "elo_home": 1398.4,
+      "elo_away": 1402.2,
+      "p_home": 0.4394,
+      "p_draw": 0.2868,
+      "p_away": 0.2738
+    },
+    "2026-08-15|Gaziantep FK|Alanyaspor": {
+      "elo_home": 1354.3,
+      "elo_away": 1398.9,
+      "p_home": 0.3829,
+      "p_draw": 0.2961,
+      "p_away": 0.321
     }
   }
 }
