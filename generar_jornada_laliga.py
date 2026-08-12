@@ -59,6 +59,17 @@ def _parse_aciertos(texto: str) -> dict:
 
 # The two questions the countdown can ask, and the label each puts on screen.
 # Same simulation either way — only the cut-off through the final table differs.
+#
+# `champions` is the default because the title race in LaLiga is close to a
+# foregone conclusion: it leaves three of the five slots at ~0% for most of a
+# season, while the fourth place is genuinely contested.
+#
+# An expected final table was considered instead and rejected. It comes out in
+# the SAME order — it ranks by strength, so it does not fix the obviousness —
+# and it is quietly less honest: "4. Villarreal, 63 pts" reads as a prediction,
+# but Villarreal finishes fourth in only 28% of simulated seasons, and the
+# table as a whole essentially never happens. A probability says what it knows;
+# an average hides it.
 PREGUNTAS = {
     "titulo": (1, "Quién gana LaLiga"),
     "champions": (liga_simulator.PLAZAS_CHAMPIONS, "Quién juega la Champions"),
@@ -112,7 +123,7 @@ def construir_jornada(
     aciertos: dict | None = None,
     maximo: int | None = None,
     sin_ranking: bool = False,
-    pregunta: str = "titulo",
+    pregunta: str = "champions",
 ) -> tuple[dict, list[tuple[str, str]]] | None:
     """
     (matchday dict, club-slug pairs), or None when there's nothing to publish.
@@ -203,10 +214,10 @@ def main() -> int:
     cli.add_argument("--sin-ranking", action="store_true",
                      help="Saltarse la simulación de liga y cerrar con CTA. "
                           "Tarda unos segundos menos.")
-    cli.add_argument("--pregunta", choices=sorted(PREGUNTAS), default="titulo",
-                     help="Qué pregunta el countdown: quién gana la liga "
-                          "(«titulo») o quién entra en plazas de Champions "
-                          "(«champions»). Misma simulación, distinto corte.")
+    cli.add_argument("--pregunta", choices=sorted(PREGUNTAS), default="champions",
+                     help="Qué pregunta el countdown: quién entra en plazas de "
+                          "Champions («champions», por defecto) o quién gana la "
+                          "liga («titulo»). Misma simulación, distinto corte.")
     args = cli.parse_args()
 
     construido = construir_jornada(

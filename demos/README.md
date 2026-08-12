@@ -11,8 +11,8 @@ npx remotion render Short ../demos/laliga.mp4 --props=../demos/jornada-laliga.js
 
 | Fichero | Qué es | Partidos |
 | --- | --- | --- |
-| `laliga.mp4` / `jornada-laliga.json` | LaLiga, 48,4 s, countdown del **título** | Valencia-Celta, Espanyol-Real Madrid, Atlético-Málaga, Elche-Barcelona (19-23 ago) |
-| `laliga-champions.mp4` / `jornada-laliga-champions.json` | Los mismos partidos, countdown de **plazas de Champions** | ídem |
+| `laliga.mp4` / `jornada-laliga.json` | LaLiga, 48,4 s, countdown de **plazas de Champions**. El formato elegido. | Valencia-Celta, Espanyol-Real Madrid, Atlético-Málaga, Elche-Barcelona (19-23 ago) |
+| `laliga-titulo.mp4` / `jornada-laliga-titulo.json` | Los mismos partidos con el countdown del **título**, para comparar | ídem |
 | `champions.mp4` / `jornada-champions.json` | Champions, 41 s, cierra con CTA | Real Madrid-Bayern, Man City-Inter, Arsenal-Barcelona, PSG-Liverpool |
 
 Los dos son 1080x1920 a 30 fps, CRF 23.
@@ -65,10 +65,20 @@ seguirán siendo buena parte de la temporada.
 las dos primeras posiciones no tienen intriga — y como el countdown va de la
 quinta a la primera, termina en un 100 %.
 
-La pelea de verdad está entre la tercera y la sexta plaza. Si ninguna de las dos
-convence, la salida es enseñar menos posiciones o preguntar por algo con la
-tensión repartida (descenso, o directamente "quién coge la última plaza
-europea").
+Se eligió el de Champions: el título en LaLiga es demasiado previsible.
+
+### Por qué no una clasificación esperada
+
+Se consideró y se descartó. Sale en **el mismo orden** —ordena por fuerza, así
+que no arregla lo de "demasiado obvio"— y encima es más engañosa: "4.
+Villarreal, 63 pts" se lee como una predicción, pero Villarreal acaba cuarto
+solo en el **28,5 %** de las temporadas simuladas, Betis quinto en el 20,3 % y
+Rayo sexto en el 12,9 %. La tabla entera tal y como se ve prácticamente nunca
+ocurre: es la media de muchos futuros, no la predicción de uno. Una
+probabilidad dice lo que sabe; una media lo esconde.
+
+Lo único en lo que ganaba es que ningún hueco queda muerto (89, 85, 72, 62, 60
+son todos distintos). Eso se arregla eligiendo mejor la pregunta.
 
 ## Qué falta para que esto sea el vídeo final
 

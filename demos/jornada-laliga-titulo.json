@@ -35,7 +35,7 @@
         "colorPrimario": "#FEBE10",
         "colorSecundario": "#FFFFFF"
       },
-      "titular": "293 puntos de Elo de ventaja para el Madrid",
+      "titular": "El Madrid llega con 293 puntos de Elo más",
       "probLocal": 0.1195,
       "probEmpate": 0.2055,
       "probVisitante": 0.6749,
@@ -71,7 +71,7 @@
         "colorPrimario": "#A50044",
         "colorSecundario": "#004D98"
       },
-      "titular": "0-2, el marcador más probable",
+      "titular": "El 0-2 es el marcador más probable",
       "probLocal": 0.0927,
       "probEmpate": 0.1883,
       "probVisitante": 0.7187,
@@ -83,32 +83,32 @@
     {
       "equipo": "Barcelona",
       "colorPrimario": "#A50044",
-      "probTitulo": 0.9997
+      "probTitulo": 0.627
     },
     {
       "equipo": "Real Madrid",
       "colorPrimario": "#FEBE10",
-      "probTitulo": 0.9981
+      "probTitulo": 0.3505
     },
     {
       "equipo": "Atlético",
       "colorPrimario": "#CB3524",
-      "probTitulo": 0.8782
+      "probTitulo": 0.0214
     },
     {
       "equipo": "Villarreal",
       "colorPrimario": "#FFE667",
-      "probTitulo": 0.4229
+      "probTitulo": 0.0006
     },
     {
       "equipo": "Betis",
       "colorPrimario": "#00954C",
-      "probTitulo": 0.3163
+      "probTitulo": 0.0006
     }
   ],
   "opciones": {
     "cierre": "ranking",
-    "tituloRanking": "Quién juega la Champions"
+    "tituloRanking": "Quién gana LaLiga"
   },
-  "_demo": "Igual que jornada-laliga.json pero el countdown pregunta por PLAZAS DE CHAMPIONS (top 4) en vez de por el titulo. Misma simulacion Monte Carlo, distinto corte de la tabla final. Los aciertos (3/4) son un marcador de posicion."
+  "_demo": "Datos REALES de punta a punta: calendario y clasificacion de ESPN, Elo de ClubElo, probabilidades del modelo, titulares desde hechos verificados y ranking de titulo por simulacion Monte Carlo (20.000 temporadas). Es la jornada 2 de LaLiga 2026-27 (19-23 ago): en la jornada 1 no juega ninguno de los equipos del filtro. Los aciertos (3/4) son un marcador de posicion: no hay jornada anterior que puntuar."
 }
