@@ -11,10 +11,10 @@ npx remotion render Short ../demos/laliga.mp4 --props=../demos/jornada-laliga.js
 
 | Fichero | Qué es | Partidos |
 | --- | --- | --- |
-| `laliga.mp4` / `jornada-laliga.json` | LaLiga, 41 s | Valencia-Celta, Espanyol-Real Madrid, Atlético-Málaga, Elche-Barcelona (19-23 ago) |
-| `champions.mp4` / `jornada-champions.json` | Champions, 41 s | Real Madrid-Bayern, Man City-Inter, Arsenal-Barcelona, PSG-Liverpool |
+| `laliga.mp4` / `jornada-laliga.json` | LaLiga, 48,4 s, cierra con countdown | Valencia-Celta, Espanyol-Real Madrid, Atlético-Málaga, Elche-Barcelona (19-23 ago) |
+| `champions.mp4` / `jornada-champions.json` | Champions, 41 s, cierra con CTA | Real Madrid-Bayern, Man City-Inter, Arsenal-Barcelona, PSG-Liverpool |
 
-Los dos son 1080x1920 a 30 fps, 1230 fotogramas, CRF 23 (~15 MB).
+Los dos son 1080x1920 a 30 fps, CRF 23.
 
 ## Qué es real y qué no
 
@@ -41,11 +41,23 @@ porque la temporada no ha empezado. En producción ese número lo calcula
 `resultados.py` contra resultados reales, y el generador se niega a arrancar si
 no puede.
 
+## El countdown de LaLiga
+
+Las probabilidades de título salen de `liga_simulator.py`: juega los 380
+partidos que quedan 20.000 veces con el mismo modelo que produce las barras del
+cuerpo del vídeo, y cuenta quién acaba primero. No es un ranking por Elo.
+
+Con la liga sin empezar sale Barcelona 62,7 %, Real Madrid 35,0 %, Atlético
+2,1 % — y **el cuarto y el quinto ya son 0,1 %**. Es la realidad de LaLiga y el
+countdown la refleja, pero conviene saber que tres de las cinco posiciones van a
+ser casi cero durante buena parte de la temporada. Se arregla mostrando menos
+posiciones, o cambiando la pregunta (top 4, descenso, Champions).
+
 ## Qué falta para que esto sea el vídeo final
 
-- **Cierre.** Los dos cierran con CTA en vez del countdown de probabilidad de
-  título, que necesita una simulación de liga que no está escrita. Con 4
-  partidos y CTA salen 41 s, dentro del objetivo de 35-50 s.
+- **La Champions cierra con CTA.** Su countdown necesitaría simular fase liga
+  más playoffs más eliminatorias, y el cuadro depende de un sorteo que aún no
+  existe. `liga_simulator.py` no sirve para eso: simula una liga, no una copa.
 - **Audio.** Sin voz en off ni subtítulos: `opciones.voiceover` va a `null` y no
   hay efectos en `public/sfx/`. Los cues de sonido están puestos y suenan solos
   en cuanto se añadan los mp3.

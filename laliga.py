@@ -103,11 +103,15 @@ def clasificacion() -> list[dict]:
             print(f"[WARN] Equipo sin catalogar en la clasificación: «{nombre}»")
             continue
         stats = {s.get("name"): s.get("value") for s in entrada.get("stats", [])}
+        # ESPN names goals with its generic scoring fields: pointsFor/Against
+        # are goals for/against, not points. `points` is the league points.
         tabla.append({
             "slug": slug,
             "puesto": int(stats.get("rank") or 0),
             "puntos": int(stats.get("points") or 0),
             "jugados": int(stats.get("gamesPlayed") or 0),
+            "goles_favor": int(stats.get("pointsFor") or 0),
+            "goles_contra": int(stats.get("pointsAgainst") or 0),
         })
 
     tabla.sort(key=lambda e: e["puesto"] or 99)
