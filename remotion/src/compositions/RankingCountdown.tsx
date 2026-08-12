@@ -27,6 +27,22 @@ export const rankingCountdownSchema = z.object({
 	 * los subtitulos. El `Short` lo apaga cuando hay `captions.json`.
 	 */
 	mostrarSello: z.boolean().optional(),
+	/**
+	 * Orden de aparicion. Por defecto `true`: sale primero el lider y se remata
+	 * en el ultimo de los cinco, que es donde esta la incertidumbre con la
+	 * pregunta que usa el canal. Ponlo a `false` para la cuenta atras clasica
+	 * 5-4-3-2-1, que es lo que quiere una pregunta cuya duda esta arriba.
+	 */
+	liderPrimero: z.boolean().optional(),
+	/**
+	 * Rotulo junto al porcentaje: dice QUE mide ese numero.
+	 *
+	 * Estaba escrito a fuego como "Opciones de titulo", que dejo de ser cierto
+	 * en cuanto el countdown pudo preguntar otra cosa: se veia "Quien juega la
+	 * Champions" arriba y "Opciones de titulo" abajo, en la misma pantalla.
+	 * Por defecto sigue siendo el titulo, que es lo que era.
+	 */
+	etiquetaProbabilidad: z.string().optional(),
 });
 
 export type RankingCountdownProps = z.infer<typeof rankingCountdownSchema>;
@@ -34,16 +50,22 @@ export type RankingCountdownProps = z.infer<typeof rankingCountdownSchema>;
 export const RANKING = {
 	/** Cartel de entrada. */
 	intro: 36,
-	/** Puestos del 5 al 2. */
+	/** Cada puesto menos el ultimo que se enseña. */
 	puesto: 58,
-	/** El numero 1 respira mas: es el remate del video. */
-	puestoUno: 104,
+	/**
+	 * El ultimo que sale respira casi el doble: es el remate del video.
+	 *
+	 * "El ultimo que sale" y "el primero de la tabla" dejaron de ser lo mismo
+	 * cuando el orden se invirtio — ver `liderPrimero` mas abajo. La duracion
+	 * larga sigue al climax, no al numero 1.
+	 */
+	remate: 104,
 	cuantos: 5,
 } as const;
 
 export const duracionRankingCountdown = (entradas: number): number => {
 	const total = Math.min(Math.max(entradas, 1), RANKING.cuantos);
-	return RANKING.intro + (total - 1) * RANKING.puesto + RANKING.puestoUno;
+	return RANKING.intro + (total - 1) * RANKING.puesto + RANKING.remate;
 };
 
 // --------------------------------------------------------------------------
@@ -144,28 +166,57 @@ const Puesto: React.FC<{
 	/** Probabilidad del lider, para dimensionar la barra relativa. */
 	maxProb: number;
 	mostrarSello: boolean;
-}> = ({entrada, posicion, total, titulo, maxProb, mostrarSello}) => {
+	/** Ultimo que se enseña: lleva la franja larga y el remate sonoro. */
+	esRemate: boolean;
+	/** Frames de esta franja, para colocar el sello dentro de ella. */
+	duracion: number;
+	/** Que mide el porcentaje. Ver `etiquetaProbabilidad`. */
+	etiquetaProb: string;
+}> = ({
+	entrada,
+	posicion,
+	total,
+	titulo,
+	maxProb,
+	mostrarSello,
+	esRemate,
+	duracion,
+	etiquetaProb,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+
+	// Dos cosas distintas que antes eran la misma. `esUno` es identidad —el
+	// lider va en color de acento y lleva sello— y `esRemate` es ritmo: quien
+	// cierra el bloque respira mas. Con la cuenta atras clasica coinciden; con
+	// el orden invertido no, y confundirlos deja al lider con el sello cayendo
+	// justo en el corte.
 	const esUno = posicion === 1;
 
 	const color = readableOn(entrada.colorPrimario, COLORS.bg, 3.2);
 
 	const numeroDentro = muelle(frame, fps, {desde: 0, duracion: 14});
 	const nombreDentro = muelleFirme(frame, fps, {desde: 8, duracion: 14});
-	const inicioContador = esUno ? 16 : 14;
-	const duracionContador = esUno ? 40 : 30;
+	const inicioContador = esRemate ? 16 : 14;
+	const duracionContador = esRemate ? 40 : 30;
 	const barra = muelleFirme(frame, fps, {
 		desde: inicioContador,
 		duracion: duracionContador,
 	});
 
-	// Solo para el numero 1: sello final y pulso, para que los ultimos 45
-	// frames no se queden quietos.
-	const sello = esUno ? muelle(frame, fps, {desde: 58, duracion: 20}) : 0;
-	const pulso = esUno
-		? 1 + 0.04 * Math.max(0, Math.sin((frame - 86) / 3.2)) * (frame > 86 ? 1 : 0)
-		: 1;
+	// El sello entra pasada media franja, sea cual sea su duracion. Estaba
+	// clavado en el frame 58, que era media franja larga — y con el lider en
+	// una franja corta habria aparecido en el ultimo frame, o sea nunca.
+	const frameSello = Math.round(duracion * 0.55);
+	const sello = esUno ? muelle(frame, fps, {desde: frameSello, duracion: 20}) : 0;
+	const inicioPulso = frameSello + 28;
+	const pulso =
+		esUno && esRemate
+			? 1 +
+				0.04 *
+					Math.max(0, Math.sin((frame - inicioPulso) / 3.2)) *
+					(frame > inicioPulso ? 1 : 0)
+			: 1;
 
 	return (
 		<AbsoluteFill>
@@ -265,7 +316,7 @@ const Puesto: React.FC<{
 								color: COLORS.inkMuted,
 							}}
 						>
-							Opciones de título
+							{etiquetaProb}
 						</span>
 						<AnimatedCounter
 							valor={entrada.probTitulo * 100}
@@ -323,7 +374,7 @@ const Puesto: React.FC<{
 			</AbsoluteFill>
 
 			<SfxCue sfx="whoosh" en={0} />
-			{esUno ? <SfxCue sfx="ding" en={58} /> : null}
+			{esUno ? <SfxCue sfx="ding" en={frameSello} /> : null}
 		</AbsoluteFill>
 	);
 };
@@ -331,16 +382,19 @@ const Puesto: React.FC<{
 // --------------------------------------------------------------------------
 
 /**
- * Cuenta atras del puesto 5 al 1 con los equipos con mas opciones de titulo.
+ * Los cinco equipos con mas opciones, uno por franja.
  *
- * Cada puesto entra con un corte seco (`Series` sin transiciones), el
- * porcentaje sube con contador animado y el numero 1 se queda casi el doble de
- * tiempo en pantalla.
+ * Por defecto va del mas probable al menos probable y remata en el quinto —
+ * ver `liderPrimero`. Cada puesto entra con un corte seco (`Series` sin
+ * transiciones), el porcentaje sube con contador animado y el ultimo que sale
+ * se queda casi el doble de tiempo en pantalla.
  */
 export const RankingCountdown: React.FC<RankingCountdownProps> = ({
 	ranking,
 	titulo,
 	mostrarSello = true,
+	liderPrimero = true,
+	etiquetaProbabilidad = 'Opciones de título',
 }) => {
 	// Se ordena aqui en vez de fiarse del orden del JSON: la composicion no
 	// deberia romperse porque el motor de predicciones escriba en otro orden.
@@ -351,8 +405,17 @@ export const RankingCountdown: React.FC<RankingCountdownProps> = ({
 	const lider = ordenado[0];
 	const maxProb = lider ? lider.probTitulo : 1;
 
-	// Del peor al mejor: la cuenta atras va 5, 4, 3, 2, 1.
-	const cuentaAtras = [...ordenado].reverse();
+	// Del mas obvio al menos obvio: 1, 2, 3, 4, 5.
+	//
+	// Al reves de lo que pide el instinto, y a proposito. Con la pregunta que
+	// usa el canal —quien entra en plazas de Champions— los dos primeros estan
+	// al 100% y al 99,8%: rematar ahi es rematar en el dato mas previsible del
+	// video. Enseñandolos primero, el que se queda en pantalla al final es el
+	// que de verdad esta en juego (Betis al 31,6%).
+	//
+	// `liderPrimero=false` recupera la cuenta atras clasica 5-4-3-2-1, que es
+	// la que quiere una pregunta con la incertidumbre arriba.
+	const secuencia = liderPrimero ? ordenado : [...ordenado].reverse();
 
 	return (
 		<AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -361,23 +424,28 @@ export const RankingCountdown: React.FC<RankingCountdownProps> = ({
 					<Intro titulo={titulo} />
 				</Series.Sequence>
 
-				{cuentaAtras.map((entrada, i) => {
-					const posicion = cuentaAtras.length - i;
+				{secuencia.map((entrada, i) => {
+					// El numero que se pinta es el puesto en la tabla, no el
+					// orden de aparicion: el lider es el 1 salga cuando salga.
+					const posicion = liderPrimero ? i + 1 : secuencia.length - i;
+					const esElRemate = i === secuencia.length - 1;
+					const duracion = esElRemate ? RANKING.remate : RANKING.puesto;
 					return (
 						<Series.Sequence
 							key={`${entrada.equipo}-${posicion}`}
-							durationInFrames={
-								posicion === 1 ? RANKING.puestoUno : RANKING.puesto
-							}
+							durationInFrames={duracion}
 							name={`Nº${posicion} · ${entrada.equipo}`}
 						>
 							<Puesto
 								entrada={entrada}
 								posicion={posicion}
-								total={cuentaAtras.length}
+								total={secuencia.length}
 								titulo={titulo}
 								maxProb={maxProb}
 								mostrarSello={mostrarSello}
+								esRemate={esElRemate}
+								duracion={duracion}
+								etiquetaProb={etiquetaProbabilidad}
 							/>
 						</Series.Sequence>
 					);

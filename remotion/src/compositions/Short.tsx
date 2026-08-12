@@ -54,6 +54,8 @@ export const opcionesShortSchema = z.object({
 	maxPartidos: z.number().int().min(1).max(6).optional(),
 	cierre: z.enum(['ranking', 'cta']).optional(),
 	tituloRanking: z.string().min(1).optional(),
+	/** Rotulo junto al porcentaje del countdown. Ver RankingCountdown. */
+	etiquetaRanking: z.string().min(1).optional(),
 	cta: z
 		.object({
 			titulo: z.string().min(1).optional(),
@@ -76,6 +78,7 @@ export type OpcionesShort = {
 	maxPartidos: number;
 	cierre: 'ranking' | 'cta';
 	tituloRanking: string;
+	etiquetaRanking: string;
 	cta: {titulo: string; subtitulo: string};
 	voiceover: string | null;
 	captions: PalabraCaption[] | null;
@@ -100,6 +103,7 @@ export const OPCIONES_POR_DEFECTO: OpcionesShort = {
 	maxPartidos: 4,
 	cierre: 'ranking',
 	tituloRanking: 'Quién gana la Champions',
+	etiquetaRanking: 'Opciones de título',
 	cta: {
 		titulo: '¿Y tú qué dices?',
 		subtitulo: 'Sígueme y lo comprobamos la semana que viene',
@@ -119,6 +123,7 @@ export const resolverOpciones = (
 	maxPartidos: o?.maxPartidos ?? OPCIONES_POR_DEFECTO.maxPartidos,
 	cierre: o?.cierre ?? OPCIONES_POR_DEFECTO.cierre,
 	tituloRanking: o?.tituloRanking ?? OPCIONES_POR_DEFECTO.tituloRanking,
+	etiquetaRanking: o?.etiquetaRanking ?? OPCIONES_POR_DEFECTO.etiquetaRanking,
 	cta: {
 		titulo: o?.cta?.titulo ?? OPCIONES_POR_DEFECTO.cta.titulo,
 		subtitulo: o?.cta?.subtitulo ?? OPCIONES_POR_DEFECTO.cta.subtitulo,
@@ -540,6 +545,7 @@ export const Short: React.FC<ShortProps> = (props) => {
 						<RankingCountdown
 							ranking={props.ranking}
 							titulo={opciones.tituloRanking}
+							etiquetaProbabilidad={opciones.etiquetaRanking}
 							mostrarSello={!hayCaptions}
 						/>
 					) : (

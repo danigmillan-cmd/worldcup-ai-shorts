@@ -1,12 +1,17 @@
 """
 liga_simulator.py
-Monte Carlo over a league season -> real "probability of winning the title".
+Monte Carlo over a league season -> where each club actually finishes.
 
 This is what the Short's closing countdown needs. Every other number the
-channel shows is computed rather than asserted, and a title race is no
-exception: the ranking comes out of playing the remaining fixtures thousands
-of times with the same Poisson model that produces the match predictions, so
-the countdown stays mutually coherent with the bars in the body of the video.
+channel shows is computed rather than asserted, and the countdown is no
+exception: it comes out of playing the remaining fixtures thousands of times
+with the same Poisson model that produces the match predictions, so it stays
+mutually coherent with the bars in the body of the video.
+
+One run records every club's finishing position, so any cut-off through the
+final table is a read of the same result — the channel asks about the
+Champions places (`corte=4`), and the title, the European spots or relegation
+are the same call with a different number.
 
 Relationship to the World Cup simulators
 ---------------------------------------
@@ -31,7 +36,7 @@ Approximations, all deliberate:
     is unknowable in advance and modelling it would be inventing.
 
 Public API:
-    probabilidades_titulo(...) -> list[dict]
+    probabilidades_puesto(...) -> list[dict]
     simular(...) -> dict
 """
 import bisect
@@ -220,22 +225,10 @@ def probabilidades_puesto(
     return clasificado[:top]
 
 
-def probabilidades_titulo(
-    tabla: list[dict],
-    pendientes: list[dict],
-    elo_table: dict[str, float],
-    top: int = TOP_RANKING,
-    n_sims: int = N_SIMULACIONES,
-    constantes: dict | None = None,
-    semilla: int | str | None = None,
-) -> list[dict]:
-    """P(winning the league), keyed `probTitulo` for the Remotion schema."""
-    entradas = probabilidades_puesto(
-        tabla, pendientes, elo_table, 1, top, n_sims, constantes, semilla
-    )
-    for e in entradas:
-        e["probTitulo"] = e.pop("prob")
-    return entradas
+# There was a `probabilidades_titulo` wrapper here. The channel dropped the
+# title-race countdown — in LaLiga it is a foregone conclusion — so it went
+# with it rather than sitting unused. `probabilidades_puesto(corte=1)` is the
+# same thing if it ever comes back.
 
 
 def _pendientes_de(partidos: list[dict], desde: date | None = None) -> list[dict]:
@@ -263,10 +256,12 @@ if __name__ == "__main__":
 
     import time
     t = time.perf_counter()
-    ranking = probabilidades_titulo(tabla, pendientes, elo, top=10, semilla="demo")
+    ranking = probabilidades_puesto(
+        tabla, pendientes, elo, corte=PLAZAS_CHAMPIONS, top=10, semilla="demo"
+    )
     print(f"Calculado en {time.perf_counter() - t:.1f}s\n")
 
     for i, e in enumerate(ranking, 1):
         nombre = champions_teams.resolve_team(e["slug"])["nombre"]
-        print(f"  {i:2}. {nombre:14} {e['probTitulo']:6.1%}   "
+        print(f"  {i:2}. {nombre:14} {e['prob']:6.1%}   "
               f"({e['puntos_medios']:.0f} pts de media)")
