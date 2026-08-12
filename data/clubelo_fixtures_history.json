@@ -1,6 +1,6 @@
 {
-  "actualizado": "2026-08-11T14:24:34.366904+00:00",
-  "n": 79,
+  "actualizado": "2026-08-12T07:09:36.657296+00:00",
+  "n": 90,
   "fixtures": {
     "2026-08-10|Botev Plovdiv|Spartak Varna": {
       "elo_home": 1234.0,
@@ -554,6 +554,83 @@
       "p_home": 0.3829,
       "p_draw": 0.2961,
       "p_away": 0.321
+    },
+    "2026-08-16|Randers|FC Kobenhavn": {
+      "elo_home": 1432.5,
+      "elo_away": 1578.4,
+      "p_home": 0.2618,
+      "p_draw": 0.2687,
+      "p_away": 0.4695
+    },
+    "2026-08-16|Nordsjaelland|Silkeborg": {
+      "elo_home": 1541.8,
+      "elo_away": 1445.3,
+      "p_home": 0.548,
+      "p_draw": 0.249,
+      "p_away": 0.203
+    },
+    "2026-08-16|Lyngby|Midtjylland": {
+      "elo_home": 1347.1,
+      "elo_away": 1687.4,
+      "p_home": 0.0984,
+      "p_draw": 0.1712,
+      "p_away": 0.7304
+    },
+    "2026-08-16|Odense|Horsens": {
+      "elo_home": 1430.6,
+      "elo_away": 1347.1,
+      "p_home": 0.517,
+      "p_draw": 0.2567,
+      "p_away": 0.2263
+    },
+    "2026-08-16|Burnley|West Ham": {
+      "elo_home": 1666.3,
+      "elo_away": 1768.8,
+      "p_home": 0.305,
+      "p_draw": 0.2782,
+      "p_away": 0.4168
+    },
+    "2026-08-16|Watford|Southampton": {
+      "elo_home": 1458.2,
+      "elo_away": 1636.3,
+      "p_home": 0.2194,
+      "p_draw": 0.2632,
+      "p_away": 0.5173
+    },
+    "2026-08-16|Celta|Osasuna": {
+      "elo_home": 1700.8,
+      "elo_away": 1650.3,
+      "p_home": 0.5144,
+      "p_draw": 0.257,
+      "p_away": 0.2286
+    },
+    "2026-08-16|Espanyol|Levante": {
+      "elo_home": 1629.5,
+      "elo_away": 1638.7,
+      "p_home": 0.4349,
+      "p_draw": 0.2939,
+      "p_away": 0.2712
+    },
+    "2026-08-16|Santander|Villarreal": {
+      "elo_home": 1581.9,
+      "elo_away": 1759.3,
+      "p_home": 0.2667,
+      "p_draw": 0.2449,
+      "p_away": 0.4884
+    },
+    "2026-08-16|Bueyueksehir|Kocaelispor": {
+      "elo_home": 1520.5,
+      "elo_away": 1343.0,
+      "p_home": 0.6613,
+      "p_draw": 0.2134,
+      "p_away": 0.1254
+    },
+    "2026-08-16|Besiktas|Eyupspor": {
+      "elo_home": 1516.3,
+      "elo_away": 1370.1,
+      "p_home": 0.6306,
+      "p_draw": 0.217,
+      "p_away": 0.1524
     }
   }
 }
