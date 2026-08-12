@@ -59,3 +59,11 @@ Desktop.ini
 # data/clubelo_cache.json (la tabla del día) SÍ se versiona: es pequeño y actúa
 # de red de seguridad cuando clubelo.com está caído.
 data/clubelo_history_cache.json
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LaLiga — caché de ESPN.
+# ─────────────────────────────────────────────────────────────────────────────
+# TTL de 6 h y sin lectura en caliente cuando caduca, asi que no sirve de red
+# de seguridad como data/clubelo_cache.json: versionarlo solo seria ruido en
+# cada render.
+data/laliga_cache.json

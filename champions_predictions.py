@@ -40,6 +40,24 @@ CHAMPIONS_CONSTANTS = {
     "host_elo_bonus": 65.0,
 }
 
+# Same engine, same ClubElo scale, different competition. LaLiga runs well
+# below the Champions league phase on goals — a domestic league is played by
+# sides much closer in level than a European group, and Spain in particular
+# sits under the European average. Reusing 3.1 here would over-predict goals in
+# every single Spanish match, so the one constant that is genuinely
+# competition-specific gets its own value.
+#
+# 2.6 is reasoned, NOT measured, exactly like its Champions counterpart: recent
+# LaLiga seasons run around 2.5-2.7 goals a game. elo_to_goals and
+# host_elo_bonus are shared with Champions because they describe the ClubElo
+# scale and home advantage, neither of which changes by competition — and both
+# are still the uncalibrated placeholders that
+# scripts/calibrate_champions.py exists to replace.
+LALIGA_CONSTANTS = {
+    **CHAMPIONS_CONSTANTS,
+    "base_total_goals": 2.6,
+}
+
 # Two win probabilities closer than this and the match is called a draw.
 #
 # In a Poisson model the draw is NEVER the most likely of the three outcomes —
@@ -93,7 +111,12 @@ def _decide_outcome(p_local: float, p_empate: float, p_visitante: float) -> str:
     return "local" if p_local > p_visitante else "visitante"
 
 
-def predict(elo_local: float, elo_visitante: float, seed: str) -> dict:
+def predict(
+    elo_local: float,
+    elo_visitante: float,
+    seed: str,
+    constantes: dict | None = None,
+) -> dict:
     """
     Predict one match.
 
@@ -101,12 +124,19 @@ def predict(elo_local: float, elo_visitante: float, seed: str) -> dict:
     (e.g. "2026-10-21|real-madrid|bayern") so re-rendering the same matchday
     never changes the predicted score.
 
+    `constantes` defaults to CHAMPIONS_CONSTANTS; pass LALIGA_CONSTANTS for a
+    Spanish-league match. Everything downstream — the scoreline picker, the
+    draw margin — is competition-independent and stays shared.
+
     Returns the keys the Remotion schema expects, plus `resultadoPredicho` so
     the video highlights the same outcome the model chose instead of
     re-deriving it from the rounded probabilities.
     """
     matrix = pe.match_matrix(
-        elo_local, elo_visitante, host_a=True, **CHAMPIONS_CONSTANTS
+        elo_local,
+        elo_visitante,
+        host_a=True,
+        **(CHAMPIONS_CONSTANTS if constantes is None else constantes),
     )
     p_local, p_empate, p_visitante = pe.matrix_outcome_probs(matrix)
 

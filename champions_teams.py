@@ -155,6 +155,7 @@ def build_match_from_elo(
     elo_local: float | None = None,
     elo_visitante: float | None = None,
     elo_table: dict[str, float] | None = None,
+    constantes: dict | None = None,
 ) -> dict:
     """
     Assemble one match straight from the two clubs' Elo ratings.
@@ -180,7 +181,9 @@ def build_match_from_elo(
             elo_visitante = champions_elo.get_elo(visitante, tabla)
 
     seed = f"{fecha}|{_normalize(local)}|{_normalize(visitante)}"
-    prediction = champions_predictions.predict(elo_local, elo_visitante, seed)
+    prediction = champions_predictions.predict(
+        elo_local, elo_visitante, seed, constantes
+    )
 
     return {
         "local": resolve_team(local),

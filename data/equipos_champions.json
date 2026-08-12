@@ -3,75 +3,681 @@
     "descripcion": "Catálogo de clubes para los Shorts de predicciones. Lo consume el generador, que escribe nombre y colores YA RESUELTOS dentro del JSON de jornada. El proyecto Remotion nunca lee este fichero.",
     "convencion_nombre": "El nombre que diría un narrador en español, no el nombre oficial. Máximo 14 caracteres: por encima, TeamChip baja el cuerpo de 52 a 42 px y se ve peor.",
     "convencion_color": "colorPrimario = color dominante de la primera equipación. colorSecundario = el segundo color del club, y es el que usa resolverColoresPartido() cuando los dos equipos de un partido chocan en color.",
-    "cobertura": "Más ancho que los 36 de la fase liga a propósito: el sorteo es de finales de agosto y el catálogo tiene que cubrir cualquier resultado. Para los que aun así falten, el generador inventa un color estable a partir del nombre.",
+    "cobertura": "Más ancho que los 36 de la fase liga a propósito: el sorteo es de finales de agosto y el catálogo tiene que cubrir cualquier resultado. Para los que aun así falten, el generador inventa un color estable a partir del nombre. Desde el 12-ago-2026 incluye ademas los 20 de LaLiga, para el segundo canal: el filtro solo publica los partidos de unos pocos clubes, pero el rival de esos partidos tambien hay que pintarlo, asi que el catalogo necesita la liga entera.",
     "sin_escudos": "No hay rutas de imagen ni las habrá. Los equipos se representan solo con nombre y bloque de color."
   },
-
   "equipos": {
-    "real-madrid": { "nombre": "Real Madrid", "colorPrimario": "#FEBE10", "colorSecundario": "#FFFFFF", "pais": "ESP" },
-    "barcelona": { "nombre": "Barcelona", "colorPrimario": "#A50044", "colorSecundario": "#004D98", "pais": "ESP" },
-    "atletico": { "nombre": "Atlético", "colorPrimario": "#CB3524", "colorSecundario": "#262E62", "pais": "ESP", "alias": ["Atletico Madrid", "Atlético de Madrid", "Club Atlético de Madrid"] },
-    "athletic": { "nombre": "Athletic", "colorPrimario": "#EE2523", "colorSecundario": "#FFFFFF", "pais": "ESP", "alias": ["Athletic Bilbao", "Athletic Club", "Bilbao"] },
-    "villarreal": { "nombre": "Villarreal", "colorPrimario": "#FFE667", "colorSecundario": "#005187", "pais": "ESP" },
-    "real-sociedad": { "nombre": "Real Sociedad", "colorPrimario": "#0067B1", "colorSecundario": "#FFFFFF", "pais": "ESP", "alias": ["Sociedad"] },
-    "sevilla": { "nombre": "Sevilla", "colorPrimario": "#D81920", "colorSecundario": "#FFFFFF", "pais": "ESP" },
-    "betis": { "nombre": "Betis", "colorPrimario": "#00954C", "colorSecundario": "#FFFFFF", "pais": "ESP", "alias": ["Real Betis"] },
-    "girona": { "nombre": "Girona", "colorPrimario": "#CD2534", "colorSecundario": "#FFFFFF", "pais": "ESP" },
-    "man-city": { "nombre": "Man City", "colorPrimario": "#6CABDD", "colorSecundario": "#1C2C5B", "pais": "ENG", "alias": ["Manchester City"] },
-    "arsenal": { "nombre": "Arsenal", "colorPrimario": "#EF0107", "colorSecundario": "#063672", "pais": "ENG" },
-    "liverpool": { "nombre": "Liverpool", "colorPrimario": "#C8102E", "colorSecundario": "#F6EB61", "pais": "ENG" },
-    "chelsea": { "nombre": "Chelsea", "colorPrimario": "#034694", "colorSecundario": "#FFFFFF", "pais": "ENG" },
-    "tottenham": { "nombre": "Tottenham", "colorPrimario": "#132257", "colorSecundario": "#FFFFFF", "pais": "ENG", "alias": ["Tottenham Hotspur", "Spurs"] },
-    "newcastle": { "nombre": "Newcastle", "colorPrimario": "#241F20", "colorSecundario": "#FFFFFF", "pais": "ENG", "alias": ["Newcastle United"] },
-    "aston-villa": { "nombre": "Aston Villa", "colorPrimario": "#95BFE5", "colorSecundario": "#670E36", "pais": "ENG" },
-    "man-united": { "nombre": "Man United", "colorPrimario": "#DA291C", "colorSecundario": "#FBE122", "pais": "ENG", "alias": ["Manchester United"] },
-    "bayern": { "nombre": "Bayern", "colorPrimario": "#DC052D", "colorSecundario": "#0066B2", "pais": "GER", "alias": ["Bayern Munich", "Bayern München", "FC Bayern"] },
-    "dortmund": { "nombre": "Dortmund", "colorPrimario": "#FDE100", "colorSecundario": "#000000", "pais": "GER", "alias": ["Borussia Dortmund", "BVB"] },
-    "leverkusen": { "nombre": "Leverkusen", "colorPrimario": "#E32221", "colorSecundario": "#000000", "pais": "GER", "alias": ["Bayer Leverkusen", "Bayer 04 Leverkusen"] },
-    "leipzig": { "nombre": "Leipzig", "colorPrimario": "#DD0741", "colorSecundario": "#001F47", "pais": "GER", "alias": ["RB Leipzig"] },
-    "stuttgart": { "nombre": "Stuttgart", "colorPrimario": "#E32219", "colorSecundario": "#FFFFFF", "pais": "GER", "alias": ["VfB Stuttgart"] },
-    "eintracht": { "nombre": "Eintracht", "colorPrimario": "#E1000F", "colorSecundario": "#000000", "pais": "GER", "alias": ["Eintracht Frankfurt", "Frankfurt"] },
-    "inter": { "nombre": "Inter", "colorPrimario": "#0B1560", "colorSecundario": "#FFFFFF", "pais": "ITA", "alias": ["Internazionale", "Inter Milan", "Inter de Milán"] },
-    "milan": { "nombre": "Milan", "colorPrimario": "#FB090B", "colorSecundario": "#000000", "pais": "ITA", "alias": ["AC Milan"] },
-    "juventus": { "nombre": "Juventus", "colorPrimario": "#000000", "colorSecundario": "#FFFFFF", "pais": "ITA", "alias": ["Juve"] },
-    "napoli": { "nombre": "Nápoles", "colorPrimario": "#12A0D7", "colorSecundario": "#FFFFFF", "pais": "ITA", "alias": ["Napoli", "SSC Napoli"] },
-    "atalanta": { "nombre": "Atalanta", "colorPrimario": "#1D71B8", "colorSecundario": "#000000", "pais": "ITA" },
-    "roma": { "nombre": "Roma", "colorPrimario": "#8E1F2F", "colorSecundario": "#F0BC42", "pais": "ITA", "alias": ["AS Roma"] },
-    "lazio": { "nombre": "Lazio", "colorPrimario": "#87D8F7", "colorSecundario": "#0B2265", "pais": "ITA" },
-    "bolonia": { "nombre": "Bolonia", "colorPrimario": "#1A2F48", "colorSecundario": "#A21C24", "pais": "ITA", "alias": ["Bologna"] },
-    "psg": { "nombre": "PSG", "colorPrimario": "#004170", "colorSecundario": "#DA291C", "pais": "FRA", "alias": ["Paris Saint-Germain", "Paris SG"] },
-    "monaco": { "nombre": "Mónaco", "colorPrimario": "#E63946", "colorSecundario": "#FFFFFF", "pais": "FRA", "alias": ["Monaco", "AS Monaco"] },
-    "marsella": { "nombre": "Marsella", "colorPrimario": "#2FAEE0", "colorSecundario": "#FFFFFF", "pais": "FRA", "alias": ["Marseille", "Olympique de Marseille", "OM"] },
-    "lille": { "nombre": "Lille", "colorPrimario": "#E01E13", "colorSecundario": "#002D62", "pais": "FRA", "alias": ["LOSC"] },
-    "brest": { "nombre": "Brest", "colorPrimario": "#E30613", "colorSecundario": "#FFFFFF", "pais": "FRA", "alias": ["Stade Brestois"] },
-    "lyon": { "nombre": "Lyon", "colorPrimario": "#1B4B9B", "colorSecundario": "#DA291C", "pais": "FRA", "alias": ["Olympique Lyonnais", "OL"] },
-    "benfica": { "nombre": "Benfica", "colorPrimario": "#E00000", "colorSecundario": "#FFFFFF", "pais": "POR", "alias": ["SL Benfica"] },
-    "porto": { "nombre": "Oporto", "colorPrimario": "#003399", "colorSecundario": "#FFFFFF", "pais": "POR", "alias": ["Porto", "FC Porto"] },
-    "sporting": { "nombre": "Sporting", "colorPrimario": "#008057", "colorSecundario": "#FFFFFF", "pais": "POR", "alias": ["Sporting CP", "Sporting Lisboa"] },
-    "ajax": { "nombre": "Ajax", "colorPrimario": "#D2122E", "colorSecundario": "#FFFFFF", "pais": "NED" },
-    "psv": { "nombre": "PSV", "colorPrimario": "#ED1C24", "colorSecundario": "#FFFFFF", "pais": "NED", "alias": ["PSV Eindhoven"] },
-    "feyenoord": { "nombre": "Feyenoord", "colorPrimario": "#DA020E", "colorSecundario": "#FFFFFF", "pais": "NED" },
-    "brujas": { "nombre": "Brujas", "colorPrimario": "#005BA3", "colorSecundario": "#000000", "pais": "BEL", "alias": ["Club Brugge", "Club Brujas"] },
-    "union-sg": { "nombre": "Union SG", "colorPrimario": "#FFD700", "colorSecundario": "#003DA5", "pais": "BEL", "alias": ["St Gillis", "Union Saint-Gilloise"] },
-    "celtic": { "nombre": "Celtic", "colorPrimario": "#018749", "colorSecundario": "#FFFFFF", "pais": "SCO" },
-    "rangers": { "nombre": "Rangers", "colorPrimario": "#1B458F", "colorSecundario": "#FFFFFF", "pais": "SCO" },
-    "galatasaray": { "nombre": "Galatasaray", "colorPrimario": "#A90432", "colorSecundario": "#FBB03B", "pais": "TUR" },
-    "fenerbahce": { "nombre": "Fenerbahçe", "colorPrimario": "#FFED00", "colorSecundario": "#16205B", "pais": "TUR", "alias": ["Fenerbahce"] },
-    "salzburgo": { "nombre": "Salzburgo", "colorPrimario": "#C8102E", "colorSecundario": "#FFFFFF", "pais": "AUT", "alias": ["RB Salzburg", "Red Bull Salzburg"] },
-    "sturm-graz": { "nombre": "Sturm Graz", "colorPrimario": "#000000", "colorSecundario": "#FFFFFF", "pais": "AUT" },
-    "young-boys": { "nombre": "Young Boys", "colorPrimario": "#FFDD00", "colorSecundario": "#000000", "pais": "SUI" },
-    "slavia": { "nombre": "Slavia", "colorPrimario": "#D7141A", "colorSecundario": "#FFFFFF", "pais": "CZE", "alias": ["Slavia Praga", "Slavia Prague", "Slavia Praha"] },
-    "sparta": { "nombre": "Sparta", "colorPrimario": "#97002E", "colorSecundario": "#FFFFFF", "pais": "CZE", "alias": ["Sparta Praga", "Sparta Prague", "Sparta Praha"] },
-    "shakhtar": { "nombre": "Shakhtar", "colorPrimario": "#F47B20", "colorSecundario": "#000000", "pais": "UKR", "alias": ["Shakhtar Donetsk"] },
-    "dinamo-zagreb": { "nombre": "Dinamo Zagreb", "colorPrimario": "#0F52BA", "colorSecundario": "#FFFFFF", "pais": "CRO" },
-    "estrella-roja": { "nombre": "Estrella Roja", "colorPrimario": "#C6212B", "colorSecundario": "#FFFFFF", "pais": "SRB", "alias": ["Crvena Zvezda", "Red Star Belgrade"] },
-    "copenhague": { "nombre": "Copenhague", "colorPrimario": "#012A5A", "colorSecundario": "#FFFFFF", "pais": "DEN", "alias": ["FC Copenhagen", "Kobenhavn", "København"] },
-    "bodo-glimt": { "nombre": "Bodø/Glimt", "colorPrimario": "#FFE500", "colorSecundario": "#000000", "pais": "NOR", "alias": ["Bodo/Glimt", "Bodoe Glimt"] },
-    "malmo": { "nombre": "Malmö", "colorPrimario": "#009BDA", "colorSecundario": "#FFFFFF", "pais": "SWE", "alias": ["Malmo FF", "Malmoe"] },
-    "olympiacos": { "nombre": "Olympiacos", "colorPrimario": "#E30613", "colorSecundario": "#FFFFFF", "pais": "GRE", "alias": ["Olympiakos"] },
-    "panathinaikos": { "nombre": "Panathinaikos", "colorPrimario": "#007A33", "colorSecundario": "#FFFFFF", "pais": "GRE" },
-    "paok": { "nombre": "PAOK", "colorPrimario": "#000000", "colorSecundario": "#FFFFFF", "pais": "GRE" },
-    "qarabag": { "nombre": "Qarabağ", "colorPrimario": "#005CA9", "colorSecundario": "#FFFFFF", "pais": "AZE", "alias": ["Karabakh Agdam", "Qarabag"] },
-    "ludogorets": { "nombre": "Ludogorets", "colorPrimario": "#0F6E3F", "colorSecundario": "#FFFFFF", "pais": "BUL", "alias": ["Razgrad"] }
+    "real-madrid": {
+      "nombre": "Real Madrid",
+      "colorPrimario": "#FEBE10",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP"
+    },
+    "barcelona": {
+      "nombre": "Barcelona",
+      "colorPrimario": "#A50044",
+      "colorSecundario": "#004D98",
+      "pais": "ESP"
+    },
+    "atletico": {
+      "nombre": "Atlético",
+      "colorPrimario": "#CB3524",
+      "colorSecundario": "#262E62",
+      "pais": "ESP",
+      "alias": [
+        "Atletico Madrid",
+        "Atlético de Madrid",
+        "Club Atlético de Madrid"
+      ]
+    },
+    "athletic": {
+      "nombre": "Athletic",
+      "colorPrimario": "#EE2523",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Athletic Bilbao",
+        "Athletic Club",
+        "Bilbao"
+      ]
+    },
+    "villarreal": {
+      "nombre": "Villarreal",
+      "colorPrimario": "#FFE667",
+      "colorSecundario": "#005187",
+      "pais": "ESP"
+    },
+    "real-sociedad": {
+      "nombre": "Real Sociedad",
+      "colorPrimario": "#0067B1",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Sociedad"
+      ]
+    },
+    "sevilla": {
+      "nombre": "Sevilla",
+      "colorPrimario": "#D81920",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP"
+    },
+    "betis": {
+      "nombre": "Betis",
+      "colorPrimario": "#00954C",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Real Betis"
+      ]
+    },
+    "girona": {
+      "nombre": "Girona",
+      "colorPrimario": "#CD2534",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP"
+    },
+    "man-city": {
+      "nombre": "Man City",
+      "colorPrimario": "#6CABDD",
+      "colorSecundario": "#1C2C5B",
+      "pais": "ENG",
+      "alias": [
+        "Manchester City"
+      ]
+    },
+    "arsenal": {
+      "nombre": "Arsenal",
+      "colorPrimario": "#EF0107",
+      "colorSecundario": "#063672",
+      "pais": "ENG"
+    },
+    "liverpool": {
+      "nombre": "Liverpool",
+      "colorPrimario": "#C8102E",
+      "colorSecundario": "#F6EB61",
+      "pais": "ENG"
+    },
+    "chelsea": {
+      "nombre": "Chelsea",
+      "colorPrimario": "#034694",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ENG"
+    },
+    "tottenham": {
+      "nombre": "Tottenham",
+      "colorPrimario": "#132257",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ENG",
+      "alias": [
+        "Tottenham Hotspur",
+        "Spurs"
+      ]
+    },
+    "newcastle": {
+      "nombre": "Newcastle",
+      "colorPrimario": "#241F20",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ENG",
+      "alias": [
+        "Newcastle United"
+      ]
+    },
+    "aston-villa": {
+      "nombre": "Aston Villa",
+      "colorPrimario": "#95BFE5",
+      "colorSecundario": "#670E36",
+      "pais": "ENG"
+    },
+    "man-united": {
+      "nombre": "Man United",
+      "colorPrimario": "#DA291C",
+      "colorSecundario": "#FBE122",
+      "pais": "ENG",
+      "alias": [
+        "Manchester United"
+      ]
+    },
+    "bayern": {
+      "nombre": "Bayern",
+      "colorPrimario": "#DC052D",
+      "colorSecundario": "#0066B2",
+      "pais": "GER",
+      "alias": [
+        "Bayern Munich",
+        "Bayern München",
+        "FC Bayern"
+      ]
+    },
+    "dortmund": {
+      "nombre": "Dortmund",
+      "colorPrimario": "#FDE100",
+      "colorSecundario": "#000000",
+      "pais": "GER",
+      "alias": [
+        "Borussia Dortmund",
+        "BVB"
+      ]
+    },
+    "leverkusen": {
+      "nombre": "Leverkusen",
+      "colorPrimario": "#E32221",
+      "colorSecundario": "#000000",
+      "pais": "GER",
+      "alias": [
+        "Bayer Leverkusen",
+        "Bayer 04 Leverkusen"
+      ]
+    },
+    "leipzig": {
+      "nombre": "Leipzig",
+      "colorPrimario": "#DD0741",
+      "colorSecundario": "#001F47",
+      "pais": "GER",
+      "alias": [
+        "RB Leipzig"
+      ]
+    },
+    "stuttgart": {
+      "nombre": "Stuttgart",
+      "colorPrimario": "#E32219",
+      "colorSecundario": "#FFFFFF",
+      "pais": "GER",
+      "alias": [
+        "VfB Stuttgart"
+      ]
+    },
+    "eintracht": {
+      "nombre": "Eintracht",
+      "colorPrimario": "#E1000F",
+      "colorSecundario": "#000000",
+      "pais": "GER",
+      "alias": [
+        "Eintracht Frankfurt",
+        "Frankfurt"
+      ]
+    },
+    "inter": {
+      "nombre": "Inter",
+      "colorPrimario": "#0B1560",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ITA",
+      "alias": [
+        "Internazionale",
+        "Inter Milan",
+        "Inter de Milán"
+      ]
+    },
+    "milan": {
+      "nombre": "Milan",
+      "colorPrimario": "#FB090B",
+      "colorSecundario": "#000000",
+      "pais": "ITA",
+      "alias": [
+        "AC Milan"
+      ]
+    },
+    "juventus": {
+      "nombre": "Juventus",
+      "colorPrimario": "#000000",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ITA",
+      "alias": [
+        "Juve"
+      ]
+    },
+    "napoli": {
+      "nombre": "Nápoles",
+      "colorPrimario": "#12A0D7",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ITA",
+      "alias": [
+        "Napoli",
+        "SSC Napoli"
+      ]
+    },
+    "atalanta": {
+      "nombre": "Atalanta",
+      "colorPrimario": "#1D71B8",
+      "colorSecundario": "#000000",
+      "pais": "ITA"
+    },
+    "roma": {
+      "nombre": "Roma",
+      "colorPrimario": "#8E1F2F",
+      "colorSecundario": "#F0BC42",
+      "pais": "ITA",
+      "alias": [
+        "AS Roma"
+      ]
+    },
+    "lazio": {
+      "nombre": "Lazio",
+      "colorPrimario": "#87D8F7",
+      "colorSecundario": "#0B2265",
+      "pais": "ITA"
+    },
+    "bolonia": {
+      "nombre": "Bolonia",
+      "colorPrimario": "#1A2F48",
+      "colorSecundario": "#A21C24",
+      "pais": "ITA",
+      "alias": [
+        "Bologna"
+      ]
+    },
+    "psg": {
+      "nombre": "PSG",
+      "colorPrimario": "#004170",
+      "colorSecundario": "#DA291C",
+      "pais": "FRA",
+      "alias": [
+        "Paris Saint-Germain",
+        "Paris SG"
+      ]
+    },
+    "monaco": {
+      "nombre": "Mónaco",
+      "colorPrimario": "#E63946",
+      "colorSecundario": "#FFFFFF",
+      "pais": "FRA",
+      "alias": [
+        "Monaco",
+        "AS Monaco"
+      ]
+    },
+    "marsella": {
+      "nombre": "Marsella",
+      "colorPrimario": "#2FAEE0",
+      "colorSecundario": "#FFFFFF",
+      "pais": "FRA",
+      "alias": [
+        "Marseille",
+        "Olympique de Marseille",
+        "OM"
+      ]
+    },
+    "lille": {
+      "nombre": "Lille",
+      "colorPrimario": "#E01E13",
+      "colorSecundario": "#002D62",
+      "pais": "FRA",
+      "alias": [
+        "LOSC"
+      ]
+    },
+    "brest": {
+      "nombre": "Brest",
+      "colorPrimario": "#E30613",
+      "colorSecundario": "#FFFFFF",
+      "pais": "FRA",
+      "alias": [
+        "Stade Brestois"
+      ]
+    },
+    "lyon": {
+      "nombre": "Lyon",
+      "colorPrimario": "#1B4B9B",
+      "colorSecundario": "#DA291C",
+      "pais": "FRA",
+      "alias": [
+        "Olympique Lyonnais",
+        "OL"
+      ]
+    },
+    "benfica": {
+      "nombre": "Benfica",
+      "colorPrimario": "#E00000",
+      "colorSecundario": "#FFFFFF",
+      "pais": "POR",
+      "alias": [
+        "SL Benfica"
+      ]
+    },
+    "porto": {
+      "nombre": "Oporto",
+      "colorPrimario": "#003399",
+      "colorSecundario": "#FFFFFF",
+      "pais": "POR",
+      "alias": [
+        "Porto",
+        "FC Porto"
+      ]
+    },
+    "sporting": {
+      "nombre": "Sporting",
+      "colorPrimario": "#008057",
+      "colorSecundario": "#FFFFFF",
+      "pais": "POR",
+      "alias": [
+        "Sporting CP",
+        "Sporting Lisboa"
+      ]
+    },
+    "ajax": {
+      "nombre": "Ajax",
+      "colorPrimario": "#D2122E",
+      "colorSecundario": "#FFFFFF",
+      "pais": "NED"
+    },
+    "psv": {
+      "nombre": "PSV",
+      "colorPrimario": "#ED1C24",
+      "colorSecundario": "#FFFFFF",
+      "pais": "NED",
+      "alias": [
+        "PSV Eindhoven"
+      ]
+    },
+    "feyenoord": {
+      "nombre": "Feyenoord",
+      "colorPrimario": "#DA020E",
+      "colorSecundario": "#FFFFFF",
+      "pais": "NED"
+    },
+    "brujas": {
+      "nombre": "Brujas",
+      "colorPrimario": "#005BA3",
+      "colorSecundario": "#000000",
+      "pais": "BEL",
+      "alias": [
+        "Club Brugge",
+        "Club Brujas"
+      ]
+    },
+    "union-sg": {
+      "nombre": "Union SG",
+      "colorPrimario": "#FFD700",
+      "colorSecundario": "#003DA5",
+      "pais": "BEL",
+      "alias": [
+        "St Gillis",
+        "Union Saint-Gilloise"
+      ]
+    },
+    "celtic": {
+      "nombre": "Celtic",
+      "colorPrimario": "#018749",
+      "colorSecundario": "#FFFFFF",
+      "pais": "SCO"
+    },
+    "rangers": {
+      "nombre": "Rangers",
+      "colorPrimario": "#1B458F",
+      "colorSecundario": "#FFFFFF",
+      "pais": "SCO"
+    },
+    "galatasaray": {
+      "nombre": "Galatasaray",
+      "colorPrimario": "#A90432",
+      "colorSecundario": "#FBB03B",
+      "pais": "TUR"
+    },
+    "fenerbahce": {
+      "nombre": "Fenerbahçe",
+      "colorPrimario": "#FFED00",
+      "colorSecundario": "#16205B",
+      "pais": "TUR",
+      "alias": [
+        "Fenerbahce"
+      ]
+    },
+    "salzburgo": {
+      "nombre": "Salzburgo",
+      "colorPrimario": "#C8102E",
+      "colorSecundario": "#FFFFFF",
+      "pais": "AUT",
+      "alias": [
+        "RB Salzburg",
+        "Red Bull Salzburg"
+      ]
+    },
+    "sturm-graz": {
+      "nombre": "Sturm Graz",
+      "colorPrimario": "#000000",
+      "colorSecundario": "#FFFFFF",
+      "pais": "AUT"
+    },
+    "young-boys": {
+      "nombre": "Young Boys",
+      "colorPrimario": "#FFDD00",
+      "colorSecundario": "#000000",
+      "pais": "SUI"
+    },
+    "slavia": {
+      "nombre": "Slavia",
+      "colorPrimario": "#D7141A",
+      "colorSecundario": "#FFFFFF",
+      "pais": "CZE",
+      "alias": [
+        "Slavia Praga",
+        "Slavia Prague",
+        "Slavia Praha"
+      ]
+    },
+    "sparta": {
+      "nombre": "Sparta",
+      "colorPrimario": "#97002E",
+      "colorSecundario": "#FFFFFF",
+      "pais": "CZE",
+      "alias": [
+        "Sparta Praga",
+        "Sparta Prague",
+        "Sparta Praha"
+      ]
+    },
+    "shakhtar": {
+      "nombre": "Shakhtar",
+      "colorPrimario": "#F47B20",
+      "colorSecundario": "#000000",
+      "pais": "UKR",
+      "alias": [
+        "Shakhtar Donetsk"
+      ]
+    },
+    "dinamo-zagreb": {
+      "nombre": "Dinamo Zagreb",
+      "colorPrimario": "#0F52BA",
+      "colorSecundario": "#FFFFFF",
+      "pais": "CRO"
+    },
+    "estrella-roja": {
+      "nombre": "Estrella Roja",
+      "colorPrimario": "#C6212B",
+      "colorSecundario": "#FFFFFF",
+      "pais": "SRB",
+      "alias": [
+        "Crvena Zvezda",
+        "Red Star Belgrade"
+      ]
+    },
+    "copenhague": {
+      "nombre": "Copenhague",
+      "colorPrimario": "#012A5A",
+      "colorSecundario": "#FFFFFF",
+      "pais": "DEN",
+      "alias": [
+        "FC Copenhagen",
+        "Kobenhavn",
+        "København"
+      ]
+    },
+    "bodo-glimt": {
+      "nombre": "Bodø/Glimt",
+      "colorPrimario": "#FFE500",
+      "colorSecundario": "#000000",
+      "pais": "NOR",
+      "alias": [
+        "Bodo/Glimt",
+        "Bodoe Glimt"
+      ]
+    },
+    "malmo": {
+      "nombre": "Malmö",
+      "colorPrimario": "#009BDA",
+      "colorSecundario": "#FFFFFF",
+      "pais": "SWE",
+      "alias": [
+        "Malmo FF",
+        "Malmoe"
+      ]
+    },
+    "olympiacos": {
+      "nombre": "Olympiacos",
+      "colorPrimario": "#E30613",
+      "colorSecundario": "#FFFFFF",
+      "pais": "GRE",
+      "alias": [
+        "Olympiakos"
+      ]
+    },
+    "panathinaikos": {
+      "nombre": "Panathinaikos",
+      "colorPrimario": "#007A33",
+      "colorSecundario": "#FFFFFF",
+      "pais": "GRE"
+    },
+    "paok": {
+      "nombre": "PAOK",
+      "colorPrimario": "#000000",
+      "colorSecundario": "#FFFFFF",
+      "pais": "GRE"
+    },
+    "qarabag": {
+      "nombre": "Qarabağ",
+      "colorPrimario": "#005CA9",
+      "colorSecundario": "#FFFFFF",
+      "pais": "AZE",
+      "alias": [
+        "Karabakh Agdam",
+        "Qarabag"
+      ]
+    },
+    "ludogorets": {
+      "nombre": "Ludogorets",
+      "colorPrimario": "#0F6E3F",
+      "colorSecundario": "#FFFFFF",
+      "pais": "BUL",
+      "alias": [
+        "Razgrad"
+      ]
+    },
+    "valencia": {
+      "nombre": "Valencia",
+      "colorPrimario": "#F18E00",
+      "colorSecundario": "#000000",
+      "pais": "ESP",
+      "alias": [
+        "Valencia CF"
+      ]
+    },
+    "rayo": {
+      "nombre": "Rayo",
+      "colorPrimario": "#E53027",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Rayo Vallecano"
+      ]
+    },
+    "celta": {
+      "nombre": "Celta",
+      "colorPrimario": "#6CACE4",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Celta Vigo",
+        "Celta de Vigo",
+        "RC Celta"
+      ]
+    },
+    "getafe": {
+      "nombre": "Getafe",
+      "colorPrimario": "#005999",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Getafe CF"
+      ]
+    },
+    "osasuna": {
+      "nombre": "Osasuna",
+      "colorPrimario": "#AA1017",
+      "colorSecundario": "#0A346F",
+      "pais": "ESP",
+      "alias": [
+        "CA Osasuna"
+      ]
+    },
+    "levante": {
+      "nombre": "Levante",
+      "colorPrimario": "#005CA9",
+      "colorSecundario": "#B4053B",
+      "pais": "ESP",
+      "alias": [
+        "Levante UD"
+      ]
+    },
+    "alaves": {
+      "nombre": "Alavés",
+      "colorPrimario": "#0761AF",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Alaves",
+        "Deportivo Alavés"
+      ]
+    },
+    "espanyol": {
+      "nombre": "Espanyol",
+      "colorPrimario": "#007FC8",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "RCD Espanyol"
+      ]
+    },
+    "elche": {
+      "nombre": "Elche",
+      "colorPrimario": "#00753A",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Elche CF"
+      ]
+    },
+    "racing": {
+      "nombre": "Racing",
+      "colorPrimario": "#00A94F",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Santander",
+        "Racing Santander",
+        "Racing de Santander"
+      ]
+    },
+    "malaga": {
+      "nombre": "Málaga",
+      "colorPrimario": "#003DA5",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Malaga",
+        "Málaga CF"
+      ]
+    },
+    "depor": {
+      "nombre": "Deportivo",
+      "colorPrimario": "#009BDC",
+      "colorSecundario": "#FFFFFF",
+      "pais": "ESP",
+      "alias": [
+        "Depor",
+        "Dépor",
+        "Deportivo La Coruña",
+        "RC Deportivo"
+      ]
+    }
   }
 }
