@@ -104,7 +104,10 @@ const Cabecera: React.FC<{titulo: string; encendidos: number; total: number}> = 
 	</div>
 );
 
-const Intro: React.FC<{titulo: string}> = ({titulo}) => {
+const Intro: React.FC<{titulo: string; subtitulo: string}> = ({
+	titulo,
+	subtitulo,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const entrada = muelle(frame, fps, {desde: 0, duracion: 18});
@@ -150,7 +153,7 @@ const Intro: React.FC<{titulo: string}> = ({titulo}) => {
 						opacity: entrada,
 					}}
 				>
-					Top 5 · cuenta atrás
+					{subtitulo}
 				</div>
 			</AbsoluteFill>
 			<SfxCue sfx="whoosh" en={0} />
@@ -172,6 +175,14 @@ const Puesto: React.FC<{
 	duracion: number;
 	/** Que mide el porcentaje. Ver `etiquetaProbabilidad`. */
 	etiquetaProb: string;
+	/**
+	 * Cuantos van enseñados contando este, para los puntos de progreso.
+	 *
+	 * Se pasa en vez de deducirse de `posicion`: eso equivalia a suponer que
+	 * se enseñan del 5 al 1, y con el orden invertido los puntos empezaban
+	 * llenos y se iban vaciando.
+	 */
+	mostrados: number;
 }> = ({
 	entrada,
 	posicion,
@@ -182,6 +193,7 @@ const Puesto: React.FC<{
 	esRemate,
 	duracion,
 	etiquetaProb,
+	mostrados,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -232,11 +244,7 @@ const Puesto: React.FC<{
 					justifyContent: 'space-between',
 				}}
 			>
-				<Cabecera
-					titulo={titulo}
-					encendidos={total - posicion + 1}
-					total={total}
-				/>
+				<Cabecera titulo={titulo} encendidos={mostrados} total={total} />
 
 				{/* Numero de puesto ------------------------------------------- */}
 				<div
@@ -417,11 +425,18 @@ export const RankingCountdown: React.FC<RankingCountdownProps> = ({
 	// la que quiere una pregunta con la incertidumbre arriba.
 	const secuencia = liderPrimero ? ordenado : [...ordenado].reverse();
 
+	// El cartel decia "cuenta atras" pase lo que pase, y con el orden
+	// invertido dejo de ser cierto: va del 1 al 5, que es lo contrario de una
+	// cuenta atras. Se deriva del orden en vez de escribirse a mano.
+	const subtitulo = `Top ${secuencia.length} · ${
+		liderPrimero ? 'del más al menos probable' : 'cuenta atrás'
+	}`;
+
 	return (
 		<AbsoluteFill style={{backgroundColor: COLORS.bg}}>
 			<Series>
 				<Series.Sequence durationInFrames={RANKING.intro} name="Intro">
-					<Intro titulo={titulo} />
+					<Intro titulo={titulo} subtitulo={subtitulo} />
 				</Series.Sequence>
 
 				{secuencia.map((entrada, i) => {
@@ -446,6 +461,7 @@ export const RankingCountdown: React.FC<RankingCountdownProps> = ({
 								esRemate={esElRemate}
 								duracion={duracion}
 								etiquetaProb={etiquetaProbabilidad}
+								mostrados={i + 1}
 							/>
 						</Series.Sequence>
 					);

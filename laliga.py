@@ -147,7 +147,12 @@ def proximos_partidos(dias: int = 8) -> list[dict]:
 
     hoy = date.today()
     partidos = [
-        {"fecha": p["fecha"], "local": p["local"], "visitante": p["visitante"]}
+        {
+            "fecha": p["fecha"],
+            "inicio": p["inicio"],
+            "local": p["local"],
+            "visitante": p["visitante"],
+        }
         for p in espn.partidos(LIGA, hoy, hoy + timedelta(days=dias))
     ]
     if partidos:

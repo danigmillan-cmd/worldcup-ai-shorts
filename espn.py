@@ -130,6 +130,11 @@ def partidos(
 
         partido = {
             "fecha": (evento.get("date") or "")[:10],
+            # Hora de comienzo completa, en UTC, tal y como la da ESPN
+            # ("2026-08-15T17:30Z"). La fecha sola no basta para decidir cuándo
+            # se publica el Short: eso va 24 h antes del PRIMER saque, y una
+            # jornada empieza a horas muy distintas según el día.
+            "inicio": evento.get("date") or "",
             "local": local["slug"],
             "visitante": visitante["slug"],
             "terminado": terminado,

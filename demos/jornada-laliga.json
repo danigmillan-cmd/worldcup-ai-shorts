@@ -108,7 +108,7 @@
   ],
   "opciones": {
     "cierre": "ranking",
-    "tituloRanking": "Quién juega la Champions",
+    "tituloRanking": "Quién se clasifica para la Champions",
     "etiquetaRanking": "Acaba entre los 4"
   },
   "_demo": "Datos REALES de punta a punta: calendario y clasificacion de ESPN, Elo de ClubElo, probabilidades del modelo, titulares desde hechos verificados y countdown de plazas de Champions por simulacion Monte Carlo (20.000 temporadas). Es la jornada 2 de LaLiga 2026-27 (19-23 ago). Los aciertos (3/4) son un marcador de posicion: no hay jornada anterior que puntuar."

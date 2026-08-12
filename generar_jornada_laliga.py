@@ -24,7 +24,8 @@ simulation and closes on the CTA instead.
 import argparse
 import json
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import champions_predictions
 import champions_teams
@@ -71,8 +72,57 @@ def _parse_aciertos(texto: str) -> dict:
 # liga_simulator.probabilidades_puesto takes any cut-off, so another question
 # is a one-line change here, not a rewrite.
 CORTE = liga_simulator.PLAZAS_CHAMPIONS
-TITULO_RANKING = "Quién juega la Champions"
+
+# "Quién juega la Champions" se leia como quien la esta jugando ESTE año, que
+# no es la pregunta: esto va de clasificarse para la que viene. El verbo tiene
+# que ser "clasificarse".
+TITULO_RANKING = "Quién se clasifica para la Champions"
 ETIQUETA_RANKING = "Acaba entre los 4"
+
+
+# Cuánto antes del primer saque de la jornada se publica el Short.
+#
+# 24 h exactas: si el primer partido es el sábado a las 16:00, el vídeo sale el
+# viernes a las 16:00. La ventaja de restar un día entero y no un número de
+# horas "redondo" es que cae a la misma hora del día, que es cuando la audiencia
+# de ese partido está mirando.
+HORAS_ANTES_DE_PUBLICAR = 24
+
+# Solo para enseñar la hora de forma legible; el dato que se guarda va en UTC.
+ZONA_PUBLICACION = "Europe/Madrid"
+
+
+def _cuando_publicar(partidos_crudos: list[dict]) -> dict | None:
+    """
+    Cuándo sale el Short: 24 h antes del primer partido que enseña.
+
+    Devuelve UTC y hora local de Madrid, o None si ESPN no dio hora de comienzo
+    (pasa con partidos aún sin horario confirmado, que los publica solo con
+    fecha). Sin hora no se inventa una: mejor que el que publique lo decida.
+    """
+    inicios = [p["inicio"] for p in partidos_crudos if p.get("inicio")]
+    if len(inicios) != len(partidos_crudos):
+        print(f"[WARN] {len(partidos_crudos) - len(inicios)} partido(s) sin hora "
+              "de comienzo en ESPN — no se calcula la hora de publicación")
+        return None
+
+    try:
+        primero = min(
+            datetime.fromisoformat(i.replace("Z", "+00:00")) for i in inicios
+        )
+    except ValueError as exc:
+        print(f"[WARN] Hora de comienzo ilegible ({exc}) — sin hora de publicación")
+        return None
+
+    publicar = primero - timedelta(hours=HORAS_ANTES_DE_PUBLICAR)
+    return {
+        "publicar_en_utc": publicar.isoformat(),
+        "publicar_en_local": publicar.astimezone(
+            ZoneInfo(ZONA_PUBLICACION)
+        ).isoformat(),
+        "primer_partido_utc": primero.isoformat(),
+        "zona": ZONA_PUBLICACION,
+    }
 
 
 def _ranking(elo_table: dict[str, float], semilla: str) -> list[dict]:
@@ -180,6 +230,9 @@ def construir_jornada(
         "aciertosJornadaAnterior": aciertos,
         "partidos": partidos,
         "ranking": ranking,
+        # Lo lee quien publique; el schema de Remotion ignora las claves
+        # que no conoce, asi que viaja en el mismo fichero sin estorbar.
+        "publicacion": _cuando_publicar(partidos_crudos),
         # Emitido aquí y no dejado al render: los valores por defecto de la
         # composición hablan del título de la Champions, y este Short pregunta
         # otra cosa. Dejarlos puestos pondría "Opciones de título" debajo de
@@ -234,6 +287,13 @@ def main() -> int:
         print(f"    {p['probLocal']:.0%} / {p['probEmpate']:.0%} / "
               f"{p['probVisitante']:.0%}   →  {p['prediccion']}")
         print(f"    «{p['titular']}»")
+
+    pub = jornada.get("publicacion")
+    if pub:
+        cuando = pub["publicar_en_local"][:16].replace("T", " a las ")
+        primero = pub["primer_partido_utc"][:16].replace("T", " a las ")
+        print(f"\n  Publicar el {cuando} (hora de Madrid)")
+        print(f"  — 24 h antes del primer partido ({primero} UTC)")
 
     if jornada["ranking"]:
         print(f"\n  {jornada['opciones']['tituloRanking']}:")
