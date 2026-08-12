@@ -67,3 +67,11 @@ data/clubelo_history_cache.json
 # de seguridad como data/clubelo_cache.json: versionarlo solo seria ruido en
 # cada render.
 data/laliga_cache.json
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Demos — los mp4 no, los JSON si.
+# ─────────────────────────────────────────────────────────────────────────────
+# El video se reconstruye desde su JSON con un comando (ver demos/README.md);
+# meter binarios de 15 MB en el historial no aporta nada.
+demos/*.mp4
+demos/*.png

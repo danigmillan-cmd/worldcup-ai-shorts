@@ -19,6 +19,8 @@ Public API:
     equipos_publicables(jornada=None, tabla=None) -> set[str]
     partidos_publicables(partidos, ...) -> list[dict]
 """
+from datetime import date
+
 import laliga
 
 # --- Preference, all of it --------------------------------------------------
@@ -45,6 +47,20 @@ CUPO_TABLA = 6
 PESO_VALENCIA = 3.0   # the owner's club leads the Short when it plays
 PESO_NUCLEO = 1.0     # per core club involved
 PESO_ELO = 0.001      # tiebreak: combined Elo, scaled to stay below the above
+
+# Penalty per day a match sits beyond the earliest one on the shortlist.
+#
+# Without this the ordering is decided by Elo noise: Barcelona-Athletic (round
+# three) beat Elche-Barcelona (round two) by 0.06 points of combined Elo, so a
+# Short meant to preview this week previewed a fortnight out. The widening
+# window is a fallback for a round with nobody in it, not a licence to prefer
+# later fixtures.
+#
+# 0.05/day is deliberately between the two scales it has to separate: four days
+# costs 0.2, which comfortably outweighs the ~0.1 that Elo spans, and stays far
+# below the 1.0 a core club is worth — so "sooner" breaks ties without ever
+# overriding "more interesting".
+PESO_DIA = 0.05
 
 # How many matches the Short wants, and how far ahead we'll look to find them.
 #
@@ -93,7 +109,11 @@ def equipos_publicables(
     return seleccion
 
 
-def _interes(partido: dict, elo_table: dict[str, float]) -> float:
+def _interes(
+    partido: dict,
+    elo_table: dict[str, float],
+    fecha_base: str | None = None,
+) -> float:
     """Score one eligible match, higher first."""
     lados = (partido["local"], partido["visitante"])
     puntuacion = 0.0
@@ -102,6 +122,15 @@ def _interes(partido: dict, elo_table: dict[str, float]) -> float:
         puntuacion += PESO_VALENCIA
     puntuacion += PESO_NUCLEO * sum(1 for s in lados if s in NUCLEO)
     puntuacion += PESO_ELO * sum(elo_table.get(s, 0.0) for s in lados)
+
+    if fecha_base and partido.get("fecha"):
+        try:
+            dias = (
+                date.fromisoformat(partido["fecha"]) - date.fromisoformat(fecha_base)
+            ).days
+            puntuacion -= PESO_DIA * max(0, dias)
+        except ValueError:
+            pass
 
     return puntuacion
 
@@ -134,7 +163,10 @@ def partidos_publicables(
         p for p in partidos
         if p["local"] in seleccion or p["visitante"] in seleccion
     ]
-    elegibles.sort(key=lambda p: _interes(p, elo_table), reverse=True)
+    # Recency is measured from the earliest eligible match, not from today, so
+    # an international break doesn't flatten the penalty across the shortlist.
+    fecha_base = min((p["fecha"] for p in elegibles if p.get("fecha")), default=None)
+    elegibles.sort(key=lambda p: _interes(p, elo_table, fecha_base), reverse=True)
 
     return elegibles[:maximo] if maximo else elegibles
 

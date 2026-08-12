@@ -1,0 +1,87 @@
+{
+  "competicion": "LaLiga",
+  "fecha": "2026-08-22",
+  "aciertosJornadaAnterior": {
+    "acertados": 3,
+    "total": 4
+  },
+  "partidos": [
+    {
+      "local": {
+        "nombre": "Valencia",
+        "colorPrimario": "#F18E00",
+        "colorSecundario": "#000000"
+      },
+      "visitante": {
+        "nombre": "Celta",
+        "colorPrimario": "#6CACE4",
+        "colorSecundario": "#FFFFFF"
+      },
+      "titular": "El Valencia suma 67 puntos de Elo en 180 días",
+      "probLocal": 0.4501,
+      "probEmpate": 0.2593,
+      "probVisitante": 0.2906,
+      "prediccion": "2-0",
+      "resultadoPredicho": "local"
+    },
+    {
+      "local": {
+        "nombre": "Espanyol",
+        "colorPrimario": "#007FC8",
+        "colorSecundario": "#FFFFFF"
+      },
+      "visitante": {
+        "nombre": "Real Madrid",
+        "colorPrimario": "#FEBE10",
+        "colorSecundario": "#FFFFFF"
+      },
+      "titular": "El Madrid llega 293 puntos de Elo por encima",
+      "probLocal": 0.1195,
+      "probEmpate": 0.2055,
+      "probVisitante": 0.6749,
+      "prediccion": "1-2",
+      "resultadoPredicho": "visitante"
+    },
+    {
+      "local": {
+        "nombre": "Atlético",
+        "colorPrimario": "#CB3524",
+        "colorSecundario": "#262E62"
+      },
+      "visitante": {
+        "nombre": "Málaga",
+        "colorPrimario": "#003DA5",
+        "colorSecundario": "#FFFFFF"
+      },
+      "titular": "El favorito más claro de la jornada: 79%",
+      "probLocal": 0.7903,
+      "probEmpate": 0.1554,
+      "probVisitante": 0.0538,
+      "prediccion": "1-0",
+      "resultadoPredicho": "local"
+    },
+    {
+      "local": {
+        "nombre": "Elche",
+        "colorPrimario": "#00753A",
+        "colorSecundario": "#FFFFFF"
+      },
+      "visitante": {
+        "nombre": "Barcelona",
+        "colorPrimario": "#A50044",
+        "colorSecundario": "#004D98"
+      },
+      "titular": "El marcador más probable es un 0-2",
+      "probLocal": 0.0927,
+      "probEmpate": 0.1883,
+      "probVisitante": 0.7187,
+      "prediccion": "0-2",
+      "resultadoPredicho": "visitante"
+    }
+  ],
+  "ranking": [],
+  "opciones": {
+    "cierre": "cta"
+  },
+  "_demo": "Datos REALES de punta a punta: calendario y clasificacion de ESPN, Elo de ClubElo, probabilidades del modelo y titulares generados desde hechos verificados. Es la jornada 2 de LaLiga 2026-27 (19-23 ago): en la jornada 1 no juega ninguno de los equipos del filtro. Los aciertos (3/4) son un marcador de posicion: no hay jornada anterior que puntuar."
+}
