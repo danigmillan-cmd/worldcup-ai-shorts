@@ -23,19 +23,13 @@ Public API:
     jornada_actual() -> int
 """
 import json
-import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-import requests
-
 import champions_teams
+import espn
 
-LIGA = "esp.1"
-SCOREBOARD_URL = (
-    "https://site.api.espn.com/apis/site/v2/sports/soccer/{liga}/scoreboard"
-    "?dates={desde:%Y%m%d}-{hasta:%Y%m%d}&limit=300"
-)
+LIGA = espn.LIGAS["LaLiga"]
 STANDINGS_URL = "https://site.api.espn.com/apis/v2/sports/soccer/{liga}/standings"
 
 CACHE_FILE = Path(__file__).parent / "data" / "laliga_cache.json"
@@ -43,44 +37,6 @@ CACHE_FILE = Path(__file__).parent / "data" / "laliga_cache.json"
 # Standings move once a week and fixtures are published far ahead, so a few
 # hours is plenty. Short enough that a Friday render sees Thursday's results.
 CACHE_MAX_AGE_HOURS = 6
-
-# No User-Agent, on purpose, matching fixtures_fetcher.py — the ESPN client
-# this repo already had working.
-#
-# Do NOT copy champions_elo.py's browser User-Agent here: ESPN's WAF answers
-# 403 Access Denied to that exact string while serving a bare python-requests
-# call happily. The two sources want opposite things — ClubElo needs the
-# browser string, ESPN rejects it — and the failure is a 403 on a URL that
-# works fine in a browser, which is a confusing thing to debug.
-_HEADERS: dict[str, str] = {}
-
-_RETRY_DELAYS = (2, 5, 15)
-
-
-def _get_json(url: str) -> dict | None:
-    """GET with backoff. None when ESPN stays unreachable."""
-    for intento, espera in enumerate((*_RETRY_DELAYS, None), start=1):
-        try:
-            resp = requests.get(url, headers=_HEADERS, timeout=25)
-            if resp.status_code < 500:
-                resp.raise_for_status()
-                return resp.json()
-            motivo = f"HTTP {resp.status_code}"
-        except (requests.exceptions.RequestException, ValueError) as exc:
-            motivo = type(exc).__name__
-
-        if espera is None:
-            print(f"[WARN] ESPN no responde ({motivo}) tras {intento} intentos")
-            return None
-        time.sleep(espera)
-
-    return None
-
-
-def _slug(nombre: str) -> str | None:
-    """ESPN's name -> catalogue slug, or None if we don't know the club."""
-    return champions_teams._lookup_index().get(champions_teams._normalize(nombre))
-
 
 def _leer_cache(clave: str):
     try:
@@ -129,7 +85,7 @@ def clasificacion() -> list[dict]:
     if cacheado is not None:
         return cacheado
 
-    datos = _get_json(STANDINGS_URL.format(liga=LIGA))
+    datos = espn.get_json(STANDINGS_URL.format(liga=LIGA))
     if not datos:
         return []
 
@@ -142,7 +98,7 @@ def clasificacion() -> list[dict]:
     tabla: list[dict] = []
     for entrada in entradas:
         nombre = (entrada.get("team") or {}).get("displayName") or ""
-        slug = _slug(nombre)
+        slug = espn.slug(nombre)
         if not slug:
             print(f"[WARN] Equipo sin catalogar en la clasificación: «{nombre}»")
             continue
@@ -186,37 +142,12 @@ def proximos_partidos(dias: int = 8) -> list[dict]:
         return cacheado
 
     hoy = date.today()
-    datos = _get_json(
-        SCOREBOARD_URL.format(liga=LIGA, desde=hoy, hasta=hoy + timedelta(days=dias))
-    )
-    if not datos:
-        return []
-
-    partidos: list[dict] = []
-    for evento in datos.get("events", []):
-        try:
-            competidores = evento["competitions"][0]["competitors"]
-        except (KeyError, IndexError, TypeError):
-            continue
-
-        lados = {}
-        for competidor in competidores:
-            nombre = (competidor.get("team") or {}).get("displayName") or ""
-            lados[competidor.get("homeAway")] = _slug(nombre)
-
-        local, visitante = lados.get("home"), lados.get("away")
-        if not local or not visitante:
-            print(f"[WARN] Partido sin resolver: «{evento.get('name')}»")
-            continue
-
-        partidos.append({
-            "fecha": (evento.get("date") or "")[:10],
-            "local": local,
-            "visitante": visitante,
-        })
-
-    partidos.sort(key=lambda p: p["fecha"])
-    _escribir_cache(clave, partidos)
+    partidos = [
+        {"fecha": p["fecha"], "local": p["local"], "visitante": p["visitante"]}
+        for p in espn.partidos(LIGA, hoy, hoy + timedelta(days=dias))
+    ]
+    if partidos:
+        _escribir_cache(clave, partidos)
     return partidos
 
 
