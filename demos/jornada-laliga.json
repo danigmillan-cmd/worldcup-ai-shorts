@@ -17,7 +17,7 @@
         "colorPrimario": "#6CACE4",
         "colorSecundario": "#FFFFFF"
       },
-      "titular": "El Valencia ha subido 67 puntos de Elo",
+      "titular": "Valencia: 67 de Elo más en 180 días",
       "probLocal": 0.4501,
       "probEmpate": 0.2593,
       "probVisitante": 0.2906,
@@ -35,7 +35,7 @@
         "colorPrimario": "#FEBE10",
         "colorSecundario": "#FFFFFF"
       },
-      "titular": "El Madrid llega 293 puntos de Elo por encima",
+      "titular": "El Madrid llega con 293 de Elo de ventaja",
       "probLocal": 0.1195,
       "probEmpate": 0.2055,
       "probVisitante": 0.6749,
@@ -71,7 +71,7 @@
         "colorPrimario": "#A50044",
         "colorSecundario": "#004D98"
       },
-      "titular": "0-2: el marcador más probable",
+      "titular": "El 0-2 es el marcador más probable",
       "probLocal": 0.0927,
       "probEmpate": 0.1883,
       "probVisitante": 0.7187,
@@ -106,10 +106,16 @@
       "probTitulo": 0.3163
     }
   ],
+  "publicacion": {
+    "publicar_en_utc": "2026-08-18T19:00:00+00:00",
+    "publicar_en_local": "2026-08-18T21:00:00+02:00",
+    "primer_partido_utc": "2026-08-19T19:00:00+00:00",
+    "zona": "Europe/Madrid"
+  },
   "opciones": {
     "cierre": "ranking",
     "tituloRanking": "Quién se clasifica para la Champions",
     "etiquetaRanking": "Acaba entre los 4"
   },
-  "_demo": "Datos REALES de punta a punta: calendario y clasificacion de ESPN, Elo de ClubElo, probabilidades del modelo, titulares desde hechos verificados y countdown de plazas de Champions por simulacion Monte Carlo (20.000 temporadas). Es la jornada 2 de LaLiga 2026-27 (19-23 ago). Los aciertos (3/4) son un marcador de posicion: no hay jornada anterior que puntuar."
+  "_demo": "Datos REALES de punta a punta: calendario y clasificacion de ESPN, Elo de ClubElo, probabilidades del modelo, titulares desde hechos verificados y countdown de clasificacion para Champions por Monte Carlo (20.000 temporadas). Jornada 2 de LaLiga 2026-27. Los aciertos (3/4) son un marcador de posicion: no hay jornada anterior que puntuar."
 }
