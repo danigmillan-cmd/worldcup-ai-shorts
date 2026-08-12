@@ -49,6 +49,11 @@ N_SIMULACIONES = 20000
 # How many clubs the countdown shows.
 TOP_RANKING = 5
 
+# Where the Champions places end in LaLiga. Four is the standard allocation;
+# Spain occasionally gets a fifth through the UEFA coefficient, which is a
+# thing to change here if it happens rather than to guess at in advance.
+PLAZAS_CHAMPIONS = 4
+
 PUNTOS_VICTORIA = 3
 PUNTOS_EMPATE = 1
 
@@ -121,7 +126,10 @@ def simular(
     gf_base = {e["slug"]: e.get("goles_favor", 0) for e in tabla}
     gc_base = {e["slug"]: e.get("goles_contra", 0) for e in tabla}
 
-    titulos = {s: 0 for s in equipos}
+    # Finishing position per club, not just who came first. One run then
+    # answers any "where does this club end up" question — the title, the
+    # Champions places, relegation — instead of needing a simulation each.
+    posiciones = {s: [0] * len(equipos) for s in equipos}
     puntos_totales = {s: 0 for s in equipos}
 
     aleatorio = rng.random
@@ -147,19 +155,69 @@ def simular(
                 puntos[local] = puntos.get(local, 0) + PUNTOS_EMPATE
                 puntos[visitante] = puntos.get(visitante, 0) + PUNTOS_EMPATE
 
-        campeon = max(
+        orden = sorted(
             equipos,
             key=lambda s: (puntos[s], gf[s] - gc[s], gf[s], aleatorio()),
+            reverse=True,
         )
-        titulos[campeon] += 1
-        for s in equipos:
+        for puesto, s in enumerate(orden):
+            posiciones[s][puesto] += 1
             puntos_totales[s] += puntos[s]
 
     return {
-        "titulos": titulos,
+        "posiciones": posiciones,
+        "titulos": {s: posiciones[s][0] for s in equipos},
         "n_sims": n_sims,
         "puntos_medios": {s: puntos_totales[s] / n_sims for s in equipos},
     }
+
+
+def probabilidades_puesto(
+    tabla: list[dict],
+    pendientes: list[dict],
+    elo_table: dict[str, float],
+    corte: int = 1,
+    top: int = TOP_RANKING,
+    n_sims: int = N_SIMULACIONES,
+    constantes: dict | None = None,
+    semilla: int | str | None = None,
+    salida_simulacion: dict | None = None,
+) -> list[dict]:
+    """
+    P(finishing in the top `corte`) per club: [{"slug", "prob", ...}, ...].
+
+    `corte=1` is the title race. `corte=4` is the Champions places, which is
+    a different question with a different shape: the title is usually a
+    two-horse race that rounds everyone else to zero, while the fourth place
+    is genuinely contested and gives a countdown with tension.
+
+    Pass `salida_simulacion` to reuse a run — one simulation answers every
+    cut-off, so asking for the title and the Champions places costs one
+    simulation, not two.
+    """
+    salida = salida_simulacion or simular(
+        tabla, pendientes, elo_table, n_sims, constantes, semilla
+    )
+    n = salida["n_sims"]
+
+    clasificado = sorted(
+        (
+            {
+                "slug": slug,
+                "prob": round(sum(cuentas[:corte]) / n, 4),
+                "puntos_medios": round(salida["puntos_medios"][slug], 1),
+            }
+            for slug, cuentas in salida["posiciones"].items()
+        ),
+        # Average points breaks ties, and there are a lot of them in a title
+        # race: with two dominant clubs everyone from third or fourth down
+        # rounds to 0.0%, and sorting on probability alone leaves those in
+        # dictionary order — which put Alavés (44 average points) above
+        # Athletic (50).
+        key=lambda e: (e["prob"], e["puntos_medios"]),
+        reverse=True,
+    )
+    return clasificado[:top]
 
 
 def probabilidades_titulo(
@@ -171,30 +229,13 @@ def probabilidades_titulo(
     constantes: dict | None = None,
     semilla: int | str | None = None,
 ) -> list[dict]:
-    """
-    The countdown's entries: [{"slug", "probTitulo", "puntos_medios"}, ...],
-    best first, trimmed to `top`.
-    """
-    salida = simular(tabla, pendientes, elo_table, n_sims, constantes, semilla)
-    n = salida["n_sims"]
-
-    clasificado = sorted(
-        (
-            {
-                "slug": slug,
-                "probTitulo": round(veces / n, 4),
-                "puntos_medios": round(salida["puntos_medios"][slug], 1),
-            }
-            for slug, veces in salida["titulos"].items()
-        ),
-        # Average points breaks ties, and there are a lot of them: in a league
-        # with two dominant clubs everyone from third or fourth down rounds to
-        # 0.0%, and sorting on probability alone leaves those in dictionary
-        # order — which put Alavés (44 average points) above Athletic (50).
-        key=lambda e: (e["probTitulo"], e["puntos_medios"]),
-        reverse=True,
+    """P(winning the league), keyed `probTitulo` for the Remotion schema."""
+    entradas = probabilidades_puesto(
+        tabla, pendientes, elo_table, 1, top, n_sims, constantes, semilla
     )
-    return clasificado[:top]
+    for e in entradas:
+        e["probTitulo"] = e.pop("prob")
+    return entradas
 
 
 def _pendientes_de(partidos: list[dict], desde: date | None = None) -> list[dict]:

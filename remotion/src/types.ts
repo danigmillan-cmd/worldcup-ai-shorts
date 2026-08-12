@@ -59,6 +59,13 @@ export type Partido = z.infer<typeof partidoSchema>;
 export const rankingEntradaSchema = z.object({
 	equipo: z.string().min(1),
 	colorPrimario: zColor(),
+	/**
+	 * La probabilidad que el countdown enseña. El nombre viene de cuando la
+	 * unica pregunta era el titulo; ahora la pregunta la fija
+	 * `opciones.tituloRanking` y esto es su respuesta, sea "gana la liga" o
+	 * "entra en plazas de Champions". Si cambias uno, cambia el otro: aqui
+	 * solo hay un numero y el texto de arriba es lo unico que dice de que va.
+	 */
 	probTitulo: z.number().min(0).max(1),
 });
 export type RankingEntrada = z.infer<typeof rankingEntradaSchema>;

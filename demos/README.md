@@ -11,7 +11,8 @@ npx remotion render Short ../demos/laliga.mp4 --props=../demos/jornada-laliga.js
 
 | Fichero | Qué es | Partidos |
 | --- | --- | --- |
-| `laliga.mp4` / `jornada-laliga.json` | LaLiga, 48,4 s, cierra con countdown | Valencia-Celta, Espanyol-Real Madrid, Atlético-Málaga, Elche-Barcelona (19-23 ago) |
+| `laliga.mp4` / `jornada-laliga.json` | LaLiga, 48,4 s, countdown del **título** | Valencia-Celta, Espanyol-Real Madrid, Atlético-Málaga, Elche-Barcelona (19-23 ago) |
+| `laliga-champions.mp4` / `jornada-laliga-champions.json` | Los mismos partidos, countdown de **plazas de Champions** | ídem |
 | `champions.mp4` / `jornada-champions.json` | Champions, 41 s, cierra con CTA | Real Madrid-Bayern, Man City-Inter, Arsenal-Barcelona, PSG-Liverpool |
 
 Los dos son 1080x1920 a 30 fps, CRF 23.
@@ -41,17 +42,33 @@ porque la temporada no ha empezado. En producción ese número lo calcula
 `resultados.py` contra resultados reales, y el generador se niega a arrancar si
 no puede.
 
-## El countdown de LaLiga
+## Las dos versiones del countdown
 
-Las probabilidades de título salen de `liga_simulator.py`: juega los 380
-partidos que quedan 20.000 veces con el mismo modelo que produce las barras del
-cuerpo del vídeo, y cuenta quién acaba primero. No es un ranking por Elo.
+Las probabilidades salen de `liga_simulator.py`: juega los 380 partidos que
+quedan 20.000 veces con el mismo modelo que produce las barras del cuerpo del
+vídeo, y mira dónde acaba cada equipo. No es un ranking por Elo. **Una sola
+simulación responde las dos preguntas** — solo cambia por dónde se corta la
+tabla final.
 
-Con la liga sin empezar sale Barcelona 62,7 %, Real Madrid 35,0 %, Atlético
-2,1 % — y **el cuarto y el quinto ya son 0,1 %**. Es la realidad de LaLiga y el
-countdown la refleja, pero conviene saber que tres de las cinco posiciones van a
-ser casi cero durante buena parte de la temporada. Se arregla mostrando menos
-posiciones, o cambiando la pregunta (top 4, descenso, Champions).
+| | Título (corte 1) | Plazas de Champions (corte 4) |
+| --- | --- | --- |
+| Barcelona | 63,5 % | 100,0 % |
+| Real Madrid | 34,4 % | 99,8 % |
+| Atlético | 1,9 % | 87,8 % |
+| Villarreal | 0,1 % | 42,3 % |
+| Betis | 0,1 % | 31,6 % |
+
+**El del título muere por abajo:** las tres últimas posiciones son ~0 % y lo
+seguirán siendo buena parte de la temporada.
+
+**El de Champions muere por arriba:** Barcelona y Madrid entran seguro, así que
+las dos primeras posiciones no tienen intriga — y como el countdown va de la
+quinta a la primera, termina en un 100 %.
+
+La pelea de verdad está entre la tercera y la sexta plaza. Si ninguna de las dos
+convence, la salida es enseñar menos posiciones o preguntar por algo con la
+tensión repartida (descenso, o directamente "quién coge la última plaza
+europea").
 
 ## Qué falta para que esto sea el vídeo final
 
