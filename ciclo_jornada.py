@@ -24,16 +24,31 @@ The gates, cheapest first
 -------------------------
 1. Are there fixtures, and do we know when they kick off? No kick-off times
    means no publication moment, which means nothing to schedule against.
-2. Is the publication moment inside the window (config.JORNADA_VENTANA_HORAS),
-   and has the first match not already started? Too early is a no-op that
-   retries; already started is a slot that was missed and must not be filled
-   late, because the Short previews matches.
+2. Is it time? Too early is a no-op that retries. Too late is the only hard
+   no — see below.
 3. Has this slot already been published? The ledger is written by
    publicar_jornada.py after a successful upload, so a render that failed
    halfway is retried rather than skipped.
 4. Is any of these matches already on the channel? The slot key catches the
    same Short twice; this catches two different Shorts sharing a fixture,
    which the selector will happily produce because it reaches days ahead.
+
+When a Short goes out
+---------------------
+24 h before the first match it previews, as near to that as the machinery
+allows, and late rather than never.
+
+Nothing has to try hard for the first two thirds: the matchday JSON carries the
+exact moment and YouTube honours it through publishAt, so the build can happen
+any time in the window and the Short still surfaces on the hour.
+
+The third is the part worth being explicit about, because the intuitive
+behaviour is wrong. Being past the publication moment is NOT a reason to skip.
+The gate lets a negative countdown through, publicar_jornada sees a moment
+already behind it and uploads on arrival instead of scheduling, and a Short
+that should have gone out at 19:30 goes out at 03:00 instead. Only
+config.JORNADA_MARGEN_MINIMO_HORAS stops it, and only because below that the
+pipeline cannot finish before kick-off and nobody would see it if it did.
 
 Only past all of them does it run the expensive part — the full build, which
 costs a ClubElo fetch, a call to Claude for the headlines, and ~6 s of league
@@ -116,6 +131,7 @@ def decidir(
     forzar: bool = False,
     sin_ranking: bool = False,
     aciertos: dict | None = None,
+    margen_horas: float | None = None,
 ) -> Decision:
     """
     Run the three gates and, if they all pass, build the matchday.
@@ -130,6 +146,8 @@ def decidir(
     a number you know better than the ledger does.
     """
     ventana = config.JORNADA_VENTANA_HORAS if ventana_horas is None else ventana_horas
+    margen = (config.JORNADA_MARGEN_MINIMO_HORAS
+              if margen_horas is None else margen_horas)
 
     # ── Gate 1: are there fixtures, with kick-off times? ─────────────────────
     crudos = laliga_seleccion.seleccion_para_short()
@@ -150,11 +168,17 @@ def decidir(
         faltan = _horas_hasta(publicacion["publicar_en_utc"])
         hasta_saque = _horas_hasta(publicacion["primer_partido_utc"])
 
-        if hasta_saque is not None and hasta_saque <= 0:
+        # Too late is the only hard no. Being PAST the publication moment is
+        # not: `faltan` simply goes negative, the gate lets it through, and
+        # publicar_jornada uploads on arrival instead of scheduling. A Short
+        # that should have gone out at 19:30 and can only go out at 03:00 is
+        # still worth publishing — it just stops being scheduled.
+        if hasta_saque is not None and hasta_saque < margen:
             return Decision(
                 False,
-                f"El primer partido de {clave} ya ha empezado — slot perdido, "
-                "no se publica un preview tarde",
+                f"El primer partido de {clave} empieza en {hasta_saque:.1f} h, "
+                f"por debajo del margen de {margen:.0f} h — ya no da tiempo a "
+                "publicarlo como previa",
             )
         if faltan is None:
             return Decision(False, f"Hora de publicación ilegible en {clave}")
@@ -164,6 +188,9 @@ def decidir(
                 f"Todavía faltan {faltan:.1f} h para publicar {clave} "
                 f"(ventana de {ventana:.0f} h)",
             )
+        if faltan < 0:
+            print(f"[WARN] La hora de publicación de {clave} pasó hace "
+                  f"{-faltan:.1f} h — se publica en cuanto suba, sin programar")
 
     # ── Gate 3: has this slot already gone out? ──────────────────────────────
     if not forzar and processed_matches.is_processed(

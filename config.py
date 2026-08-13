@@ -354,6 +354,24 @@ JORNADA_SHORTS_FILE = DATA_DIR / "shorts_publicados.json"
 # cron, slightly staler inputs.
 JORNADA_VENTANA_HORAS = 24
 
+# The floor: how close to kick-off a Short may still be published.
+#
+# The rule the channel wants is "24 h before the first match, as near to that
+# as possible, and if something goes wrong and it ends up going out six hours
+# before, publish it anyway". The first two thirds of that are free — the
+# matchday JSON schedules the exact moment and YouTube honours it — and the
+# third falls out of the cycle not caring that the publication moment is
+# already behind it. Late is not a reason to skip.
+#
+# What does need a number is where "late" turns into "pointless". Two hours,
+# for two reasons that happen to agree. A cold CI run is Node, npm ci, the
+# headless browser, a 45-second render and an upload: a quarter of an hour when
+# nothing goes wrong, and the failure mode of starting too late is publishing a
+# preview of a match already being played. And a Short that goes up twenty
+# minutes before kick-off has no time to reach anyone, so it is not worth the
+# render even when it does finish.
+JORNADA_MARGEN_MINIMO_HORAS = 2
+
 # ─── ELO probability tuning ──────────────────────────────────────────────────
 ELO_TEMPERATURE = 100.0   # higher → flatter win-probability spread
 
