@@ -115,7 +115,9 @@ jobs:
           # memory is how you get a second 404. Ask the API which names the key
           # can actually reach, and put them in the summary next to the error.
           if [ -z "$REDACTOR" ]; then
-            python scripts/gemini_modelos.py >> "$GITHUB_STEP_SUMMARY" || true
+            # tee, not a plain redirect: the summary is the nice place to read
+            # it, but the log is the only place a script can get at it.
+            python scripts/gemini_modelos.py | tee -a "$GITHUB_STEP_SUMMARY" || true
             echo "::error::Ningún redactor respondió — los Shorts saldrían con titulares de plantilla"
             exit 1
           fi
