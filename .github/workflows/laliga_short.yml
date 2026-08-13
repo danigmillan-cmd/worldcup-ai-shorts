@@ -39,6 +39,11 @@ on:
         type: boolean
         required: false
         default: false
+      probar_titulares:
+        description: "Only check who writes the headlines, and publish nothing"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -70,8 +75,52 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # ── Key check (opt-in, publishes nothing) ──────────────────────────────
+      # A key that does not work fails SILENTLY in the normal path: the writer
+      # chain falls through to templates and the Short goes out flatter, with
+      # the reason buried in a log nobody reads until later. So there is a way
+      # to ask the question on its own.
+      #
+      # champions_titulares.py's CLI runs against remotion/sample-data, a file
+      # that is committed and never changes. No ESPN, no ClubElo, no ledger, no
+      # upload — the only thing this can touch is the model's quota.
+      - name: Check who writes the headlines
+        if: inputs.probar_titulares
+        env:
+          SHORTS_GEMINI_API_KEY: ${{ secrets.SHORTS_GEMINI_API_KEY }}
+        run: |
+          set -uo pipefail
+
+          python champions_titulares.py 2>&1 | tee salida.txt
+          REDACTOR=$(sed -n 's/.*Titulares escritos por \(.*\)/\1/p' salida.txt | head -1)
+
+          {
+            echo '## ¿Quién escribe los titulares?'
+            echo
+            if [ -n "$REDACTOR" ]; then
+              echo "Respondió **$REDACTOR**. La clave funciona."
+            else
+              echo '**Nadie: han salido por plantilla.** El motivo está arriba —'
+              echo 'un 429 es cuota agotada, un 404 es que el modelo ya no se'
+              echo 'llama así (`GEMINI_MODEL` lo cambia sin tocar código), y'
+              echo '"no devolvió JSON válido" es que contestó pero mal.'
+            fi
+            echo
+            echo '```'
+            grep -E '^\[(WARN|INFO)\]' salida.txt || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Red on failure rather than a green run you have to read: the whole
+          # point is to not have to notice something in a log.
+          if [ -z "$REDACTOR" ]; then
+            echo "::error::Ningún redactor respondió — los Shorts saldrían con titulares de plantilla"
+            exit 1
+          fi
+
       - name: Decide whether a Short is due
         id: ciclo
+        if: ${{ !inputs.probar_titulares }}
         env:
           FORZAR: ${{ inputs.forzar }}
           ACIERTOS: ${{ inputs.aciertos }}
@@ -173,7 +222,7 @@ jobs:
           fi
 
       - name: Report
-        if: always()
+        if: always() && !inputs.probar_titulares
         env:
           MOTIVO: ${{ steps.ciclo.outputs.motivo }}
           CLAVE: ${{ steps.ciclo.outputs.clave }}
