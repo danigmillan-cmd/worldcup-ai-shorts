@@ -1,0 +1,35 @@
+{
+  "publicaciones": [
+    {
+      "competicion": "LaLiga",
+      "fecha": "2026-08-15",
+      "publicado_en": "2026-08-13T15:18:25.660537+00:00",
+      "partidos": [
+        {
+          "local": "sevilla",
+          "visitante": "rayo",
+          "resultadoPredicho": "empate",
+          "prediccion": "0-0"
+        },
+        {
+          "local": "alaves",
+          "visitante": "getafe",
+          "resultadoPredicho": "empate",
+          "prediccion": "1-1"
+        },
+        {
+          "local": "racing",
+          "visitante": "villarreal",
+          "resultadoPredicho": "visitante",
+          "prediccion": "0-2"
+        },
+        {
+          "local": "espanyol",
+          "visitante": "levante",
+          "resultadoPredicho": "local",
+          "prediccion": "2-0"
+        }
+      ]
+    }
+  ]
+}

@@ -27,6 +27,7 @@ import {
 import {
 	jornadaSchema,
 	palabraCaptionSchema,
+	type Aciertos,
 	type Jornada,
 	type PalabraCaption,
 } from '../types';
@@ -68,6 +69,10 @@ export const opcionesShortSchema = z.object({
 	captions: z.array(palabraCaptionSchema).nullable().optional(),
 	/** Texto del gancho. `null` = se deduce del partido mas desequilibrado. */
 	hookTexto: z.string().nullable().optional(),
+	/** Ruta de la musica de fondo dentro de `public/`. `null` = sin musica. */
+	musica: z.string().nullable().optional(),
+	/** Volumen de la musica, 0 a 1. Por debajo del voiceover a proposito. */
+	musicaVolumen: z.number().min(0).max(1).optional(),
 });
 
 /** Lo que puede llegar por el JSON: cualquier subconjunto. */
@@ -83,6 +88,8 @@ export type OpcionesShort = {
 	voiceover: string | null;
 	captions: PalabraCaption[] | null;
 	hookTexto: string | null;
+	musica: string | null;
+	musicaVolumen: number;
 };
 
 /**
@@ -111,6 +118,8 @@ export const OPCIONES_POR_DEFECTO: OpcionesShort = {
 	voiceover: null,
 	captions: null,
 	hookTexto: null,
+	musica: null,
+	musicaVolumen: 0.22,
 };
 
 /**
@@ -131,6 +140,8 @@ export const resolverOpciones = (
 	voiceover: o?.voiceover ?? OPCIONES_POR_DEFECTO.voiceover,
 	captions: o?.captions ?? OPCIONES_POR_DEFECTO.captions,
 	hookTexto: o?.hookTexto ?? OPCIONES_POR_DEFECTO.hookTexto,
+	musica: o?.musica ?? OPCIONES_POR_DEFECTO.musica,
+	musicaVolumen: o?.musicaVolumen ?? OPCIONES_POR_DEFECTO.musicaVolumen,
 });
 
 // --------------------------------------------------------------------------
@@ -148,6 +159,14 @@ const cierreEfectivo = (
 ): 'ranking' | 'cta' =>
 	opciones.cierre === 'ranking' && jornada.ranking.length > 0 ? 'ranking' : 'cta';
 
+/**
+ * Solo hay prueba social si hay algo medido que ensenar. Ver la nota de
+ * `aciertosSchema` en types.ts, incluida la parte de por que el generador
+ * manda `null` explicito en vez de omitir la clave.
+ */
+export const hayPruebaSocial = (jornada: Jornada): boolean =>
+	Boolean(jornada.aciertosJornadaAnterior);
+
 export const duracionShort = (
 	jornada: Jornada,
 	opciones: OpcionesShort,
@@ -159,7 +178,10 @@ export const duracionShort = (
 			: CTA_FRAMES;
 
 	return (
-		HOOK_FRAMES + PRUEBA_FRAMES + partidos * MATCH_PROBABILITY_DURATION + cierre
+		HOOK_FRAMES +
+		(hayPruebaSocial(jornada) ? PRUEBA_FRAMES : 0) +
+		partidos * MATCH_PROBABILITY_DURATION +
+		cierre
 	);
 };
 
@@ -310,10 +332,10 @@ const Hook: React.FC<{jornada: Jornada; textoManual: string | null}> = ({
 };
 
 /** Prueba social: los aciertos de la jornada anterior, con contador. */
-const PruebaSocial: React.FC<{jornada: Jornada}> = ({jornada}) => {
+const PruebaSocial: React.FC<{aciertos: Aciertos}> = ({aciertos}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const {acertados, total} = jornada.aciertosJornadaAnterior;
+	const {acertados, total} = aciertos;
 
 	const entradaEtiqueta = muelle(frame, fps, {desde: 34, duracion: 14});
 
@@ -507,6 +529,27 @@ export const Short: React.FC<ShortProps> = (props) => {
 	const captions = opciones.captions;
 	const hayCaptions = Boolean(captions && captions.length > 0);
 
+	const musica = archivoPublico(opciones.musica);
+	const {durationInFrames, fps} = useVideoConfig();
+
+	/**
+	 * Entrada y salida de la musica. La salida es lo que importa: las pistas
+	 * duran dos o tres minutos y el Short medio, asi que el corte cae en mitad
+	 * de un compas y suena a error de montaje. El medio segundo de entrada
+	 * evita el golpe seco del primer frame.
+	 */
+	const volumenMusica = React.useCallback(
+		(f: number) => {
+			const entrada = Math.round(fps * 0.5);
+			const salida = Math.round(fps * 1.5);
+			const subida = entrada > 0 ? Math.min(1, f / entrada) : 1;
+			const restantes = durationInFrames - 1 - f;
+			const bajada = salida > 0 ? Math.min(1, Math.max(0, restantes) / salida) : 1;
+			return opciones.musicaVolumen * subida * bajada;
+		},
+		[durationInFrames, fps, opciones.musicaVolumen],
+	);
+
 	return (
 		<AbsoluteFill style={{backgroundColor: COLORS.bg}}>
 			<Series>
@@ -514,9 +557,11 @@ export const Short: React.FC<ShortProps> = (props) => {
 					<Hook jornada={props} textoManual={opciones.hookTexto} />
 				</Series.Sequence>
 
-				<Series.Sequence durationInFrames={PRUEBA_FRAMES} name="Prueba social">
-					<PruebaSocial jornada={props} />
-				</Series.Sequence>
+				{props.aciertosJornadaAnterior ? (
+					<Series.Sequence durationInFrames={PRUEBA_FRAMES} name="Prueba social">
+						<PruebaSocial aciertos={props.aciertosJornadaAnterior} />
+					</Series.Sequence>
+				) : null}
 
 				{partidos.map((partido, i) => (
 					<Series.Sequence
@@ -562,6 +607,9 @@ export const Short: React.FC<ShortProps> = (props) => {
 			<ProgressBar />
 
 			{voz ? <Audio src={voz} /> : null}
+			{musica ? (
+				<Audio src={musica} volume={volumenMusica} name="Música de fondo" />
+			) : null}
 
 			{hayCaptions ? (
 				<AbsoluteFill

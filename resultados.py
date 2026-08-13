@@ -217,6 +217,20 @@ def aciertos(competicion: str, antes_de: str | None = None) -> dict | None:
     return {"acertados": completo["acertados"], "total": completo["total"]}
 
 
+def hay_publicacion_previa(competicion: str, antes_de: str | None = None) -> bool:
+    """
+    Whether anything was ever published for this competition.
+
+    Exists to separate the two ways `aciertos` returns None, which mean
+    opposite things to a caller. Nothing published ever is the channel's first
+    Short: there is no claim to make and the Short should simply not make one.
+    Something published but not yet played is a Short that is being built too
+    early, and dropping the block there would quietly cost the social proof on
+    an ordinary week — that one has to wait instead.
+    """
+    return _ultima_publicacion(competicion, antes_de) is not None
+
+
 if __name__ == "__main__":
     import argparse
 

@@ -12,10 +12,16 @@ engine under LALIGA_CONSTANTS, writes the headlines from verified facts
 results (resultados.py).
 
 Every prediction is recorded on the way out, which is what makes the next
-run's "acertamos N de M" a measurement instead of a guess. When the previous
-matchday hasn't been played yet there is no honest number to show, so the
-generator stops and says so rather than filling one in; --aciertos N/M
-overrides it when you know better.
+run's "acertamos N de M" a measurement instead of a guess. There are two ways
+that number can be missing, and they are handled differently on purpose:
+
+  - nothing has ever been published (the channel's first Short): the block is
+    omitted and the Short simply doesn't claim anything
+  - the last matchday was published but hasn't been played yet: the generator
+    stops, because the number will exist shortly and dropping the block would
+    cost the social proof on an ordinary week
+
+--aciertos N/M overrides both when you know better.
 
 The closing countdown asks who finishes in the Champions places, answered by
 simulating the rest of the season (liga_simulator.py). --sin-ranking skips the
@@ -30,10 +36,12 @@ from zoneinfo import ZoneInfo
 import champions_predictions
 import champions_teams
 import champions_titulares
+import config
 import espn
 import laliga
 import laliga_seleccion
 import liga_simulator
+import musica
 import resultados
 
 COMPETICION = "LaLiga"
@@ -92,7 +100,7 @@ HORAS_ANTES_DE_PUBLICAR = 24
 ZONA_PUBLICACION = "Europe/Madrid"
 
 
-def _cuando_publicar(partidos_crudos: list[dict]) -> dict | None:
+def cuando_publicar(partidos_crudos: list[dict]) -> dict | None:
     """
     Cuándo sale el Short: 24 h antes del primer partido que enseña.
 
@@ -170,6 +178,8 @@ def construir_jornada(
     aciertos: dict | None = None,
     maximo: int | None = None,
     sin_ranking: bool = False,
+    dias: int | None = None,
+    filtrar_clubes: bool = True,
 ) -> tuple[dict, list[tuple[str, str]]] | None:
     """
     (matchday dict, club-slug pairs), or None when there's nothing to publish.
@@ -181,9 +191,20 @@ def construir_jornada(
     `aciertos` overrides the computed figure. Left out, the previous published
     matchday is scored against real results (resultados.py); if that can't be
     known yet, this returns None rather than inventing a number.
+
+    `dias` pins the fixture window instead of letting it widen, and
+    `filtrar_clubes=False` drops the club filter. Together they turn "the next
+    fixtures worth showing" into "this weekend, whoever plays" — see
+    laliga_seleccion.partidos_publicables for when that is the right call and
+    why it isn't the default.
     """
+    ventana = (
+        {"dias_inicial": dias, "dias_max": dias} if dias else {}
+    )
     partidos_crudos = laliga_seleccion.seleccion_para_short(
-        maximo=maximo or laliga_seleccion.MAX_PARTIDOS
+        maximo=maximo or laliga_seleccion.MAX_PARTIDOS,
+        filtrar_clubes=filtrar_clubes,
+        **ventana,
     )
     if not partidos_crudos:
         print("[ERROR] No hay partidos publicables. ¿ESPN caído, o parón de "
@@ -195,12 +216,25 @@ def construir_jornada(
     if aciertos is None:
         aciertos = resultados.aciertos(COMPETICION, antes_de=fecha)
         if aciertos is None:
-            print("[ERROR] No se pueden calcular los aciertos de la jornada "
-                  "anterior todavía, y no se inventan. Pasa --aciertos N/M a "
-                  "mano, o espera a que se jueguen los partidos publicados.")
-            return None
-        print(f"[INFO] Aciertos calculados de la jornada anterior: "
-              f"{aciertos['acertados']}/{aciertos['total']}")
+            if resultados.hay_publicacion_previa(COMPETICION, antes_de=fecha):
+                # Se publicó algo pero aún no se ha jugado. Esperar es lo
+                # correcto: el bloque saldría en el Short de la semana que
+                # viene igualmente, y quitarlo aquí sería perder la prueba
+                # social por llegar temprano.
+                print("[ERROR] No se pueden calcular los aciertos de la "
+                      "jornada anterior todavía, y no se inventan. Pasa "
+                      "--aciertos N/M a mano, o espera a que se jueguen los "
+                      "partidos publicados.")
+                return None
+            # Primer Short del canal: no hay nada contra lo que medirse, así
+            # que no se afirma nada. El Short se salta el bloque de prueba
+            # social y dura dos segundos menos (ver aciertosSchema en
+            # remotion/src/types.ts).
+            print("[INFO] Sin ninguna jornada publicada antes — este Short "
+                  "sale sin el bloque de «acertamos N de M»")
+        else:
+            print(f"[INFO] Aciertos calculados de la jornada anterior: "
+                  f"{aciertos['acertados']}/{aciertos['total']}")
 
     elo_table = __import__("champions_elo").get_elo_table()
 
@@ -224,27 +258,44 @@ def construir_jornada(
 
     ranking = [] if sin_ranking else _ranking(elo_table, fecha)
 
+    # Se gasta el turno de la rotación aquí, al construir la jornada, y no al
+    # renderizar: así el JSON que se archiva dice exactamente qué sonó, y
+    # volver a renderizar el mismo fichero da el mismo vídeo.
+    pista = musica.siguiente()
+
     jornada = {
         "competicion": COMPETICION,
         "fecha": fecha,
+        # `None` explícito, NO la clave ausente, cuando no hay nada medido.
+        # Remotion mezcla --props encima de los defaultProps de la composición,
+        # que salen de sample-data/jornada.json: omitir la clave heredaría el
+        # «6 de 8» del fichero de ejemplo y el Short afirmaría en pantalla un
+        # dato de prueba. Ver la nota de aciertosSchema en types.ts.
         "aciertosJornadaAnterior": aciertos,
         "partidos": partidos,
         "ranking": ranking,
         # Lo lee quien publique; el schema de Remotion ignora las claves
         # que no conoce, asi que viaja en el mismo fichero sin estorbar.
-        "publicacion": _cuando_publicar(partidos_crudos),
+        "publicacion": cuando_publicar(partidos_crudos),
         # Emitido aquí y no dejado al render: los valores por defecto de la
         # composición hablan del título de la Champions, y este Short pregunta
         # otra cosa. Dejarlos puestos pondría "Opciones de título" debajo de
         # "Quién juega la Champions", en la misma pantalla.
-        "opciones": (
-            {
-                "cierre": "ranking",
-                "tituloRanking": TITULO_RANKING,
-                "etiquetaRanking": ETIQUETA_RANKING,
-            }
-            if ranking else {"cierre": "cta"}
-        ),
+        "opciones": {
+            **(
+                {
+                    "cierre": "ranking",
+                    "tituloRanking": TITULO_RANKING,
+                    "etiquetaRanking": ETIQUETA_RANKING,
+                }
+                if ranking else {"cierre": "cta"}
+            ),
+            # Una pista distinta cada vez, copiada ya a remotion/public/
+            # (musica.py). `None` si no hay ninguna: el Short sale mudo antes
+            # que fallar el render, igual que con el voiceover.
+            "musica": pista,
+            "musicaVolumen": config.JORNADA_MUSICA_VOLUMEN,
+        },
     }
     parejas = [(c["local"], c["visitante"]) for c in partidos_crudos]
     return jornada, parejas
@@ -268,9 +319,19 @@ def main() -> int:
     cli.add_argument("--sin-ranking", action="store_true",
                      help="Saltarse la simulación de liga y cerrar con CTA. "
                           "Tarda unos segundos menos.")
+    cli.add_argument("--dias", type=int, default=None,
+                     help="Fija la ventana de partidos en N días en vez de "
+                          "ensancharla hasta llenar el Short.")
+    cli.add_argument("--sin-filtro-clubes", action="store_true",
+                     help="Coge todos los partidos de la ventana, no solo los "
+                          "de los clubes publicables. Para una jornada en la "
+                          "que tus equipos apenas juegan.")
     args = cli.parse_args()
 
-    construido = construir_jornada(args.aciertos, args.maximo, args.sin_ranking)
+    construido = construir_jornada(
+        args.aciertos, args.maximo, args.sin_ranking,
+        dias=args.dias, filtrar_clubes=not args.sin_filtro_clubes,
+    )
     if construido is None:
         return 1
     jornada, parejas = construido
@@ -279,9 +340,10 @@ def main() -> int:
         resultados.registrar(jornada, COMPETICION, parejas)
 
     print(f"\n{jornada['competicion']} — {jornada['fecha']}")
-    print(f"Aciertos de la jornada anterior: "
-          f"{jornada['aciertosJornadaAnterior']['acertados']}"
-          f"/{jornada['aciertosJornadaAnterior']['total']}\n")
+    marcador = jornada.get("aciertosJornadaAnterior")
+    print("Aciertos de la jornada anterior: "
+          + (f"{marcador['acertados']}/{marcador['total']}" if marcador
+             else "sin bloque (nada publicado antes)") + "\n")
     for p in jornada["partidos"]:
         print(f"  {p['local']['nombre']} - {p['visitante']['nombre']}")
         print(f"    {p['probLocal']:.0%} / {p['probEmpate']:.0%} / "

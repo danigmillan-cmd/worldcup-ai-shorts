@@ -30,6 +30,19 @@ MASTER_CONTEXT.md
 # Vídeos renderizados (regenerables, pesados; ya publicados en YouTube).
 # ─────────────────────────────────────────────────────────────────────────────
 output/
+remotion/out/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Remotion — assets copiados a public/ en cada render.
+# ─────────────────────────────────────────────────────────────────────────────
+# La música vive en assets/music/ y musica.py copia la pista de turno aquí,
+# que es el único sitio del que Remotion sabe servir. Versionarla sería tener
+# los mismos mp3 dos veces en el repo.
+remotion/public/musica/
+
+# La jornada de trabajo, que se regenera en cada ciclo. Las de `demos/` y
+# `sample-data/` sí se versionan: son ejemplos fijos.
+remotion/jornada-laliga.json
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Python — bytecode y artefactos.

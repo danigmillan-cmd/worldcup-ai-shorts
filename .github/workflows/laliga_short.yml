@@ -1,0 +1,214 @@
+name: LaLiga Short
+
+# The production cron for the Spanish-league channel: decide, build, render,
+# publish, and write the state back.
+#
+# Almost every firing is a no-op. ciclo_jornada.py answers "not yet" for the
+# cost of one ESPN request, and only when a matchday is within
+# config.JORNADA_VENTANA_HORAS of its publication slot does the expensive half
+# — Node, Remotion, the render, the upload — run at all. That is why the
+# Node steps below are all gated on `steps.ciclo.outputs.publicar`.
+#
+# Deliberately self-contained rather than calling champions_render.yml with
+# `workflow_call`. A called workflow does its own checkout, so the matchday
+# JSON built here would not exist over there and would have to travel as an
+# artifact — more machinery than the twenty duplicated lines of Node setup it
+# would save. champions_render.yml stays what it is: the manual "render this
+# JSON and let me look at the mp4" tool.
+on:
+  schedule:
+    # Every three hours. The window is twenty-four, so a slot survives GitHub
+    # dropping or delaying a whole run of firings — which it does. Cron here
+    # is UTC and does not honour DST; the publication moment itself is
+    # computed in the matchday JSON, so a run at the "wrong" local hour still
+    # schedules the Short correctly.
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      forzar:
+        description: "Skip the window and the ledger — build and publish now"
+        type: boolean
+        required: false
+        default: false
+      aciertos:
+        description: "Previous matchday's hit rate as N/M. Only for the FIRST Short — see the note at the bottom."
+        required: false
+        default: ""
+      en_seco:
+        description: "Decide and build, but do not upload"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  # Never two cycles at once: both would see an unpublished slot and both would
+  # upload. Queue, never cancel — a cancelled run can leave a half-published
+  # video with nothing written to the ledger.
+  group: laliga-short
+  cancel-in-progress: false
+
+jobs:
+  ciclo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Decide whether a Short is due
+        id: ciclo
+        env:
+          FORZAR: ${{ inputs.forzar }}
+          ACIERTOS: ${{ inputs.aciertos }}
+          # Optional. Set it and the headlines are written by a model; leave it
+          # unset and champions_titulares.py falls back to its templates and
+          # the Short still goes out. It must be a key minted for THIS channel
+          # — a free tier is metered per key, so sharing one couples this
+          # cron's quota to whatever else uses it.
+          SHORTS_GEMINI_API_KEY: ${{ secrets.SHORTS_GEMINI_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          ARGS=(-o remotion/jornada-laliga.json)
+          if [ "${FORZAR:-false}" = "true" ]; then
+            ARGS+=(--forzar)
+          fi
+          if [ -n "${ACIERTOS:-}" ]; then
+            ARGS+=(--aciertos "$ACIERTOS")
+          fi
+
+          python ciclo_jornada.py "${ARGS[@]}"
+
+      # ── Everything below only runs when a Short is actually due ────────────
+
+      - name: Set up Node
+        if: steps.ciclo.outputs.publicar == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: remotion/package-lock.json
+
+      - name: Install Remotion
+        if: steps.ciclo.outputs.publicar == 'true'
+        working-directory: remotion
+        run: npm ci
+
+      - name: Ensure the headless browser
+        if: steps.ciclo.outputs.publicar == 'true'
+        working-directory: remotion
+        run: npx remotion browser ensure
+
+      - name: Render the Short
+        if: steps.ciclo.outputs.publicar == 'true'
+        working-directory: remotion
+        run: npx remotion render Short out/Short.mp4 --props=jornada-laliga.json
+
+      - name: Keep the mp4 whatever happens next
+        if: steps.ciclo.outputs.publicar == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: laliga-short-${{ github.run_number }}
+          path: |
+            remotion/out/Short.mp4
+            remotion/jornada-laliga.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Restore credentials from secrets
+        if: steps.ciclo.outputs.publicar == 'true' && !inputs.en_seco
+        env:
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GOOGLE_CLIENT_SECRET" > credentials/client_secret.json
+          printf '%s' "$YOUTUBE_TOKEN" > credentials/token.json
+
+      - name: Publish to YouTube
+        if: steps.ciclo.outputs.publicar == 'true' && !inputs.en_seco
+        run: |
+          python publicar_jornada.py \
+            remotion/out/Short.mp4 \
+            remotion/jornada-laliga.json
+
+      - name: Commit the ledgers
+        # Runs even when the upload failed: ciclo_jornada already recorded the
+        # predictions, and losing that record would make next week's "acertamos
+        # N de M" unmeasurable. shorts_publicados.json is only written by a
+        # successful upload, so a failed run commits the predictions without
+        # closing the slot — which is exactly the retry behaviour wanted.
+        #
+        # jornada_music_index.json has to travel too. A runner starts from the
+        # repo every time, so leaving it behind would reset the rotation on
+        # every run and every Short would open with the same track.
+        if: always() && steps.ciclo.outputs.publicar == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/predicciones_publicadas.json \
+                  data/shorts_publicados.json \
+                  data/jornada_music_index.json || true
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "chore: registro de la jornada publicada [skip ci]"
+            git pull --rebase --autostash
+            git push
+          fi
+
+      - name: Report
+        if: always()
+        env:
+          MOTIVO: ${{ steps.ciclo.outputs.motivo }}
+          CLAVE: ${{ steps.ciclo.outputs.clave }}
+          PUBLICAR: ${{ steps.ciclo.outputs.publicar }}
+        run: |
+          {
+            echo '## LaLiga Short'
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Verdict | \`${PUBLICAR:-error}\` |"
+            echo "| Slot | \`${CLAVE:-—}\` |"
+            echo "| Reason | ${MOTIVO:-the cycle did not get that far} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+# Two things to know before switching the cron on
+# -----------------------------------------------
+# 1. The first Short says nothing about hit rate, by design. Every other Short
+#    quotes the previous matchday's, measured against what was published last
+#    time (resultados.py) — and with an empty ledger there is nothing to
+#    measure. Rather than block the cron or invent a number, the social-proof
+#    block is simply omitted and the Short runs two seconds shorter. From the
+#    second matchday on it measures itself and the block comes back. The
+#    `aciertos` input above overrides the figure if you ever need to.
+#
+# 2. The headlines are not written by Claude here. champions_titulares.py
+#    shells out to the `claude` CLI, which is not on a GitHub runner's PATH,
+#    so the runner uses the next redactor in its chain: Gemini's free tier,
+#    if SHORTS_GEMINI_API_KEY is set as a repository secret. Without the
+#    secret it drops to templates — correct, built from the same verified
+#    facts, just flatter — and the Short still publishes. Nothing here fails
+#    for want of a key.
+#
+#    Mint that key from an AI Studio project of its own rather than reusing
+#    the one another project already has. Free-tier quota is per key, so a
+#    shared key means this cron and everything else on it draw from one
+#    bucket, and the first symptom is the other project getting throttled at
+#    a time that has nothing to do with it.

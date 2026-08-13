@@ -276,7 +276,83 @@ YT_TAGS = [
 
 YT_CATEGORY    = "17"            # Sports
 YT_PRIVACY     = "public"
+YT_LANGUAGE    = "en"            # World Cup Shorts are English; see JORNADA_YT_*
 YT_CHUNK_BYTES = 4 * 1024 * 1024  # 4 MB per resumable upload chunk
+
+# ─── YouTube metadata for the matchday Shorts (LaLiga / Champions) ───────────
+# Same channel and same credentials as the World Cup Shorts (decision of
+# 13-ago-2026), so what separates them is only the metadata below. These are
+# Spanish, which is why upload_video takes a language rather than hardcoding
+# "en" the way it used to.
+#
+# Everything here is taste — headline phrasing, emoji, which hashtags — and is
+# meant to be edited without touching publicar_jornada.py, which only fills the
+# blanks in. `{competicion}` and `{fecha}` are always available; the title
+# templates also get `{equipos}`, the marquee fixture of the matchday.
+JORNADA_YT_TITLES = [
+    "La IA predice la jornada de {competicion} ⚽",
+    "{equipos} — lo que dice la IA \U0001f52e",
+    "Predicciones de {competicion} con IA \U0001f9e0⚽",
+    "¿Acertará la IA esta jornada de {competicion}? ⚽",
+]
+
+JORNADA_YT_DESCRIPTION = """\
+Predicciones de la jornada de {competicion} calculadas con Elo de clubes y un \
+modelo de Poisson — sin opiniones, solo números.
+
+{resumen}
+
+¿Con cuál te mojas tú? Dilo en los comentarios.
+
+#{hashtag} #Futbol #Predicciones #IA #Shorts #Elo #Estadistica"""
+
+JORNADA_YT_TAGS = [
+    "fútbol", "predicciones", "IA", "Elo", "estadística",
+    "pronósticos", "Shorts", "análisis", "quinielas",
+]
+
+JORNADA_YT_LANGUAGE = "es"
+JORNADA_YT_PRIVACY  = "public"
+
+# ─── Music for the matchday Shorts (musica.py) ───────────────────────────────
+# Every Short gets a different track, rotating through whatever mp3 files are
+# in MUSIC_DIR. Dropping a file in adds it to the rotation and deleting one
+# removes it — no list to keep in sync, which is the point: the taste here is
+# "which files are in the folder", and that is visible without reading code.
+#
+# Only copyright-cleared music belongs in that folder. Everything currently
+# there came from the YouTube Audio Library, and a claim on a Short is worse
+# than a plain one.
+JORNADA_MUSICA_INDEX_FILE = DATA_DIR / "jornada_music_index.json"
+
+# Where the chosen track is copied so Remotion can serve it. Remotion only
+# reads from its own public/ directory, and assets/ is outside the Node
+# project, so the file is copied per render rather than committed twice.
+JORNADA_MUSICA_PUBLIC_SUBDIR = "musica"
+
+# Under the voiceover on purpose. The Shorts are carried by what is on screen
+# and by the narration; the music is there to stop the silence between blocks
+# from reading as a dropped frame.
+JORNADA_MUSICA_VOLUMEN = 0.22
+
+# ─── Matchday Short cycle (ciclo_jornada.py) ─────────────────────────────────
+# Which Shorts have already gone out, so a cron that fires every few hours
+# publishes one video per matchday instead of one per firing. Same shape and
+# same helpers as PROCESSED_MATCHES_FILE — processed_matches.py takes the path
+# as an argument precisely so a second pipeline can keep its own ledger.
+JORNADA_SHORTS_FILE = DATA_DIR / "shorts_publicados.json"
+
+# How close to its publication moment a Short has to be before the cycle builds
+# it. It has to be comfortably WIDER than the gap between cron firings, or a
+# slot can be stepped over entirely — GitHub drops and delays scheduled runs.
+#
+# Note what widening it actually does: the build happens on the FIRST tick
+# inside the window, so 24 h means the Short is built a day before it goes out
+# and roughly two days before the first kick-off. The Elo table and the league
+# standings refresh daily, so those numbers are a day older on screen than a
+# narrower window would give. That is the trade — more slack against a missed
+# cron, slightly staler inputs.
+JORNADA_VENTANA_HORAS = 24
 
 # ─── ELO probability tuning ──────────────────────────────────────────────────
 ELO_TEMPERATURE = 100.0   # higher → flatter win-probability spread

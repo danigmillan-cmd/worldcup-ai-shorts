@@ -528,24 +528,38 @@ def gen_ambient(duration: float, sr: int = config.SAMPLE_RATE) -> np.ndarray:
 
 def next_match_music() -> Path:
     """
-    Returns the next match-prediction-N.mp3 track (N in 0..MATCH_MUSIC_COUNT-1),
-    rotating one step per call. The next index is persisted in
-    config.MATCH_MUSIC_INDEX_FILE so consecutive renders use a different track.
-    Falls back to track 0 if the counter file is missing/corrupt or unwritable.
+    Returns the next match-prediction-N.mp3 track, rotating one step per call.
+    The next index is persisted in config.MATCH_MUSIC_INDEX_FILE so consecutive
+    renders use a different track. Falls back to track 0 if the counter file is
+    missing/corrupt or unwritable.
+
+    Rotates over the tracks that actually EXIST rather than over
+    0..MATCH_MUSIC_COUNT-1. The numbering has holes in it — several tracks were
+    dropped on 13-ago-2026 and the survivors are not consecutive — so counting
+    to a fixed total lands on a missing file, which load_music turns into a
+    silent video instead of an error. MATCH_MUSIC_COUNT stays as the ceiling
+    for a full set rather than as the truth about the folder.
     """
     import json
+
+    pistas = sorted(config.MUSIC_DIR.glob("match-prediction-*.mp3"),
+                    key=lambda p: p.name)
+    if not pistas:
+        # Nothing to rotate: hand back the reference path and let load_music
+        # report the miss, as it did before this function existed.
+        return config.MATCH_MUSIC_FILE
 
     try:
         idx = json.loads(config.MATCH_MUSIC_INDEX_FILE.read_text())["next"]
     except Exception:
         idx = 0
 
-    idx = idx % config.MATCH_MUSIC_COUNT
-    path = config.MUSIC_DIR / f"match-prediction-{idx}.mp3"
+    idx = idx % len(pistas)
+    path = pistas[idx]
 
     try:
         config.DATA_DIR.mkdir(parents=True, exist_ok=True)
-        next_idx = (idx + 1) % config.MATCH_MUSIC_COUNT
+        next_idx = (idx + 1) % len(pistas)
         config.MATCH_MUSIC_INDEX_FILE.write_text(json.dumps({"next": next_idx}))
     except Exception:
         pass

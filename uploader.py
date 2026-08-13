@@ -127,9 +127,24 @@ def upload_video(
     description: str = config.YT_DESCRIPTION,
     tags: list | None = None,
     privacy: str     = config.YT_PRIVACY,
+    language: str    = config.YT_LANGUAGE,
+    publish_at: str | None = None,
 ) -> str:
     """
     Uploads a video to YouTube using resumable upload with progress display.
+
+    `publish_at` schedules the video instead of publishing it on arrival: an
+    RFC 3339 UTC timestamp, which the API only honours on a private video, so
+    passing it forces `privacy` to "private" regardless of what was asked for.
+    That is the whole point — the video sits unlisted-to-the-world until
+    YouTube flips it public at the given moment. The Spanish-league Shorts use
+    it because the matchday JSON already knows when the Short should go out
+    (24 h before the first match it previews), so the render can happen
+    whenever the runner is free rather than at publication time.
+
+    `language` tags the snippet. It defaults to the World Cup channel's English
+    but the Champions/LaLiga Shorts are Spanish, and a mislabelled language
+    costs reach on a channel that now carries both.
 
     Returns the YouTube video_id on success.
     Raises RuntimeError if the upload fails after MAX_RETRIES attempts.
@@ -137,9 +152,14 @@ def upload_video(
     tags      = tags or config.YT_TAGS
     size_mb   = video_path.stat().st_size / 1024 / 1024
 
+    if publish_at:
+        privacy = "private"
+
     print(f"  File       : {video_path.name}  ({size_mb:.1f} MB)")
     print(f"  Title      : {title}")
     print(f"  Privacy    : {privacy}")
+    if publish_at:
+        print(f"  Publish at : {publish_at}")
     print()
 
     body = {
@@ -148,7 +168,7 @@ def upload_video(
             "description":     description,
             "tags":            tags,
             "categoryId":      config.YT_CATEGORY,
-            "defaultLanguage": "en",
+            "defaultLanguage": language,
         },
         "status": {
             "privacyStatus":           privacy,
@@ -156,6 +176,8 @@ def upload_video(
             "madeForKids":             False,
         },
     }
+    if publish_at:
+        body["status"]["publishAt"] = publish_at
 
     media = MediaFileUpload(
         str(video_path),

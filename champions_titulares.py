@@ -9,18 +9,39 @@ Elo table, or ClubElo's Elo history — and is told in the prompt that the fact
 is the only thing it may assert. Anything it adds beyond that is caught by
 `_valida` below rather than trusted.
 
-Cost: one `claude -p` call per matchday, not per match — all four headlines
-come back in a single response. On a Claude subscription that is quota rather
-than money; the pipeline never needs an API key. Roughly 700 input tokens and
-150 output for a four-match matchday. If `claude` is not on PATH, or the call
-fails, or the output doesn't validate, the templates in `_plantilla` take over
-and the render still happens.
+Who writes them, in order
+-------------------------
+`REDACTORES` is tried top to bottom until one returns something that
+validates, and the templates in `_plantilla` catch everything below that. The
+order encodes where each one is actually available rather than a ranking of
+quality:
+
+  1. Claude, through the `claude` CLI. On the laptop it is on PATH and signed
+     in, so it costs subscription quota rather than money.
+  2. Gemini, through the REST API, when a key is set. This is the CI path: a
+     GitHub runner has no `claude`, and a free tier covers one call per
+     matchday many times over. Gemini is just the one that was to hand —
+     nothing above `_pedir_a_gemini` knows which model answered, so a third
+     redactor is one function returning `list[str] | None` and one more line
+     in REDACTORES.
+  3. Templates. Always available, never wrong, flat.
+
+Whatever the provider, the key is this channel's OWN key, not one borrowed
+from another project — see `_clave_de_gemini` for why that matters more than
+it looks.
+
+Cost: one call per matchday, not per match — all four headlines come back in a
+single response. Roughly 700 input tokens and 150 output for a four-match
+matchday, which is inside every free tier involved. Nothing here is required:
+with no `claude` and no key the templates take over and the render still
+happens.
 
 Public API:
     titulares(partidos, hechos=None) -> list[str]
     MAX_TITULAR
 """
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -35,6 +56,17 @@ MAX_TITULAR = 48
 # `claude -p` on a cold start can take a while; a matchday render is not
 # latency-sensitive, but it must not hang a CI job either.
 TIMEOUT_S = 180
+
+# Gemini's REST endpoint. The model is a constant and not a hardcoded string in
+# the call because the free tier's model names move: Google renames and retires
+# them faster than this repo gets touched, and the symptom of a stale one is a
+# 404 that reads like an auth problem. GEMINI_MODEL overrides it without a
+# code change.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent"
+)
+GEMINI_TIMEOUT_S = 60
 
 _PROMPT = """Eres el redactor de un canal de Shorts de predicciones de fútbol.
 
@@ -122,16 +154,139 @@ def _valida(titular: str, hecho: dict) -> str | None:
     return limpio
 
 
+def _entrada(payload: list[dict]) -> str:
+    """The full prompt: the rules, then the matches."""
+    return (_PROMPT.format(max_chars=MAX_TITULAR)
+            + json.dumps(payload, ensure_ascii=False, indent=2))
+
+
+def _parsear(salida: str, esperados: int, quien: str) -> list[str] | None:
+    """
+    A model's raw answer as a list of headlines, or None if it isn't one.
+
+    Shared by every redactor because the failure modes are the same wherever
+    the text came from: a fenced block despite being asked for bare JSON,
+    something that isn't JSON at all, or the wrong number of lines. What is
+    NOT checked here is whether a headline is *true* — that is `_valida`, per
+    headline, against its own fact.
+    """
+    salida = (salida or "").strip()
+    fence = re.search(r"```(?:json)?\s*(.+?)\s*```", salida, re.S)
+    if fence:
+        salida = fence.group(1).strip()
+
+    try:
+        lineas = json.loads(salida)
+    except ValueError:
+        print(f"[WARN] {quien} no devolvió JSON válido. Titulares por plantilla.")
+        return None
+
+    if not isinstance(lineas, list) or not all(isinstance(x, str) for x in lineas):
+        print(f"[WARN] {quien} devolvió algo que no es una lista de cadenas. "
+              "Titulares por plantilla.")
+        return None
+
+    if len(lineas) != esperados:
+        print(f"[WARN] {quien} devolvió {len(lineas)} titulares para "
+              f"{esperados} partidos. Titulares por plantilla.")
+        return None
+
+    return lineas
+
+
+def _clave_de_gemini() -> str:
+    """
+    The API key to use, preferring this channel's own.
+
+    Two variables, and the order matters. Gemini's free tier is metered per
+    API key (per Google Cloud project, really), so a key shared with another
+    project shares one quota: a burst here would spend requests that the other
+    project needed, and neither would know why. SHORTS_GEMINI_API_KEY exists so
+    this channel can hold a key of its own, minted from a separate AI Studio
+    project, and be structurally unable to interfere.
+
+    GEMINI_API_KEY still works as a fallback because it is what is usually
+    already exported on a machine, but it warns — silently borrowing another
+    project's quota is exactly the surprise this is here to avoid.
+    """
+    propia = os.environ.get("SHORTS_GEMINI_API_KEY", "").strip()
+    if propia:
+        return propia
+
+    compartida = os.environ.get("GEMINI_API_KEY", "").strip()
+    if compartida:
+        print("[WARN] Usando GEMINI_API_KEY, que puede ser la de otro "
+              "proyecto: la cuota gratuita es por clave y se comparte. "
+              "Define SHORTS_GEMINI_API_KEY para separarlas.")
+    return compartida
+
+
+def _pedir_a_gemini(payload: list[dict]) -> list[str] | None:
+    """
+    One Gemini REST call for the whole matchday. None on any failure.
+
+    Does nothing without a key — it is optional on purpose, so cloning this
+    repo and running the generator never demands a third-party account. In CI
+    it comes from the repository secret. See `_clave_de_gemini` for which
+    variable and why there are two.
+
+    Volume, for judging whether a free tier covers it: one call per matchday,
+    so roughly eight to ten a month for a weekly Short. That is far below any
+    free tier's daily limit — the reason to keep the keys separate is not this
+    project's appetite, it's that a shared bucket couples two schedules that
+    have nothing to do with each other.
+    """
+    clave = _clave_de_gemini()
+    if not clave:
+        return None
+
+    import requests
+
+    cuerpo = {
+        "contents": [{"parts": [{"text": _entrada(payload)}]}],
+        # Temperature is left at the model default: these headlines are
+        # constrained hard by the prompt and by _valida, and a colder setting
+        # mostly produces the template phrasing we already have for free.
+        "generationConfig": {"responseMimeType": "application/json"},
+    }
+
+    try:
+        respuesta = requests.post(
+            GEMINI_URL.format(modelo=GEMINI_MODEL),
+            headers={"x-goog-api-key": clave},
+            json=cuerpo,
+            timeout=GEMINI_TIMEOUT_S,
+        )
+    except Exception as exc:
+        print(f"[WARN] Falló la llamada a Gemini ({exc}). Titulares por plantilla.")
+        return None
+
+    if respuesta.status_code != 200:
+        # 429 is the free tier's rate limit and is the one worth recognising:
+        # it means the key works and the quota is spent, not that it is wrong.
+        detalle = "cuota agotada" if respuesta.status_code == 429 else respuesta.reason
+        print(f"[WARN] Gemini respondió {respuesta.status_code} ({detalle}). "
+              "Titulares por plantilla.")
+        return None
+
+    try:
+        texto = (respuesta.json()["candidates"][0]
+                 ["content"]["parts"][0]["text"])
+    except (ValueError, KeyError, IndexError, TypeError):
+        print("[WARN] Gemini devolvió una respuesta con una forma inesperada. "
+              "Titulares por plantilla.")
+        return None
+
+    return _parsear(texto, len(payload), "Gemini")
+
+
 def _pedir_a_claude(payload: list[dict]) -> list[str] | None:
     """One `claude -p` call for the whole matchday. None on any failure."""
     claude_bin = shutil.which("claude")
     if not claude_bin:
-        print("[WARN] Claude Code CLI ('claude') no está en el PATH. "
-              "Titulares por plantilla.")
         return None
 
-    prompt = _PROMPT.format(max_chars=MAX_TITULAR)
-    entrada = prompt + json.dumps(payload, ensure_ascii=False, indent=2)
+    entrada = _entrada(payload)
 
     try:
         # Prompt and data go through stdin: on Windows `claude` resolves to an
@@ -158,29 +313,18 @@ def _pedir_a_claude(payload: list[dict]) -> list[str] | None:
               f"{': ' + err[-1] if err else ''}. Titulares por plantilla.")
         return None
 
-    salida = (resultado.stdout or "").strip()
-    # Tolerate a fenced block even though the prompt asks for bare JSON.
-    fence = re.search(r"```(?:json)?\s*(.+?)\s*```", salida, re.S)
-    if fence:
-        salida = fence.group(1).strip()
+    return _parsear(resultado.stdout, len(payload), "Claude")
 
-    try:
-        lineas = json.loads(salida)
-    except ValueError:
-        print(f"[WARN] Claude no devolvió JSON válido. Titulares por plantilla.")
-        return None
 
-    if not isinstance(lineas, list) or not all(isinstance(x, str) for x in lineas):
-        print("[WARN] Claude devolvió algo que no es una lista de cadenas. "
-              "Titulares por plantilla.")
-        return None
-
-    if len(lineas) != len(payload):
-        print(f"[WARN] Claude devolvió {len(lineas)} titulares para "
-              f"{len(payload)} partidos. Titulares por plantilla.")
-        return None
-
-    return lineas
+# Preference: who gets asked, and in what order. Each entry is (name, function)
+# and each function returns None when it isn't available or doesn't work out,
+# so the chain falls through without anything special happening. Reordering
+# this line is the whole knob — swap the two to prefer Gemini on the laptop
+# too, or cut it to `()` to publish only template headlines.
+REDACTORES = (
+    ("Claude", _pedir_a_claude),
+    ("Gemini", _pedir_a_gemini),
+)
 
 
 def titulares(partidos: list[dict], hechos: list[dict] | None = None) -> list[str]:
@@ -206,7 +350,15 @@ def titulares(partidos: list[dict], hechos: list[dict] | None = None) -> list[st
         for p, h in zip(partidos, hechos)
     ]
 
-    crudos = _pedir_a_claude(payload)
+    crudos = None
+    for nombre, redactor in REDACTORES:
+        crudos = redactor(payload)
+        if crudos:
+            print(f"[INFO] Titulares escritos por {nombre}")
+            break
+    if crudos is None:
+        print("[INFO] Ningún redactor disponible — titulares por plantilla")
+
     salida: list[str] = []
     for i, (partido, hecho) in enumerate(zip(partidos, hechos)):
         candidato = _valida(crudos[i], hecho) if crudos else None

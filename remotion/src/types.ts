@@ -77,6 +77,24 @@ export const aciertosSchema = z.object({
 export type Aciertos = z.infer<typeof aciertosSchema>;
 
 /**
+ * Los aciertos son OPCIONALES, y eso es una regla editorial, no una comodidad.
+ *
+ * El bloque de prueba social dice "acertamos N de M", una afirmacion que solo
+ * se puede hacer si hubo una jornada anterior publicada contra la que medirla
+ * (resultados.py). En el primer Short del canal no la hay, y el generador se
+ * niega a inventarla: el Short se salta el bloque y dura dos segundos menos,
+ * en vez de afirmar un numero que nadie ha medido.
+ *
+ * OJO, y esto costo un render entender: para quitar el bloque hay que mandar
+ * `null` EXPLICITO, no omitir la clave. Remotion mezcla lo que llega por
+ * `--props` ENCIMA de los `defaultProps` de la composicion, y los de Short
+ * salen de sample-data/jornada.json, que trae un 6 de 8. Una clave ausente no
+ * desaparece: hereda el dato del ejemplo, y el Short acaba afirmando en
+ * pantalla un marcador que viene de un fichero de prueba. De ahi `nullish` en
+ * vez de `optional`.
+ */
+
+/**
  * Timing palabra a palabra del voiceover, tal y como lo genera el pipeline de
  * audio (edge-tts + alineado). Es el contenido de `captions.json`.
  */
@@ -91,7 +109,7 @@ export const jornadaSchema = z.object({
 	competicion: z.string().min(1),
 	/** ISO 8601, YYYY-MM-DD. */
 	fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-	aciertosJornadaAnterior: aciertosSchema,
+	aciertosJornadaAnterior: aciertosSchema.nullish(),
 	partidos: z.array(partidoSchema).min(1),
 	ranking: z.array(rankingEntradaSchema),
 });

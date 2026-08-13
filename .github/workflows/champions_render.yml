@@ -1,16 +1,19 @@
 name: Champions Render
 
-# Renders a Champions Short with Remotion on a clean Ubuntu runner and leaves
-# the mp4 as a downloadable artifact.
+# Renders a matchday Short with Remotion on a clean Ubuntu runner, leaves the
+# mp4 as a downloadable artifact, and optionally publishes it to YouTube.
 #
-# Manual only, and it does NOT upload to YouTube. That is not an oversight —
-# see the "Why there is no auto-publish yet" note at the bottom of this file.
+# Manual only. Uploading is opt-in per run (`subir`), and off by default: most
+# runs of this workflow are checking that a render still works, and those must
+# not put anything on the channel.
 #
 # What this is for today:
 #   - rendering without tying up the laptop for the length of a render
 #   - proving the render still works headless on Linux, which is the property
 #     the whole channel depends on and the easiest one to break by accident
 #     (an absolute path, a system font, a Windows-only assumption)
+#   - publishing the finished Short, scheduled to the hour the matchday JSON
+#     asks for — see the note at the bottom of this file
 on:
   workflow_dispatch:
     inputs:
@@ -26,10 +29,24 @@ on:
         description: "Quality override — lower is better. Blank uses remotion.config.ts (23)."
         required: false
         default: ""
+      subir:
+        description: "Publish the render to YouTube (only valid for the full Short)"
+        type: boolean
+        required: false
+        default: false
+      privacidad:
+        description: "Visibility of the upload. Ignored when the Short is scheduled — YouTube requires private until its hour."
+        type: choice
+        required: false
+        default: "public"
+        options: ["public", "unlisted", "private"]
 
 concurrency:
   group: champions-render-${{ github.ref }}
-  cancel-in-progress: true
+  # A superseded render is worth cancelling; a superseded upload is not —
+  # killing videos().insert() mid-stream can leave a half-published Short on
+  # the channel. Upload runs queue behind each other instead.
+  cancel-in-progress: ${{ !inputs.subir }}
 
 jobs:
   render:
@@ -123,22 +140,88 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-# Why there is no auto-publish yet
-# --------------------------------
-# Rendering is the only part of this channel that is actually automatable
-# today. Going from a cron to a published Short needs four things that do not
-# exist yet, and none of them are workflow problems:
+      # ── Publishing (opt-in) ────────────────────────────────────────────────
+      # Everything below runs only when `subir` was ticked. The artifact above
+      # is uploaded first on purpose: if the YouTube step fails, the mp4 is
+      # still downloadable, so the retry is `python publicar_jornada.py` on the
+      # downloaded file rather than a second 45-minute render.
+
+      - name: Set up Python
+        if: success() && inputs.subir
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install Python dependencies
+        if: success() && inputs.subir
+        working-directory: ${{ github.workspace }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Restore credentials from secrets
+        if: success() && inputs.subir
+        working-directory: ${{ github.workspace }}
+        env:
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GOOGLE_CLIENT_SECRET" > credentials/client_secret.json
+          printf '%s' "$YOUTUBE_TOKEN" > credentials/token.json
+
+      - name: Publish to YouTube
+        if: success() && inputs.subir
+        working-directory: ${{ github.workspace }}
+        env:
+          JORNADA: ${{ inputs.jornada }}
+          COMPOSICION: ${{ inputs.composicion }}
+          PRIVACIDAD: ${{ inputs.privacidad }}
+        run: |
+          set -euo pipefail
+
+          # MatchProbability and RankingCountdown are single blocks used for
+          # previewing one part of the video. Publishing one would put a
+          # fragment on the channel, so refuse rather than trust the operator
+          # to have picked the right composition alongside the right tick-box.
+          if [ "$COMPOSICION" != "Short" ]; then
+            echo "::error::Only the full Short can be published (got '$COMPOSICION')"
+            exit 1
+          fi
+
+          python publicar_jornada.py \
+            "remotion/out/$COMPOSICION.mp4" \
+            "remotion/$JORNADA" \
+            --privacidad "$PRIVACIDAD"
+
+# How publishing works, and what is still manual
+# ----------------------------------------------
+# `subir` runs publicar_jornada.py, which reads the same matchday JSON the
+# render used and turns it into a scheduled upload. Two things make that safe
+# to do from a workflow:
 #
-#   1. No fixture source. champions_teams.build_matchday() takes the match list
-#      as an argument — nothing decides which matches are in the next matchday.
-#      ClubElo /Fixtures could supply them; it is already parsed by
-#      scripts/calibrate_champions.py.
-#   2. No `titular`. The editorial line on each match is still written by hand.
-#   3. No `aciertosJornadaAnterior`. The social-proof number needs results
-#      tracked from the previous matchday, which nothing records.
-#   4. No `ranking`. The title-probability countdown needs a tournament
-#      simulation that has not been written.
+#   - The credentials are the right ones. These Shorts go to the SAME channel
+#     as the World Cup ones (decision of 13-ago-2026), so GOOGLE_CLIENT_SECRET
+#     and YOUTUBE_TOKEN need no second copy. What separates the two kinds of
+#     video is metadata only, in config.JORNADA_YT_*.
+#   - The hour is in the JSON. `publicacion.publicar_en_utc` (24 h before the
+#     first match shown) becomes YouTube's publishAt, so the render does not
+#     have to happen at publication time. A time already past publishes
+#     immediately instead of scheduling into the past.
 #
-# On top of that, publishing needs YouTube credentials for the SECOND channel.
-# GOOGLE_CLIENT_SECRET and YOUTUBE_TOKEN in this repo authorise the World Cup
-# channel; reusing them would upload Champions Shorts to the wrong place.
+# What is NOT automated yet, and why it is not a workflow problem:
+#
+#   1. Nothing decides WHICH matchday to render. For the Spanish league the
+#      whole chain exists — generar_jornada_laliga.py goes from ESPN to a
+#      finished JSON — but something still has to run it and hand the path in.
+#      A cron would need a rule for when a matchday is "next" that survives
+#      postponed matches; that rule is not written.
+#   2. The Champions itself has no fixtures yet. espn.LIGAS already carries
+#      "uefa.champions", so the plumbing is there, but ESPN returns zero events
+#      for the whole of 2026 because the league-phase draw has not happened.
+#      Until it does, this workflow renders the Spanish-league Shorts and the
+#      Champions sample.
+#   3. data/video_attributes.json is not written for these uploads. It is a
+#      reporting side-channel (weekly_report.py joins it against analytics),
+#      so matchday Shorts show up in the report without their attributes
+#      rather than breaking it.

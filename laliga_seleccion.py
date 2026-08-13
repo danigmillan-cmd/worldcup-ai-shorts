@@ -141,6 +141,7 @@ def partidos_publicables(
     tabla: list[dict] | None = None,
     elo_table: dict[str, float] | None = None,
     maximo: int | None = None,
+    filtrar_clubes: bool = True,
 ) -> list[dict]:
     """
     The matchday's fixtures, filtered to the selected clubs and ordered.
@@ -149,6 +150,14 @@ def partidos_publicables(
     clubs people follow, and those clubs play the rest of the league most
     weeks. Ordering then decides which of the qualifying matches actually fit
     in the Short.
+
+    `filtrar_clubes=False` drops that filter and lets every fixture through,
+    still ordered by the same weights. It exists for the weekend where the
+    selected clubs barely play — the opening round of 2026-27 has exactly one
+    match involving any of the six, so a filtered Short of that weekend would
+    be a single fixture. The choice it makes is "this weekend, whoever plays"
+    over "these clubs, whenever they play", and it is the caller's to make:
+    used by default it would quietly undo the whole point of this module.
     """
     import champions_elo
 
@@ -157,12 +166,14 @@ def partidos_publicables(
     if elo_table is None:
         elo_table = champions_elo.get_elo_table()
 
-    seleccion = equipos_publicables(jornada, tabla)
-
-    elegibles = [
-        p for p in partidos
-        if p["local"] in seleccion or p["visitante"] in seleccion
-    ]
+    if filtrar_clubes:
+        seleccion = equipos_publicables(jornada, tabla)
+        elegibles = [
+            p for p in partidos
+            if p["local"] in seleccion or p["visitante"] in seleccion
+        ]
+    else:
+        elegibles = list(partidos)
     # Recency is measured from the earliest eligible match, not from today, so
     # an international break doesn't flatten the penalty across the shortlist.
     fecha_base = min((p["fecha"] for p in elegibles if p.get("fecha")), default=None)
@@ -196,6 +207,8 @@ def seleccion_para_short(
     minimo: int = MIN_PARTIDOS,
     maximo: int = MAX_PARTIDOS,
     dias_max: int = DIAS_MAXIMO,
+    dias_inicial: int = DIAS_INICIAL,
+    filtrar_clubes: bool = True,
 ) -> list[dict]:
     """
     The matches to put in the next Short, widening the window until there are
@@ -205,6 +218,12 @@ def seleccion_para_short(
     (an international break, or ESPN down). Callers should check the length
     rather than assume: a Short with two matches renders, but comes in under
     the 35-second floor the channel aims for.
+
+    `dias_inicial` and `dias_max` pin the window when the caller wants a
+    specific weekend rather than "the next fixtures that matter" — set both to
+    the same number and it stops widening. Combined with
+    `filtrar_clubes=False` that is how you get a Short about one round instead
+    of about a set of clubs.
     """
     import champions_elo
 
@@ -213,11 +232,12 @@ def seleccion_para_short(
     elo_table = champions_elo.get_elo_table()
 
     elegidos: list[dict] = []
-    dias = DIAS_INICIAL
+    dias = dias_inicial
     while dias <= dias_max:
         elegidos = _sin_repetir_club(
             partidos_publicables(
-                laliga.proximos_partidos(dias), jornada, tabla, elo_table
+                laliga.proximos_partidos(dias), jornada, tabla, elo_table,
+                filtrar_clubes=filtrar_clubes,
             )
         )
         if len(elegidos) >= minimo:
