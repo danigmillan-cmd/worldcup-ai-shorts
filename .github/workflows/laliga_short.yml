@@ -111,9 +111,11 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-          # Red on failure rather than a green run you have to read: the whole
-          # point is to not have to notice something in a log.
+          # A 404 means the model name is stale, and guessing the new one from
+          # memory is how you get a second 404. Ask the API which names the key
+          # can actually reach, and put them in the summary next to the error.
           if [ -z "$REDACTOR" ]; then
+            python scripts/gemini_modelos.py >> "$GITHUB_STEP_SUMMARY" || true
             echo "::error::Ningún redactor respondió — los Shorts saldrían con titulares de plantilla"
             exit 1
           fi
