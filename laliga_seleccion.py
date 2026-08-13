@@ -19,7 +19,7 @@ Public API:
     equipos_publicables(jornada=None, tabla=None) -> set[str]
     partidos_publicables(partidos, ...) -> list[dict]
 """
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 import laliga
 
@@ -74,6 +74,20 @@ MIN_PARTIDOS = 3
 MAX_PARTIDOS = 4
 DIAS_INICIAL = 8
 DIAS_MAXIMO = 21
+
+# How much football a single Short may span, from its first match to its last.
+#
+# The Short goes out 24 h before the first match it shows (see
+# HORAS_ANTES_DE_PUBLICAR), and that promise quietly breaks when the set is
+# spread out: the opening fortnight of 2026-27 produced a Short whose three
+# matches were on the 16th, the 19th and the 21st, so two thirds of it previewed
+# football four and six days away. Seventy-two hours is a Friday-to-Monday
+# round, which is the shape a Spanish matchday actually has.
+#
+# Note this cuts the SET, not the search. The window that finds candidates is
+# still DIAS_INICIAL..DIAS_MAXIMO wide; this only decides which of them can
+# travel together.
+MAX_HORAS_DEL_SHORT = 72
 # --- End preference ---------------------------------------------------------
 
 
@@ -182,6 +196,67 @@ def partidos_publicables(
     return elegibles[:maximo] if maximo else elegibles
 
 
+def _instante(partido: dict) -> datetime | None:
+    """Kick-off as a datetime, falling back to the date at midnight UTC."""
+    crudo = partido.get("inicio")
+    if crudo:
+        try:
+            return datetime.fromisoformat(crudo.replace("Z", "+00:00"))
+        except ValueError:
+            pass
+    if partido.get("fecha"):
+        try:
+            return datetime.fromisoformat(partido["fecha"]).replace(
+                tzinfo=timezone.utc
+            )
+        except ValueError:
+            pass
+    return None
+
+
+def _mejor_ventana(
+    partidos: list[dict],
+    horas: float = MAX_HORAS_DEL_SHORT,
+    minimo: int = MIN_PARTIDOS,
+) -> list[dict]:
+    """
+    The best run of `horas` worth of fixtures, keeping the input order.
+
+    Anchoring on the earliest match and dropping everything past the cut-off is
+    the obvious rule and it is wrong: it can only ever shrink the Short, and
+    widening the search doesn't rescue it because the anchor never moves. The
+    real 2026-27 case — Racing-Villarreal on the 16th, then nothing until the
+    19th and the 21st — leaves two matches that way, and it stays two however
+    far ahead you look.
+
+    So every fixture gets a turn as the anchor and the best run wins: the
+    EARLIEST one that fills the Short, because the channel previews what is
+    next rather than what is best. Only when no run has enough does it fall
+    back to the fullest, which is the international-break case and comes with
+    the caller's short-Short warning either way.
+    """
+    fechados = [p for p in partidos if _instante(p) is not None]
+    if not fechados:
+        # No kick-off times at all: nothing to window on, and dropping every
+        # match over a missing field would be worse than a spread-out Short.
+        return partidos
+
+    tramo = timedelta(hours=horas)
+    ventanas = []
+    for ancla in fechados:
+        arranca = _instante(ancla)
+        dentro = [
+            p for p in partidos
+            if _instante(p) is not None and arranca <= _instante(p) <= arranca + tramo
+        ]
+        ventanas.append((arranca, dentro))
+
+    completas = [v for v in ventanas if len(v[1]) >= minimo]
+    if completas:
+        return min(completas, key=lambda v: v[0])[1]
+    return max(ventanas, key=lambda v: (len(v[1]), -v[0].timestamp()))[1]
+
+
 def _sin_repetir_club(partidos: list[dict]) -> list[dict]:
     """
     Keep the best match per club, preserving order.
@@ -209,6 +284,7 @@ def seleccion_para_short(
     dias_max: int = DIAS_MAXIMO,
     dias_inicial: int = DIAS_INICIAL,
     filtrar_clubes: bool = True,
+    horas_max: float = MAX_HORAS_DEL_SHORT,
 ) -> list[dict]:
     """
     The matches to put in the next Short, widening the window until there are
@@ -235,9 +311,12 @@ def seleccion_para_short(
     dias = dias_inicial
     while dias <= dias_max:
         elegidos = _sin_repetir_club(
-            partidos_publicables(
-                laliga.proximos_partidos(dias), jornada, tabla, elo_table,
-                filtrar_clubes=filtrar_clubes,
+            _mejor_ventana(
+                partidos_publicables(
+                    laliga.proximos_partidos(dias), jornada, tabla, elo_table,
+                    filtrar_clubes=filtrar_clubes,
+                ),
+                horas_max, minimo,
             )
         )
         if len(elegidos) >= minimo:
