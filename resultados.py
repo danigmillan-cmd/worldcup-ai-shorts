@@ -217,6 +217,32 @@ def aciertos(competicion: str, antes_de: str | None = None) -> dict | None:
     return {"acertados": completo["acertados"], "total": completo["total"]}
 
 
+def parejas_publicadas(competicion: str, desde: str | None = None) -> set[tuple[str, str]]:
+    """
+    The (home, away) slug pairs already published, for de-duplication.
+
+    The slot ledger keys on the publication DATE, which stops the same Short
+    going out twice but says nothing about two different Shorts sharing a
+    fixture. They can: the selector picks "the next fixtures worth showing",
+    so a match four days out can be in this week's Short and still be the
+    nearest one when the next Short is built. Publishing a preview of a match
+    already previewed is the one duplication a viewer actually notices.
+
+    `desde` limits the lookback to publications on or after a date. Two clubs
+    do meet twice a season, home and away, and the pair is only unique within
+    a few weeks of itself.
+    """
+    parejas: set[tuple[str, str]] = set()
+    for publicacion in _leer().get("publicaciones", []):
+        if publicacion.get("competicion") != competicion:
+            continue
+        if desde and (publicacion.get("fecha") or "") < desde:
+            continue
+        for partido in publicacion.get("partidos", []):
+            parejas.add((partido.get("local"), partido.get("visitante")))
+    return parejas
+
+
 def hay_publicacion_previa(competicion: str, antes_de: str | None = None) -> bool:
     """
     Whether anything was ever published for this competition.

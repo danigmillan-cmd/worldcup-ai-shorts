@@ -20,8 +20,8 @@ case that settled it: none of Real Madrid, Barcelona, Valencia or Betis play in
 it. So the question this module answers is not *which* matchday but *when*, and
 the answer comes from the fixtures themselves rather than from a counter.
 
-The three gates, cheapest first
--------------------------------
+The gates, cheapest first
+-------------------------
 1. Are there fixtures, and do we know when they kick off? No kick-off times
    means no publication moment, which means nothing to schedule against.
 2. Is the publication moment inside the window (config.JORNADA_VENTANA_HORAS),
@@ -31,8 +31,11 @@ The three gates, cheapest first
 3. Has this slot already been published? The ledger is written by
    publicar_jornada.py after a successful upload, so a render that failed
    halfway is retried rather than skipped.
+4. Is any of these matches already on the channel? The slot key catches the
+   same Short twice; this catches two different Shorts sharing a fixture,
+   which the selector will happily produce because it reaches days ahead.
 
-Only past all three does it run the expensive part — the full build, which
+Only past all of them does it run the expensive part — the full build, which
 costs a ClubElo fetch, a call to Claude for the headlines, and ~6 s of league
 simulation. That ordering is the point of the module: a cron tick that isn't
 going to publish costs one ESPN request.
@@ -45,7 +48,7 @@ import json
 import os
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import config
@@ -55,6 +58,13 @@ import processed_matches
 import resultados
 
 COMPETICION = generar_jornada_laliga.COMPETICION
+
+# How far back to look for an already-published fixture. Two clubs meet twice a
+# season, so the pair only identifies a match within a few weeks of itself —
+# past that, Betis-Valencia is a different game and blocking it would be wrong.
+# Thirty days covers any gap the selector can open up while staying well under
+# the half-season between the two legs.
+DIAS_SIN_REPETIR = 30
 
 
 @dataclass
@@ -83,6 +93,11 @@ def clave_de_slot(competicion: str, publicacion: dict) -> str:
     year.
     """
     return f"{competicion}_{publicacion['publicar_en_local'][:10]}"
+
+
+def _hace(dias: int) -> str:
+    """An ISO date `dias` days ago, for bounding a lookback."""
+    return (datetime.now(timezone.utc).date() - timedelta(days=dias)).isoformat()
 
 
 def _horas_hasta(momento_iso: str) -> float | None:
@@ -155,6 +170,33 @@ def decidir(
         clave, processed_matches.load(config.JORNADA_SHORTS_FILE)
     ):
         return Decision(False, f"{clave} ya se publicó")
+
+    # ── Gate 3b: is any of these matches already on the channel? ─────────────
+    #
+    # The slot key alone is not enough. It keys on the publication date, so two
+    # Shorts a day apart are two different slots even when they preview the
+    # same fixture — and they can, because "the next fixtures worth showing"
+    # reaches days ahead. The opening weekend of 2026-27 hit this immediately:
+    # a Short published on the 14th and the next slot on the 15th both led with
+    # Racing-Villarreal.
+    #
+    # Blocking the whole Short rather than dropping the repeated match is
+    # deliberate. A missed Short is recoverable and nobody sees it; a duplicate
+    # preview is on the channel forever.
+    if not forzar:
+        ya_vistos = resultados.parejas_publicadas(
+            competicion, desde=_hace(DIAS_SIN_REPETIR)
+        )
+        repetidos = [
+            f"{c['local']}-{c['visitante']}" for c in crudos
+            if (c["local"], c["visitante"]) in ya_vistos
+        ]
+        if repetidos:
+            return Decision(
+                False,
+                f"Ya se publicó {', '.join(repetidos)} — se espera a que la "
+                "selección avance a partidos nuevos",
+            )
 
     # ── Everything past here costs money and minutes ─────────────────────────
     print(f"[INFO] Construyendo {clave}...")
