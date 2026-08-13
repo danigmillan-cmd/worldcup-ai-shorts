@@ -62,7 +62,16 @@ TIMEOUT_S = 180
 # them faster than this repo gets touched, and the symptom of a stale one is a
 # 404 that reads like an auth problem. GEMINI_MODEL overrides it without a
 # code change.
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+#
+# The `-latest` alias rather than a pinned version, for the same reason. A
+# pinned `gemini-2.5-flash` is what 404'd on the first run of the key check on
+# 13-ago-2026 — while still being listed by ListModels, so the name was not
+# even wrong, just no longer served for generateContent. An alias cannot go
+# stale on its own. The cost is that the model can change under us; the job is
+# writing a 48-character headline from a fact it is forbidden to go beyond, and
+# `_valida` checks the output either way, so that is a cost worth paying for
+# not silently dropping to templates six months from now.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent"
 )
@@ -264,8 +273,17 @@ def _pedir_a_gemini(payload: list[dict]) -> list[str] | None:
     if respuesta.status_code != 200:
         # 429 is the free tier's rate limit and is the one worth recognising:
         # it means the key works and the quota is spent, not that it is wrong.
-        detalle = "cuota agotada" if respuesta.status_code == 429 else respuesta.reason
-        print(f"[WARN] Gemini respondió {respuesta.status_code} ({detalle}). "
+        #
+        # Everything else prints the response BODY. `reason` alone is what made
+        # the first failure here unreadable: a bare "404 Not Found" against a
+        # model name that ListModels was happily returning. Google puts the
+        # actual sentence — wrong API version, model retired for this method,
+        # key not entitled — in the body, and nowhere else.
+        if respuesta.status_code == 429:
+            detalle = "cuota agotada"
+        else:
+            detalle = " ".join((respuesta.text or respuesta.reason).split())[:300]
+        print(f"[WARN] Gemini respondió {respuesta.status_code}: {detalle}. "
               "Titulares por plantilla.")
         return None
 
