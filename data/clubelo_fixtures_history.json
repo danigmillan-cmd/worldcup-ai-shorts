@@ -1,6 +1,6 @@
 {
-  "actualizado": "2026-08-12T07:09:36.657296+00:00",
-  "n": 90,
+  "actualizado": "2026-08-14T07:08:27.539669+00:00",
+  "n": 95,
   "fixtures": {
     "2026-08-10|Botev Plovdiv|Spartak Varna": {
       "elo_home": 1234.0,
@@ -631,6 +631,41 @@
       "p_home": 0.6306,
       "p_draw": 0.217,
       "p_away": 0.1524
+    },
+    "2026-08-17|Cardiff|Wrexham": {
+      "elo_home": 1468.6,
+      "elo_away": 1527.5,
+      "p_home": 0.3463,
+      "p_draw": 0.2866,
+      "p_away": 0.3671
+    },
+    "2026-08-17|Depor|Elche": {
+      "elo_home": 1546.3,
+      "elo_away": 1623.4,
+      "p_home": 0.3623,
+      "p_draw": 0.3052,
+      "p_away": 0.3325
+    },
+    "2026-08-17|Gijon|Sabadell": {
+      "elo_home": 1500.0,
+      "elo_away": 1395.1,
+      "p_home": 0.5777,
+      "p_draw": 0.243,
+      "p_away": 0.1792
+    },
+    "2026-08-17|Almeria|Eldense": {
+      "elo_home": 1556.3,
+      "elo_away": 1395.1,
+      "p_home": 0.6831,
+      "p_draw": 0.1888,
+      "p_away": 0.1281
+    },
+    "2026-08-17|Samsunspor|Goeztepe": {
+      "elo_home": 1461.6,
+      "elo_away": 1450.4,
+      "p_home": 0.4465,
+      "p_draw": 0.29,
+      "p_away": 0.2635
     }
   }
 }
