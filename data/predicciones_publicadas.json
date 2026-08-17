@@ -30,6 +30,31 @@
           "prediccion": "2-0"
         }
       ]
+    },
+    {
+      "competicion": "LaLiga",
+      "fecha": "2026-08-22",
+      "publicado_en": "2026-08-17T21:28:29.147589+00:00",
+      "partidos": [
+        {
+          "local": "valencia",
+          "visitante": "celta",
+          "resultadoPredicho": "local",
+          "prediccion": "2-0"
+        },
+        {
+          "local": "atletico",
+          "visitante": "malaga",
+          "resultadoPredicho": "local",
+          "prediccion": "1-0"
+        },
+        {
+          "local": "betis",
+          "visitante": "real-sociedad",
+          "resultadoPredicho": "local",
+          "prediccion": "2-1"
+        }
+      ]
     }
   ]
 }
