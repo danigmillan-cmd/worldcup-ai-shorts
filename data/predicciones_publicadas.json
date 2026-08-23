@@ -55,6 +55,31 @@
           "prediccion": "2-1"
         }
       ]
+    },
+    {
+      "competicion": "LaLiga",
+      "fecha": "2026-08-25",
+      "publicado_en": "2026-08-23T00:44:59.498265+00:00",
+      "partidos": [
+        {
+          "local": "valencia",
+          "visitante": "betis",
+          "resultadoPredicho": "empate",
+          "prediccion": "2-2"
+        },
+        {
+          "local": "atletico",
+          "visitante": "villarreal",
+          "resultadoPredicho": "local",
+          "prediccion": "3-0"
+        },
+        {
+          "local": "elche",
+          "visitante": "barcelona",
+          "resultadoPredicho": "visitante",
+          "prediccion": "0-2"
+        }
+      ]
     }
   ]
 }
