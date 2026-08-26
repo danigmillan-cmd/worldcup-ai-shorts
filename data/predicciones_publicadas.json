@@ -80,6 +80,37 @@
           "prediccion": "0-2"
         }
       ]
+    },
+    {
+      "competicion": "LaLiga",
+      "fecha": "2026-08-26",
+      "publicado_en": "2026-08-26T00:49:25.030528+00:00",
+      "partidos": [
+        {
+          "local": "real-madrid",
+          "visitante": "real-sociedad",
+          "resultadoPredicho": "local",
+          "prediccion": "1-0"
+        },
+        {
+          "local": "barcelona",
+          "visitante": "athletic",
+          "resultadoPredicho": "local",
+          "prediccion": "1-0"
+        },
+        {
+          "local": "alaves",
+          "visitante": "villarreal",
+          "resultadoPredicho": "visitante",
+          "prediccion": "0-2"
+        },
+        {
+          "local": "levante",
+          "visitante": "betis",
+          "resultadoPredicho": "visitante",
+          "prediccion": "0-1"
+        }
+      ]
     }
   ]
 }
